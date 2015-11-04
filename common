@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+exec 3<> Settings.txt
+
+read dumm <&3
+read keyRange <&3
+
+read dumm <&3
+read repeatCount <&3
+
+read dumm <&3
+read launcherNode <&3
+
+read dumm <&3
+read masterNode <&3
+
+read dumm <&3
+readarray -n 4 -t -u 3 workerNodes
+
+
+exec 3>&-
+
+alg1=1
+alg2=2
+
+
+# declare -a workerNodes=("ubuntu@128.52.186.214" "ubuntu@128.52.186.215" "ubuntu@128.52.186.217" "ubuntu@128.52.186.216")
+# masterNode="ubuntu@128.52.186.218"
+# launcherNode="ubuntu@128.52.186.213"
+
+
+# echo $launcherNode
+# echo $masterNode
+# for (( i=0; i < 4; i++ ))
+# do
+#    echo ${workerNodes[$i]}
+# done
+# echo $keyRange
+# echo $repeatCount
+

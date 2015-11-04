@@ -1,0 +1,12 @@
+#!/bin/bash
+
+. ./common
+   
+
+echo "Fetching ..."
+scp $launcherNode:~/Runner/Launcher/AllOutputs.txt RemoteAllOutputs.txt
+scp $launcherNode:~/Runner/Launcher/AllResults.txt RemoteAllResults.txt
+scp $launcherNode:~/Runner/Launcher/LauncherOutput.txt RemoteLauncherOutput.txt
+cat RemoteAllResults.txt
+
+

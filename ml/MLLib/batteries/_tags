@@ -1,0 +1,10 @@
+true: debug
+<{batMutex,batRMutex}.{ml,mli}>: threads
+<batteriesThread.*>: threads
+<batFingerTree.ml>: rectypes
+<{batMap,batVect,batFile,batPervasives,batParserCo,batSet,batLogger,batPathGen,batSplay}.ml>: warn_z
+<{batPervasives,batIMap,batLog}.ml>: warn_-9
+<batteriesHelp.*>: compiler-libs
+
+<batBigarray.*>: inline(3)
+# necessary to inline ofs_of_layout on V<4.2

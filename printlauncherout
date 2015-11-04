@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. ./common
+   
+rm -f RemoteLauncherOutput.txt
+scp $launcherNode:~/Runner/Launcher/LauncherOutput.txt RemoteLauncherOutput.txt 
+cat RemoteLauncherOutput.txt
+
+

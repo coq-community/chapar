@@ -1,0 +1,10 @@
+(* 
+   Receive the pending messages
+   If it is queue turn and queue has something new
+      iterate the queue
+   else
+      step the program
+*)
+
+
+(* optimization: string from_data representation in messages *)

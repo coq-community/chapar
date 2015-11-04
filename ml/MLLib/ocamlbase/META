@@ -1,0 +1,8 @@
+name = "base"
+version = "0.2"
+description = "ocaml-base standard library extension"
+
+requires = "pcre"
+
+archive(byte) = "base.cma"
+archive(native) = "base.cmxa"

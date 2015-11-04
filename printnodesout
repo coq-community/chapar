@@ -1,0 +1,39 @@
+#!/bin/bash
+
+. ./common
+
+serverCount=4
+
+# alg1=1
+alg1=2
+alg2=2
+keyRange=50
+# repeatCount=5
+repeatCount=1
+   
+
+echo "Fetching outputs ..."
+for (( i=0; i < $serverCount; i++ ))
+do
+   scp ${workerNodes[$i]}:~/Runner/Worker$i/Output.txt PrintOutput${i}.txt
+done
+scp $masterNode:~/Runner/Master/Output.txt PrintOutputMaster.txt
+
+for (( i=0; i < $serverCount; i++ ))
+do
+   echo "--------------------------------"
+   echo "Server: ${i}, IP: ${workerNodes[$i]}"
+   cat PrintOutput${i}.txt
+done
+echo "--------------------------------"
+   echo "Master Server, IP: $masterNode"
+cat PrintOutputMaster.txt
+
+rm PrintOutput*
+
+
+
+
+
+
+

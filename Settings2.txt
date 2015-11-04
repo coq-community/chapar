@@ -1,0 +1,14 @@
+KeyRange=
+50
+RepeatCount=
+2
+LauncherNode=
+lesani@127.0.0.1
+MasterNode=
+lesani@127.0.0.1
+WorkerNodes=
+lesani@127.0.0.1
+lesani@127.0.0.1
+lesani@127.0.0.1
+lesani@127.0.0.1
+

@@ -1,0 +1,126 @@
+#!/bin/bash
+
+. ./common
+
+serverCount=$1
+opsCount=$2
+putPercent=$3
+
+echo "======================================================"
+echo "Server count: $serverCount"
+echo "Operation count: $opsCount"
+echo "Put percent: $putPercent"
+
+# echo
+# echo "Making ..."
+# make
+
+
+# echo $launcherNode
+# echo $masterNode
+# for (( i=0; i < 4; i++ ))
+# do
+#    echo ${workerNodes[$i]}
+# done
+# echo $keyRange
+# echo $repeatCount
+
+echo
+echo "Generating benchmarks ..."
+mkdir -p bench
+for (( i=0; i < $serverCount; i++ ))
+do
+   ./benchgen.native bench/Bench${i}.dat $opsCount $keyRange $putPercent
+   ssh ${workerNodes[$i]} "mkdir -p ~/Runner/Worker$i"
+   scp bench/Bench${i}.dat ${workerNodes[$i]}:~/Runner/Worker$i
+done
+
+
+echo
+echo "Sending code ..."
+for (( i=0; i < $serverCount; i++ ))
+do
+   ssh ${workerNodes[$i]} "pkill launchStore"
+   scp Settings.txt ${workerNodes[$i]}:~/Runner/Worker$i
+   for (( algNo=${alg1}; algNo <= ${alg2}; algNo++ ))
+   do
+      scp _build/ml/launchStore${algNo}.native ${workerNodes[$i]}:~/Runner/Worker$i
+   done
+done
+ssh $masterNode "mkdir -p ~/Runner/Master"
+ssh $masterNode "pkill launchStore"
+scp Settings.txt $masterNode:~/Runner/Master
+for (( algNo=${alg1}; algNo <= ${alg2}; algNo++ ))
+do
+   scp _build/ml/launchStore${algNo}.native $masterNode:~/Runner/Master
+done
+
+
+echo
+echo "Running ..."
+for (( algNo=${alg1}; algNo <= ${alg2}; algNo++ ))
+do
+
+   echo
+   echo "Algorithm: $algNo"
+   echo "---------------------------------------------" >> AllOutputs.txt
+   echo "Algorithm: $algNo" >> AllOutputs.txt
+   echo "Server count: $serverCount" >> AllOutputs.txt
+   echo "Operation count: $opsCount" >> AllOutputs.txt
+   echo "Put percent: $putPercent" >> AllOutputs.txt
+   
+   echo "---------------------------------------------" >> AllResults.txt
+   echo "Algorithm: $algNo" >> AllResults.txt
+   echo "Server count: $serverCount" >> AllResults.txt
+   echo "Operation count: $opsCount" >> AllResults.txt
+   echo "Put percent: $putPercent" >> AllResults.txt
+   
+   for (( j=1; j <= $repeatCount; j++ ))
+   do
+      echo
+      echo "Run: $j"
+      echo "Launching ..."
+      date
+      for (( i=0; i < $serverCount; i++ ))
+      do   
+         ssh ${workerNodes[$i]} "cd ~/Runner/Worker$i; rm -f Results.txt; nohup ./launchStore${algNo}.native ${serverCount} ${i} Bench${i}.dat > Output.txt 2>&1 &"
+      done
+      sleep 1
+      ssh $masterNode "cd ~/Runner/Master; rm -f Results.txt; ./launchStore${algNo}.native ${serverCount} -1 > Output.txt"
+
+      echo "Receiving and saving results ..."   
+      for (( i=0; i < $serverCount; i++ ))
+      do
+         scp ${workerNodes[$i]}:~/Runner/Worker$i/Output.txt Output${i}.txt
+      done
+      scp $masterNode:~/Runner/Master/Output.txt OutputM.txt
+      cat Output* >> AllOutputs.txt
+      rm Output*
+
+      rm -f TempResult.txt
+      for (( i=0; i < $serverCount; i++ ))
+      do
+         scp ${workerNodes[$i]}:~/Runner/Worker$i/Result.txt Result${i}.txt
+      done
+      cat Result* >> TempResult.txt
+      echo "Results ..."
+      cat TempResult.txt
+      echo "Run: $j" >> AllResults.txt
+      cat TempResult.txt >> AllResults.txt
+      rm Result*
+      rm TempResult.txt
+      
+      echo "Sleeping for 10 seconds before the next run ..."
+      sleep 10
+#       sleep 30
+
+   done
+done
+
+
+
+
+
+
+
+

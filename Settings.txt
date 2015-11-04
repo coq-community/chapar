@@ -1,0 +1,13 @@
+KeyRange=
+50
+RepeatCount=
+2
+LauncherNode=
+coq@127.0.0.1
+MasterNode=
+coq@127.0.0.1
+WorkerNodes=
+coq@127.0.0.1
+coq@127.0.0.1
+coq@127.0.0.1
+coq@127.0.0.1
