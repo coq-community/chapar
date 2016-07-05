@@ -56,7 +56,7 @@ Module Clients (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Cause
           post <- get (Post);;
           if (string_dec post "Uploaded") then
              photo <- get (Photo);;
-             if string_dec post "" then
+             if string_dec photo "" then
                fault
              else
                skip
