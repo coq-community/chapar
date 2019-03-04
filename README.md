@@ -39,7 +39,7 @@ More details about the project can be found in the paper
 - Maintainer(s):
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: Coq 8.7 or later
+- Compatible Coq versions: Coq 8.9 or later
 - Additional dependencies: none
 
 ## Building and installation instructions
@@ -145,13 +145,12 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 ### Build
 
 Dependencies:
-- Coq 8.4pl4
-- OCaml 4.01.0
-- OCamlbuild 4.01.0
+- OCaml 4.01.0 or later
+- OCamlbuild 4.01.0 or later
 
 The following command compiles both the Coq files and the OCaml files:
 ```
-make
+make stores
 ```
 
 To remove the artifacts:

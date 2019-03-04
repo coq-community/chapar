@@ -16,8 +16,6 @@ From Chapar Require Import KVSAlg1.
 From Chapar Require Import KVSAlg2.
 From Chapar Require Import KVSAlg3.
 
-
-
 Extract Inlined Constant length => "List.length".
 Extract Inlined Constant negb => "not".
 Extract Inlined Constant app => "List.append".
@@ -29,12 +27,6 @@ Extract Inlined Constant leb => "(<=)".
 Extract Inlined Constant ltb => "(<)".
 Extract Inlined Constant pred => "(fun n -> if n <= 0 then 0 else n - 1)".
 
-
-
-
-Extraction "KVSAlg1.ml" KVSAlg1.init_method.
-Extraction "KVSAlg2.ml" KVSAlg2.init_method.
-Extraction "KVSAlg3.ml" KVSAlg3.init_method.
-
-
-
+Extraction "KVSAlg1.ml" KVSAlg1.KVSAlg1.
+Extraction "KVSAlg2.ml" KVSAlg2.KVSAlg2.
+Extraction "KVSAlg3.ml" KVSAlg3.KVSAlg3.

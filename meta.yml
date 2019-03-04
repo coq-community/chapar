@@ -37,14 +37,12 @@ license:
 plugin: false
 
 supported_coq_versions:
-  text: Coq 8.7 or later
-  opam: '{(>= "8.7" & < "8.10~") | (= "dev")}'
+  text: Coq 8.9 or later
+  opam: '{(>= "8.9" & < "8.10~") | (= "dev")}'
 
 tested_coq_versions:
 - version_or_url: https://github.com/coq/coq/tarball/master
 - version_or_url: 8.9
-- version_or_url: 8.8
-- version_or_url: 8.7
 
 tested_coq_opam_version: dev
 
@@ -141,13 +139,12 @@ documentation: |
   ### Build
 
   Dependencies:
-  - Coq 8.4pl4
-  - OCaml 4.01.0
-  - OCamlbuild 4.01.0
+  - OCaml 4.01.0 or later
+  - OCamlbuild 4.01.0 or later
 
   The following command compiles both the Coq files and the OCaml files:
   ```
-  make
+  make stores
   ```
 
   To remove the artifacts:
