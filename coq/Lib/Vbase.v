@@ -1,4 +1,3 @@
-
 (* *********************************************************************)
 (*                                                                     *)
 (*                   Viktor's lemmas & tactics                         *)
@@ -286,9 +285,9 @@ End ReflectConnectives.
 
 (** These definitions are ported from ssr-eq. *)
 
-Inductive phantom (T :  Type) (p : T) :  Type := Phantom.
-Implicit Arguments phantom [].
-Implicit Arguments Phantom [].
+Variant phantom (T :  Type) (p : T) :  Type := Phantom.
+Arguments phantom : clear implicits.
+Arguments Phantom : clear implicits.
 Definition phant_id T1 T2 v1 v2 := phantom T1 v1 -> phantom T2 v2.
 Definition idfun T := (fun x : T => x).
 
@@ -304,7 +303,7 @@ Section ClassDef.
 Structure type := Pack {sort; _ : class_of sort; _ : Type}.
 Local Coercion sort : type >-> Sortclass.
 Variables (T : Type) (cT : type).
-Definition class cT' := match cT' return class_of cT' with Pack _ c _ => c end.
+Definition class cT' := match cT' return class_of cT' with Pack c _ => c end.
 
 Definition pack c := @Pack T c T.
 Definition clone := fun c (_ : cT -> T) (_ : phant_id (pack c) cT) => pack c.
@@ -328,14 +327,14 @@ End Equality.
 Export Equality.Exports.
 
 Definition eq_op T := Equality.op (Equality.class T).
-Implicit Arguments eq_op [[T]].
+Arguments eq_op {T}.
 
 Lemma eqE : forall T x, eq_op x = Equality.op (Equality.class T) x.
 Proof. done. Qed.
 
 Lemma eqP : forall T, Equality.axiom (@eq_op T).
-Proof. by unfold eq_op; destruct T as (? & []). Qed.
-Implicit Arguments eqP [T].
+Proof. by unfold eq_op; destruct T as [? []]. Qed.
+Arguments eqP [T].
 
 Notation "x == y" := (eq_op x y)
   (at level 70, no associativity) : bool_scope.
@@ -452,7 +451,7 @@ Ltac clarify :=
 
 Ltac vauto :=
   (clarify; try edone; 
-   try (econstructor (solve [edone | econstructor (edone) ]))).
+   try (econstructor; (solve [edone | (econstructor; edone) ]))).
 
 (** Check that the hypothesis [id] is defined. This is useful to make sure that
     an [assert] has been completely finished. *)
@@ -586,6 +585,7 @@ Ltac des_if :=
         end 
     end.
 
+(*
 Ltac des_eqrefl :=
   match goal with
     | H: context[match ?X as id return (id = ?X -> _) with _ => _ end Logic.eq_refl] |- _ =>
@@ -600,6 +600,7 @@ Ltac des_eqrefl :=
     generalize (Logic.eq_refl X); generalize X at 1 3;
     intros id' EQ; destruct id'
   end.
+*)
 
 Ltac desf := clarify; des; des_if.
 
@@ -982,7 +983,7 @@ Notation "f1 =1 f2 :> A" := (f1 =1 (f2 : A))
 Notation "f1 =2 f2" := (eqrel f1 f2)
   (at level 70, no associativity) : fun_scope.
 Notation "f1 =2 f2 :> A" := (f1 =2 (f2 : A))
-  (at level 70, f2 at next level, A, B at level 90) : fun_scope.
+  (at level 70, f2 at next level, A at level 90) : fun_scope.
 
 Section Composition.
 
@@ -1127,7 +1128,7 @@ Proof. eby destruct bijf; eapply can_inj. Qed.
 
 Lemma bij_can_sym : forall f', cancel f' f <-> cancel f f'.
 Proof.
-split; intros; [by apply inj_can_sym, bij_inj|].
+split/; intros; [by apply inj_can_sym, bij_inj|].
 by destruct bijf; intros x; rewrite <- (H1 x), H.
 Qed.
 
@@ -1566,9 +1567,9 @@ Definition clone_pred U :=
 
 End Predicates.
 
-Implicit Arguments topred [[T] p].
-Implicit Arguments pred0 [T].
-Implicit Arguments predT [T].
+Arguments topred {T} [p].
+Arguments pred0 [T].
+Arguments predT [T].
 
 Notation "[ 'pred' : T | E ]" := (SimplPred (fun _ : T => E))
   (at level 0, format "[ 'pred' :  T  |  E ]") : fun_scope.
@@ -1609,13 +1610,13 @@ Notation "{ : T }" := (T%type : predArgType)
 
 Definition mem T (pT : predType T) : pT -> mem_pred T :=
   match tt with tt =>
-    (match pT return pT -> _ with PredType _ _ (exist mem _) => mem end)
+    (match pT return pT -> _ with PredType (exist _ mem _) => mem end)
   end.
 
 Definition in_mem T x mp := 
   match tt with tt => @pred_of_mem T mp x end.
 
-Implicit Arguments mem [[T] pT].
+Arguments mem {T} [pT].
 
 Coercion pred_of_mem_pred T mp := [pred x : T | in_mem x mp].
 
@@ -1732,10 +1733,10 @@ Proof. eby red; intros; eapply H. Qed.
 
 (* Property localization *)
 
-Notation Local "{ 'all1' P }" := (forall x, P x : Prop) (at level 0).
-Notation Local "{ 'all2' P }" := (forall x y, P x y : Prop) (at level 0).
-Notation Local "{ 'all3' P }" := (forall x y z, P x y z: Prop) (at level 0).
-Notation Local ph := (phantom _).
+Local Notation "{ 'all1' P }" := (forall x, P x : Prop) (at level 0).
+Local Notation "{ 'all2' P }" := (forall x y, P x y : Prop) (at level 0).
+Local Notation "{ 'all3' P }" := (forall x y z, P x y z: Prop) (at level 0).
+Local Notation ph := (phantom _).
 
 Section LocalProperties.
 
@@ -1780,15 +1781,15 @@ Definition prop_on2 Pf P (_ : phantom T3 (Pf f)) (_ : ph {all2 P}) :=
 
 End LocalProperties.
 
-Implicit Arguments prop_in1 [T1 P].
-Implicit Arguments prop_in11 [T1 T2 P].
-Implicit Arguments prop_in2 [T1 P].
-Implicit Arguments prop_in111 [T1 T2 T3 P].
-Implicit Arguments prop_in12 [T1 T2 P].
-Implicit Arguments prop_in21 [T1 T2 P].
-Implicit Arguments prop_in3 [T1 P].
-Implicit Arguments prop_on1 [T1 T2 T3 f Pf P].
-Implicit Arguments prop_on2 [T1 T2 T3 f Pf P].
+Arguments prop_in1 [T1] _ [P].
+Arguments prop_in11 [T1 T2] _ _ [P].
+Arguments prop_in2 [T1] _ [P].
+Arguments prop_in111 [T1 T2 T3] _ _ _ [P].
+Arguments prop_in12 [T1 T2] _ _ [P].
+Arguments prop_in21 [T1 T2] _ _ [P].
+Arguments prop_in3 [T1] _ [P].
+Arguments prop_on1 [T1 T2 T3] _ [f Pf P].
+Arguments prop_on2 [T1 T2 T3] _ [f Pf P].
 
 Definition inPhantom := Phantom Prop.
 Definition onPhantom T P (x : T) := Phantom Prop (P x).
@@ -1842,7 +1843,7 @@ Notation "{ 'on' cd & , P }" :=
   (at level 0, format "{ 'on'  cd  & ,  P }") : type_scope.
 
 Notation "{ 'on' cd , P & g }" :=
-  (prop_on1 (mem cd) (Phantom (_ -> Prop) P) (onPhantom P g))
+  (prop_on1 (mem cd) (Phantom (_ -> Prop) _) (onPhantom P g))
   (at level 0, format "{ 'on'  cd ,  P  &  g }") : type_scope.
 
 Notation "{ 'in' d , 'bijective' f }" := (bijective_in (mem d) f)
@@ -1911,15 +1912,19 @@ Let allQ2 f'' := {all2 Q2 f''}.
 
 Lemma on1W : allQ1 f -> {on D2, allQ1 f}.
 Proof. by red. Qed.
+(*
 Lemma on1lW : allQ1l f h -> {on D2, allQ1l f & h}.
 Proof. by red. Qed.
+*)
 Lemma on2W : allQ2 f -> {on D2 &, allQ2 f}.
 Proof. by red. Qed.
 
 Lemma on1T : {on T2, allQ1 f} -> allQ1 f.
 Proof. red; auto. Qed.
+(*
 Lemma on1lT : {on T2, allQ1l f & h} -> allQ1l f h.
 Proof. red; auto. Qed.
+*)
 Lemma on2T : {on T2 &, allQ2 f} -> allQ2 f.
 Proof. red; auto. Qed.
 
@@ -1946,16 +1951,22 @@ Lemma canRL_in : forall x y,
   {in D1, cancel f g} -> x \in D1 -> f x = y -> x = g y.
 Proof. by intros x y fK D1x <-; rewrite fK. Qed.
 
+(*
 Lemma on_can_inj : {on D2, cancel f & g} -> {on D2 &, injective f}.
 Proof. intros fK x y; do 2 (move/fK; intro); congruence. Qed.
+*)
 
+(*
 Lemma canLR_on : forall x y,
   {on D2, cancel f & g} -> f y \in D2 -> x = f y -> g x = y.
 Proof. by intros x y fK D2fy ->; rewrite fK. Qed.
+*)
 
+(*
 Lemma canRL_on : forall x y,
   {on D2, cancel f & g} -> f x \in D2 -> f x = y -> x = g y.
 Proof. by intros x y fK D2fx <-; rewrite fK. Qed.
+*)
 
 Lemma inW_bij : bijective f -> {in D1, bijective f}.
 Proof. by destruct 1 as [g']; exists g'; red; auto. Qed.
@@ -1996,6 +2007,3 @@ Lemma sub_in21 : forall T T3 d d' d3 d3' (P : T -> T -> T3 -> Prop),
   sub_mem d d' -> sub_mem d3 d3' ->
   forall Ph : ph {all3 P}, prop_in21 d' d3' Ph -> prop_in21 d d3 Ph.
 Proof. by intros until 2; apply sub_in111. Qed.
-
-
-

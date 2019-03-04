@@ -11,8 +11,7 @@ Require Import Coq.Relations.Relation_Operators. (* For union and transitive clo
 Require Import Coq.Lists.List. (* For In function. *)
 (* Require Import Coq.Lists.ListSet. *)
 
-Add LoadPath "Lib".
-Require Import Predefs.
+From Chapar Require Import Predefs.
 
 
 Module SysPredefs.
@@ -55,7 +54,7 @@ Module SysPredefs.
             exist2 (below_in 0) no_dups nil _ _
         | S n' => 
             match (bnats n') with
-              | exist2 pbnats H H' => 
+              | exist2 _ _ pbnats H H' => 
                 exist2 (below_in (S n')) no_dups 
                        (n'::pbnats)
                        _ _
@@ -84,7 +83,7 @@ Module SysPredefs.
   Definition nids: list NId.        
     refine(
         match (bnats MaxNId) with
-          | exist2 l H1 H2 => l
+          | exist2 _ _ l H1 H2 => l
         end).
   Defined.
 
@@ -287,13 +286,13 @@ Section ValSec2.
 
   Fixpoint prog_map (Val: Set)(p: Prog Val)(n: NId)(c: Clock): Prog (InstValRec Val) :=
     match p with
-      | put k v p => 
+      | put _ k v p => 
         put _ k (inst_val _ n (c + 1) v) (prog_map _ p n (c + 1))
-      | get k p =>
+      | get _ k p =>
         get _ k (fun v => prog_map _ (p (inst_val_val _ v)) n c)
-      | skip =>
+      | skip _ =>
         skip _
-      | fault =>
+      | fault _ =>
         fault _ 
     end.
 
@@ -365,38 +364,38 @@ Module Syntax (SyntaxArg: SyntaxPar).
 
   Definition is_put (s: Prog) :=
     match s with
-    | put _ _ _ => True
-    | get _ _ => False
-    | skip => False
-    | fault => False
+    | put _ _ _ _ => True
+    | get _ _ _ => False
+    | skip _ => False
+    | fault _ => False
     end.
   Definition is_get (s: Prog) :=
     match s with
-    | put _ _ _ => False
-    | get _ _ => True
-    | skip => False
-    | fault => False
+    | put _ _ _ _ => False
+    | get _ _ _ => True
+    | skip _ => False
+    | fault _ => False
     end.
   Definition is_skip (s: Prog) :=
     match s with
-    | put _ _ _ => False
-    | get _ _ => False
-    | skip => True
-    | fault => False
+    | put _ _ _ _ => False
+    | get _ _ _ => False
+    | skip _ => True
+    | fault _ => False
     end.
   Definition key (s: Prog): option Key :=
     match s with
-    | put k _ _ => Some k
-    | get k _ => Some k
-    | skip => None
-    | fault => None
+    | put _ k _ _ => Some k
+    | get _ k _ => Some k
+    | skip _ => None
+    | fault _ => None
     end.
   Definition value (s: Prog): option Val :=
     match s with
-    | put _ v _ => Some v
-    | get _ _ => None
-    | skip => None
-    | fault => None
+    | put _ _ v _ => Some v
+    | get _ _ _ => None
+    | skip _ => None
+    | fault _ => None
     end.
 
   Definition put k v p := put Val k v p.
@@ -2639,7 +2638,8 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         unfold In in N2. destruct N2 as [N2 | N2]; try contradiction.
         unfold In in N3. destruct N3 as [N3 | N3]; try contradiction.
         subst.
-        left. assumption.
+        left.
+        reflexivity.
 
     Qed.
 
@@ -2771,7 +2771,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       intro.
       eapply H5.
       eapply in_map_iff; eauto.
-      rewrite plus_0_r.
       apply in_map_iff.
       eauto.
       
@@ -2913,19 +2912,26 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       unfold prec; firstorder subst.
       eapply step_star_NoDup in H.
       destruct H; simpl in H.
-      rewrite app_assoc in H1.
-      simpl in H1.
-      eapply NoDup_map_middle in H1.
-      2: rewrite <- app_assoc; eauto.
+      assert (x ++ l' :: (x0 ++ l'' ::  x1) = (x2 ++ l :: x3) ++ l' :: x4).
+        rewrite <- app_assoc.
+        rewrite <- H0.
+        reflexivity.
+      clear H0.
+      eapply NoDup_map_middle in H2.
+      2: eauto.
       2: auto.
-      intuition subst.
+      destruct H2.
+      rewrite H0.
+      exists x2.
+      exists (x3 ++ l' :: x0).
+      exists x1.
       simpl.
-      exists x.
-      exists (x1 ++ l' :: x2).
-      exists x4.
       rewrite <- app_assoc.
-      auto.
-    Qed.
+      rewrite <- app_assoc.
+      rewrite app_assoc.
+      rewrite <- app_assoc.
+      reflexivity.
+  Qed.
 
   Lemma label_poststate_state:
     forall (s s': State)(l: Label),
@@ -4036,8 +4042,8 @@ Module ExecToInstExec.
   Import AlgDef.
   *)
 
-  Implicit Arguments RState [Val1 Val2].
-  Implicit Arguments RUpdate [Val1 Val2].
+  Arguments RState [Val1 Val2].
+  Arguments RUpdate [Val1 Val2].
 
   Definition R (v1 : N.ICExec.InstVal) (v2 : Val) : Prop :=
     N.ICExec.inst_val_val v1 = v2.
@@ -5447,7 +5453,7 @@ Module InstExecToAbsExec.
               simpl in N7.
               depremise N7. split_all.
                 assumption.
-                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Plus.plus_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply NPeano.Nat.lt_irrefl. eassumption.
+                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Plus.plus_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply Nat.lt_irrefl. eassumption.
                 assumption.
                 subv_in ptrace M4. subv_in n M4. assumption.              
                 subv_in ptrace' M5. rewrite app_nth1 in M5. subv_in ptrace M5. subv_in n M5. assumption. assumption.
@@ -6930,5 +6936,3 @@ End InstExecToAbsExec.
 
 
 End ExecToAbstExec.
-
-

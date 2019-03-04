@@ -6,7 +6,8 @@
 (*  ##    ##  #####  ########   See LICENSE.txt for license.                  *)
 (******************************************************************************)
 
-Require Import List Vbase Varith Vlistbase Vlist.
+Require Import List.
+From Chapar Require Import Vbase Varith Vlistbase Vlist.
 Require Import Permutation Classical.
 Set Implicit Arguments.
 
@@ -59,7 +60,7 @@ Qed.
 
 Lemma nodup_cons A (x: A) l:
   NoDup (x :: l) <-> ~ In x l /\ NoDup l.
-Proof. split; inversion 1; vauto. Qed.
+Proof. split/; inversion 1; vauto. Qed.
 
 Lemma nodup_app:
   forall (A: Type) (l1 l2: list A),
@@ -67,7 +68,7 @@ Lemma nodup_app:
   NoDup l1 /\ NoDup l2 /\ disjoint l1 l2.
 Proof.
   induction l1; ins. 
-    by split; ins; desf; vauto.
+    by split/; ins; desf; vauto.
   rewrite !nodup_cons, IHl1, In_app; unfold disjoint.
   ins; intuition (subst; eauto). 
 Qed.
@@ -126,20 +127,20 @@ Proof. by unfold mupd; desf; desf. Qed.
 
 Lemma In_perm A l l' (P: perm_eq (T:=A) l l') x : In x l <-> In x l'.
 Proof. 
-  by split; ins; apply/inP; instantiate; 
+  by split/; ins; apply/inP; instantiate; 
      [rewrite <- (perm_eq_mem P)|rewrite (perm_eq_mem P)]; apply/inP.
 Qed.
 
 Lemma nodup_perm A l l' (P: perm_eq (T:=A) l l') : NoDup l <-> NoDup l'.
 Proof.
-  by split; ins; apply/uniqP; instantiate; 
+  by split/; ins; apply/uniqP; instantiate; 
      [rewrite <- (perm_eq_uniq P)|rewrite (perm_eq_uniq P)]; apply/uniqP.
 Qed.
 
 
 Lemma In_mem_eq (A: eqType) (l l': list A) (P: l =i l') x : In x l <-> In x l'.
 Proof. 
-  by split; ins; apply/inP; instantiate; [rewrite <- P | rewrite P]; apply/inP.
+  by split/; ins; apply/inP; instantiate; [rewrite <- P | rewrite P]; apply/inP.
 Qed.
 
 Lemma NoDup_filter A (l: list A) (ND: NoDup l) f : NoDup (filter f l). 
@@ -196,7 +197,7 @@ Proof.
 
     eapply In_split in H1; desf; rewrite ?nodup_app, ?nodup_cons in *; desf.
     destruct (IHl (l1 ++ l2)); ins. 
-      by rewrite ?nodup_app, ?nodup_cons in *; desf; repeat split; ins; red; eauto using In_cons.
+      by rewrite ?nodup_app, ?nodup_cons in *; desf; repeat split/; ins; red; eauto using In_cons.
       by specialize (H0 x); rewrite In_app in *; ins; desf;
          destruct (classic (a = x)); subst; try tauto; exfalso; eauto using In_eq.
     eexists; rewrite appA in *; ins.
@@ -231,7 +232,7 @@ Qed.
 Lemma In_flatten A (x:A) l : 
   In x (flatten l) <-> exists y, In x y /\ In y l.
 Proof.
-  induction l; ins. by split; ins; desf. 
-  rewrite flatten_cons, In_app, IHl; clear; split; ins; desf; eauto.
+  induction l; ins. by split/; ins; desf. 
+  rewrite flatten_cons, In_app, IHl; clear; split/; ins; desf; eauto.
 Qed.
 

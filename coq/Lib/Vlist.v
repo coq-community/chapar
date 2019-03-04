@@ -7,8 +7,8 @@
     The [map2] definition and its properties are new.
  *)
 
-Require Import Vbase Vlistbase Varith. 
-Require Coq.omega.Omega.
+From Chapar Require Import Vbase Vlistbase Varith. 
+Require Omega.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -149,7 +149,7 @@ Proof. by destruct s; clarsimp; intro; rewrite in_cons, orbC; intros ->. Qed.
 Lemma mem_belast : forall s y, {subset belast y s <= y :: s}.
 Proof. by red; intros; rewrite lastI, mem_snoc, mem_behead. Qed.
 
-Lemma mem_nth : forall s n, n < length s -> nth s n \in s.
+Lemma mem_nth : forall (s : list T) n, n < length s -> nth x0 s n \in s.
 Proof. induct s [n]. Qed. 
 
 Lemma mem_take : forall s x, x \in take n0 s -> x \in s.
@@ -284,7 +284,7 @@ Qed.
 Lemma all_pred1_constant x s : all (fun y => y == x) s -> constant s.
 Proof. induction s; clarsimp; destruct (eqP a x); clarsimp. Qed.
 
-Implicit Arguments all_pred1_constant [].
+Arguments all_pred1_constant : clear implicits.
 
 Lemma all_pred1_nlist : forall x y n,
   all (fun y => y == x) (nlist n y) = ((n == 0) || (x == y)).
@@ -408,14 +408,14 @@ Proof. intros; unfold index; apply find_length. Qed.
 Lemma index_mem : forall x s, (index x s < length s) = (x \in s).
 Proof. by intros; rewrite <- has_pred1, has_find. Qed.
 
-Lemma nth_index : forall x s, x \in s -> nth s (index x s) = x.
+Lemma nth_index : forall x s, x \in s -> nth x0 s (index x s) = x.
 Proof. by intros; rewrite <- has_pred1 in H; apply (eqP _ _ (nth_find x0 H)). Qed.
 
 Lemma index_app : forall x s1 s2,
  index x (s1 ++ s2) = if x \in s1 then index x s1 else length s1 + index x s2.
 Proof. by unfold index; intros; rewrite find_app, has_pred1. Qed.
 
-Lemma index_uniq : forall i s, i < length s -> uniq s -> index (nth s i) s = i.
+Lemma index_uniq : forall i s, i < length s -> uniq s -> index (nth x0 s i) s = i.
 Proof.
 unfold index; induction[i] s [i]; clarsimp; des.
 rewrite IHs; clarsimp; case eqP; clarsimp; rewrite mem_nth in *; clarsimp.
@@ -432,7 +432,7 @@ unfold index; case ifP; clarsimp.
 Qed.
 
 Lemma nth_uniq : forall s i j,
-   i < length s -> j < length s -> uniq s -> (nth s i == nth s j) = (i == j).
+   i < length s -> j < length s -> uniq s -> (nth x0 s i == nth x0 s j) = (i == j).
 Proof.
 intros; case eqP; case eqP; clarsimp.
 elim n; rewrite <- (index_uniq H), <- (index_uniq H0); congruence.
@@ -465,14 +465,14 @@ End EqSeq.
 
 (* Prenex Implicits uniq undup index. *)
 
-Implicit Arguments eqlistP [T x y].
-Implicit Arguments all_filterP [T f s].
-Implicit Arguments hasP [T a l].
-Implicit Arguments hasPn [T a l].
-Implicit Arguments allP [T a l].
-Implicit Arguments allPn [T a l].
-Implicit Arguments index [T].
-Implicit Arguments uniq [T].
+Arguments eqlistP [T x y].
+Arguments all_filterP [T f s].
+Arguments hasP [T a l].
+Arguments hasPn [T a l].
+Arguments allP [T a l].
+Arguments allPn [T a l].
+Arguments index [T].
+Arguments uniq [T].
 (* Prenex Implicits eqlistP all_filterP hasP hasPn allP allPn. *)
 
 Hint Rewrite in_cons in_cons mem_app mem_filter mem_rot : vlib.
@@ -517,9 +517,9 @@ Lemma headI : forall T s (x : T),
   snoc s x = head x s :: behead (snoc s x).
 Proof. by destruct s. Qed.
 
-Implicit Arguments nthP [T s x].
-Implicit Arguments has_nthP [T a s].
-Implicit Arguments all_nthP [T a s].
+Arguments nthP [T s x].
+Arguments has_nthP [T a s].
+Arguments all_nthP [T a s].
 (* Prenex Implicits nthP has_nthP all_nthP. *)
 
 (*
@@ -615,7 +615,7 @@ Qed.
 Lemma perm_appC : forall s1 s2, perm_eql (s1 ++ s2) (s2 ++ s1).
 Proof.
   ins; apply (elimT (perm_eqlP _ _)); apply/perm_eqP_weak; intro.
-  rewrite ?count_app; omega.
+  rewrite ?count_app; Omega.omega.
 Qed.
 
 Lemma perm_app2l : forall s1 s2 s3,
@@ -623,7 +623,7 @@ Lemma perm_app2l : forall s1 s2 s3,
 Proof.
   intros; apply/perm_eqP_weak/perm_eqP_weak; intros eq23 a.
     by rewrite !count_app, eq23.
-  generalize (eq23 a); rewrite !count_app; intros; omega.
+  generalize (eq23 a); rewrite !count_app; intros; Omega.omega.
 Qed.
 
 Lemma perm_cons x s1 s2 : perm_eq (x :: s1) (x :: s2) = perm_eq s1 s2.
@@ -634,12 +634,12 @@ Proof. do 2 (rewrite perm_eq_sym, perm_appC); apply perm_app2l. Qed.
 
 Lemma perm_appAC s1 s2 s3 : perm_eql ((s1 ++ s2) ++ s3) ((s1 ++ s3) ++ s2).
 Proof.
-  apply (elimT (perm_eqlP _ _)); apply/perm_eqP_weak; intro; rewrite !count_app; omega.
+  apply (elimT (perm_eqlP _ _)); apply/perm_eqP_weak; intro; rewrite !count_app; Omega.omega.
 Qed.
 
 Lemma perm_appCA s1 s2 s3 : perm_eql (s1 ++ s2 ++ s3) (s2 ++ s1 ++ s3).
 Proof.
-  apply (elimT (perm_eqlP _ _)); apply/perm_eqP_weak; intro; rewrite !count_app; omega.
+  apply (elimT (perm_eqlP _ _)); apply/perm_eqP_weak; intro; rewrite !count_app; Omega.omega.
 Qed.
 
 Lemma perm_snoc : forall x s, perm_eql (snoc s x) (x :: s).
@@ -748,7 +748,7 @@ Lemma leq_length_perm : forall s1 s2 : list T,
 Proof.
   ins; assert (U2: uniq s2) by eauto using leq_length_uniq.
   cut (s1 =i s2).
-    by split; [|apply/eqP; instantiate; rewrite <- uniq_length_uniq].
+    by split/; [|apply/eqP; instantiate; rewrite <- uniq_length_uniq].
   intro x; apply/idP/idP; auto. 
   induction [s2 H0 H1 U2] s1; ins; [by destruct s2|]; clarify.
   pose proof (in_split_uniq (H0 _ (mem_head _ _)) U2); desf.
@@ -775,6 +775,7 @@ Proof.
   by unfold same_count1; rewrite !count_uniq_mem, H1. 
 Qed.
 
+(*
 Lemma count_mem_uniq : forall s : list T,
   (forall x, count (fun y => y == x) s = if (x \in s) then 1 else 0) -> uniq s.
 Proof.
@@ -783,6 +784,7 @@ Proof.
   apply/@allP; intros x _; unfold same_count1.
   by rewrite H, count_uniq_mem, mem_undup.
 Qed.
+*)
 
 End PermSeq.
 (*
@@ -962,7 +964,7 @@ Qed.
 Lemma sieve_uniq : forall s : list T, uniq s -> forall m, uniq (sieve m s).
 Proof.
   induction[] s [m]; ins; desf; simpl; eauto.
-  apply/andP; split; eauto.
+  apply/andP; split/; eauto.
   by apply/negP; intro X; rewrite (mem_sieve X) in *.
 Qed.
 
@@ -1043,8 +1045,10 @@ Proof. by induction s; ins; rewrite !rev_cons, !snocE, map_app, IHs. Qed.
 Lemma map_sieve m s : map (sieve m s) = sieve m (map s).
 Proof. by induction[s] m [s]; simpls; case a; simpl; rewrite IHm. Qed.
 
+(*
 Lemma inj_map (Hf : injective f) : injective map.
 Proof. induction x0; intros []; clarsimp; f_equal; autos. Qed.
+*)
 
 End Map.
 
@@ -1189,7 +1193,7 @@ Lemma map_inj_in_uniq : forall s : list T1,
 Proof.
   split/; eauto using map_uniq.
   induction s; ins; desf.
-  apply/andP; split.
+  apply/andP; split/.
     apply/negP; intro X. generalize (mapP _ _ X).
     by intros [? ? M]; eapply H in M; repeat clarsimp.
   apply IHs; eauto; red; intros; apply H; repeat clarsimp.
@@ -1210,7 +1214,7 @@ Proof. by induction s; clarsimp; rewrite mem_map, IHs. Qed.
 
 End EqMap.
 
-Implicit Arguments mapP [T1 T2 f s y].
+Arguments mapP [T1 T2 f s y].
 (* Prenex Implicits mapP. *)
 
 Lemma filter_sieve : forall T a (s : list T), filter a s = sieve (map a s) s.
@@ -1628,11 +1632,11 @@ Qed.
 Lemma uniqE (T: eqType) (l : list T) : 
   uniq l <-> (forall n l1 l2 l3, l = l1 ++ n :: l2 ++ n :: l3 -> False).
 Proof.
-  induction l; split; clarsimp.
+  induction l; split/; clarsimp.
   - by destruct l1.
   - destruct l1; simpls; clarify; [|eby eapply IHl].
     by clarsimp; simpls; rewrite eqnn in *; clarsimp.
-  - apply/andP; split.
+  - apply/andP; split/.
     * by apply/negP; intro X; case (inD X); clarsimp; eapply (H a nil).
     * by apply IHl; clarsimp; eapply (H _ (a :: l1)).
 Qed.
@@ -1702,7 +1706,7 @@ Qed.
 Lemma In_map : 
   forall A B (f: A->B) y l, In y (map f l) <-> exists x, f x = y /\ In x l.
 Proof.
-  split; intros; des; clarify; auto using In_mapI, In_mapD.
+  split/; intros; des; clarify; auto using In_mapI, In_mapD.
 Qed.
 
 Lemma In_filter :

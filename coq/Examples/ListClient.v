@@ -1,10 +1,10 @@
-Require Import Predefs.
-Require Import KVStore.
-Require Import Coq.Strings.String.
-Require Import ReflectiveAbstractSemantics.
-Require KVSAlg1 KVSAlg2 KVSAlg3.
+From Chapar Require Import Predefs.
+From Chapar Require Import KVStore.
+(*Require Import Coq.Strings.String.*)
+From Chapar Require Import ReflectiveAbstractSemantics.
+From Chapar Require KVSAlg1 KVSAlg2 KVSAlg3.
 
-Import NPeano.
+Import PeanoNat.
 
 Open Scope string_scope.
 
@@ -157,7 +157,3 @@ Module Alg3.
   Qed.
 
 End Alg3.
-
-
-
-

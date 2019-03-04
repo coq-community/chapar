@@ -1,8 +1,8 @@
-Require Import Predefs.
-Require Import KVStore.
+From Chapar Require Import Predefs.
+From Chapar Require Import KVStore.
 Require Import Coq.Strings.String.
-Require Import ReflectiveAbstractSemantics.
-Require KVSAlg1 KVSAlg2 KVSAlg3.
+From Chapar Require Import ReflectiveAbstractSemantics.
+From Chapar Require KVSAlg1 KVSAlg2 KVSAlg3.
 
 Open Scope string_scope.
 

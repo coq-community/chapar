@@ -10,12 +10,11 @@ Require Import Coq.Program.Basics.
 Require Import Coq.Arith.Lt.
 Require Import Coq.Arith.Le.
 
-Add LoadPath "Lib".
-Require Import Predefs.
-Require Import extralib.
+From Chapar Require Import Predefs.
+From Chapar Require Import extralib.
 
 
-Require Import KVStore.
+From Chapar Require Import KVStore.
 
 
 Module KVSAlg2 <: AlgDef.
@@ -2717,7 +2716,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
         apply Le.le_n_S in A3.
 
-        assert (A4 := NPeano.Nat.succ_pred (sender_clock u)).
+        assert (A4 := PeanoNat.Nat.succ_pred (sender_clock u)).
           depremise A4. intro. rewrite H in *. inversion A1.
         rewrite A4 in A3. clear A4.        
 

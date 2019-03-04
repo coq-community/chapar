@@ -1,8 +1,20 @@
--I Lib
-ReflectiveAbstractSemantics
-KVStore 
-KVSAlg1 
-KVSAlg2 
-KVSAlg3
-Examples/Clients
-Examples/ListClient
+-Q Lib Chapar
+-Q Framework Chapar
+-Q Examples Chapar
+
+Lib/extralib.v
+Lib/Predefs.v
+Lib/Varith.v
+Lib/Vbase.v
+Lib/Vlistbase.v
+Lib/Vlist.v
+
+Framework/KVStore.v
+Framework/ReflectiveAbstractSemantics.v
+Framework/KVSAlg1.v
+Framework/KVSAlg2.v
+Framework/KVSAlg3.v
+Framework/Extract.v
+
+Examples/Clients.v
+Examples/ListClient.v

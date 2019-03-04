@@ -1,221 +1,1042 @@
 Require Import Coq.Unicode.Utf8.
-
 Require Import Coq.Init.Datatypes.
-Require Import Coq.Arith.Max.
+Require Import Coq.Arith.Max. 
 Require Import Coq.Lists.List.
-Require Import Program.Equality.
-Require Import Coq.Lists.ListSet.
-Require Import Coq.Program.Basics.
 Require Import Coq.Bool.Bool.
+Require Import Coq.Arith.EqNat.
 Require Import Coq.Arith.Peano_dec.
 Require Import Coq.Arith.Compare_dec.
-Require Import Coq.Arith.EqNat.
+Require Import Coq.Program.Basics.
 
-Add LoadPath "Lib".
-Require Import Predefs.
+From Chapar Require Import Predefs.
+From Chapar Require Import extralib.
 
-
-Require Import KVStore.
-
-
-(*
-Module AlgDefArgs <: AlgDefParams.
-
-  Definition Val := nat.
-  Definition init_val := 0.
-
-End AlgDefArgs.
-Module Type KVSAlg1 (AlgDefArgs: AlgDefParams).
-*)
+From Chapar Require Import KVStore.
 
 
-(* Module Type KVSAlg1. *)
-Module KVSAlg1 <: AlgDef.
+
+Module KVSAlg3 <: AlgDef.
 
   Import SysPredefs.
-  (* Import AlgDefArgs. *)
 
   Definition Clock := nat.
 
+  Record Entry {Val: Type} := {
+    entry_val: Val;
+    entry_node: NId;
+    entry_clock: Clock
+  }.
+  Definition entry {Val: Type} := @Build_Entry Val.
+
   Record StateRec {Val: Type} := {
-    store: Key -> Val;
-    clock: NId -> Clock
+    store: Key -> @Entry Val;
+    rec: NId -> Clock;
+    dep: NId -> Clock
   }.
   Definition state {Val: Type} := @Build_StateRec Val.
   Definition State {Val: Type} := @StateRec Val.
 
   Record UpdateRec {Val: Type} := {
     sender_node: NId;
-    sender_clock: NId -> Clock
+    sender_dep: NId -> Clock
   }.
-  Definition update := Build_UpdateRec.
+  Definition update {Val: Type} := @Build_UpdateRec Val.
   Definition Update {Val: Type} := @UpdateRec Val.
 
-  Definition dummy_update {Val: Type} := update Val 0 (fun n => 0).
-
-  (*
-  Definition State (Val: Type): Type := ((Key -> Val) * (NId -> Clock))%type.
-  Definition Update (Val: Type): Type := (NId * (NId -> Clock))%type.
-  *)
+  Definition dummy_update {Val: Type} := @update Val 0 (fun n => 0).
 
   Section ValParam.
   Variable Val: Type.
   
   Definition init_method (init_val: Val): State :=
-    state (fun (k: Key) => init_val) (fun (n: NId) => 0).
+    state (fun (k: Key) => entry init_val 0 0)
+          (fun (n: NId) => 0)
+          (fun (n: NId) => 0).
 
   Definition get_method (n: NId)(this: State)(k: Key): (Val * State) :=
     let s := store this in
-    let c := clock this in
-    ((s k), (state s c)).
+    let r := rec this in
+    let d := dep this in
+    let e := s k in
+    let v := entry_val e in
+    let n' := entry_node e in
+    let c' := entry_clock e in
+    let d' := override d n' (max (d n') c') in
+    (v, (state s r d')).
 
   Definition put_method (n: NId)(this: State)(k: Key)(v: Val): (State * Update) :=
     let s := store this in
-    let c := clock this in
-    let c' := override c n ((c n) + 1) in
-    let s' := override s k v in
-    ((state s' c'), (update Val n c')).
-
+    let r := rec this in
+    let d := dep this in
+    let d' := override d n ((r n) + 1) in
+    let r' := override r n ((r n) + 1) in
+    let s' := override s k (entry v n (d' n)) in
+    ((state s' r' d'), (@update Val n d')).
 
   Definition guard_method (n: NId)(this: @State Val)(k: Key)(v: Val)(u: @Update Val): bool :=
     let s := store this in
-    let c := clock this in
+    let r := rec this in
+    let d := dep this in
     let n' := sender_node u in
-    let c' := sender_clock u in
-    ((c' n') =? ((c n') + 1))
-    && (fold_left
-          (fun b n => b && ((n =? n') || ((c' n) <=? (c n))))
-          nids
-          true).
+    let d' := sender_dep u in
+    (fold_left 
+       (fun b n => b && ((d' n) <=? (r n)))
+       nids
+       true)
+     && ((d' n') =? ((r n') + 1)).
 
   Definition update_method (n: NId)(this: State)(k: Key)(v: Val)(u: @Update Val): State :=
     let s := store this in
-    let c := clock this in
+    let r := rec this in
+    let d := dep this in
     let n' := sender_node u in
-    let c' := sender_clock u in
-    let c'' := override c n' (c' n') in
-    let s'' := override s k v in
-    (state s'' c'').
+    let d' := sender_dep u in
+    let r' := override r n' (d' n') in
+    let d'' := fun n => max (d n) (d' n) in
+    let s' := override s k (entry v n' (d' n')) in
+    (state s' r' d'').
 
   End ValParam.
 
-End KVSAlg1.
-(* Module Type KVSAlg1Def (AlgDefArgs: AlgDefParams) <: AlgDef := KVSAlg1. *)
+End KVSAlg3.
 
-(*
-Module KVSAlg1Causality (SyntaxInst: Syntax)(KVSAlg1Inst: KVSAlg1).
-
-  Module C := Causality SyntaxInst KVSAlg1Inst.
-  Import C.
-*)
-
-
-Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
+Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
 
   (* Module Type InstExecToAbsExecPar (AlgDef: AlgDef)(SyntaxArg: SyntaxPar). *)
 
   Export SysPredefs.
 
-  Module CExec := ConcExec SyntaxArg KVSAlg1.
+  Module CExec := ConcExec SyntaxArg KVSAlg3.
   Import CExec.
   Module SExec := SeqExec SyntaxArg.
   Import SExec.
-  Module ICExec := InstConcExec SyntaxArg KVSAlg1.
+  Module ICExec := InstConcExec SyntaxArg KVSAlg3.
   Import ICExec.
 
-  Lemma step_star_clock_nondec:
-    forall (h: list Label)(s s': State)(n: NId),
-        let sc := clock (alg_state ((node_states s) n)) in
-        let sc' := clock (alg_state ((node_states s') n)) in
-        step_star s h s'
-        -> forall n', sc n' <= sc' n'.
+  Lemma inst_clock_leq_rec:
+    forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(n: NId),
+      let as1 := alg_state ((node_states (init p)) n) in
+      let as2 := alg_state ((node_states s) n) in
+      step_star (init p) h s
+      -> forall k, entry_clock (store as2 k) ≤ rec as2 (entry_node (store as2 k)).
 
     Proof.
       intros.
+      
+      remember (init p) as s0 eqn: Hs.
       induction H.
-      apply Le.le_refl.
-      rename sc' into sc''.
-      pose (sc' := clock (alg_state (node_states s2 n))).
-      assert (sc' n' <= sc'' n').
-      clear H IHstep_star.
-      subst sc.
-      subst sc'.
-      subst sc''.
+
+      subst as1.
+      subst as2.
+      subst s.
+      simpl.
+      apply Le.le_refl.      
+
+      rename as2 into as3.
+      pose (as2 := alg_state (node_states s2 n)).
+      depremise IHstep_star. assumption.
+      subst as3.
       inversion H0; clear H0;
       simpl in *.
 
+      destruct (eq_nat_dec n n0).
+        (* -- *)
+        simpl_override.
+        simpl.
+        simpl_override.
+        simpl.
+        destruct (eq_nat_dec k0 k).
+          (* -- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          simpl.
+          apply Le.le_refl.
+          (* -- *)
+          simpl_override.
+          rewrite <- H2 in IHstep_star.
+          simpl in IHstep_star.
+          subst n.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          destruct (eq_nat_dec n0 (entry_node (store s k))).
+          simpl_override.
+          rewrite e0.
+          rewrite Plus.plus_comm.
+          simpl.
+          apply le_S.
+          assumption.
+          simpl_override.
+          assumption.
+       (* -- *)
+       simpl_override.
+       rewrite <- H2 in IHstep_star.
+       simpl in IHstep_star.
+       simpl_override_in IHstep_star.
+       assumption.
+
+      destruct (eq_nat_dec n n0).
+        (* -- *)
+        simpl_override.
+        simpl.
+        rewrite <- H2 in IHstep_star.
+        simpl in IHstep_star.
+        subst n.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        assumption.
+        (* -- *)
+        simpl_override.
+        simpl.
+        rewrite <- H2 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        assumption.
+
+      destruct (eq_nat_dec n n0).
+        (* -- *)
+        simpl_override.
+        simpl.
+        simpl_override.
+        simpl.
+        destruct (eq_nat_dec k0 k).
+          (* -- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          simpl.
+          apply Le.le_refl.
+          (* -- *)
+          simpl_override.
+          rewrite <- H3 in IHstep_star.
+          simpl in IHstep_star.
+          subst n.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          destruct (eq_nat_dec (sender_node u) (entry_node (store s k))).
+          simpl_override.
+          rewrite <- e0 in *.
+          unfold guard_method in H2.
+          bool_to_prop_in H2.
+          destruct H2.
+          bool_to_prop_in H2.
+          rewrite H2.
+          rewrite Plus.plus_comm.
+          simpl.
+          apply le_S.
+          assumption.
+         (* -- *)
+         simpl_override.
+         assumption.
+       (* -- *)
+       simpl_override.
+       rewrite <- H3 in IHstep_star.
+       simpl in IHstep_star.
+       simpl_override_in IHstep_star.
+       simpl in IHstep_star.
+       assumption.
+
+      destruct (eq_nat_dec n n0).
+        (* -- *)
+        simpl_override.
+        simpl.
+        rewrite <- H2 in IHstep_star.
+        simpl in IHstep_star.
+        subst n.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        assumption.
+        (* -- *)
+        simpl_override.
+        simpl.
+        rewrite <- H2 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        assumption.
+       
+    Qed.
+
+  Lemma dep_leq_rec:
+    forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(n: NId),
+        let as2 := alg_state ((node_states s) n) in
+        step_star (init p) h s
+        -> forall n', In n' nids -> dep as2 n' ≤ rec as2 n'.
+
+    Proof.
+      intros p h s n as2 H n' Hi.
+      remember (init p) as s0 eqn: Hs.
+      induction H.
+
+      subst as2.
+      subst s.
+      simpl.
+      apply Le.le_refl.
+
+      rename as2 into as3.
+      pose (as2 := alg_state (node_states s2 n)).
+      simpl in IHstep_star. depremise IHstep_star. assumption.
+
+      subst as3.
+      inversion H0; clear H0;
+      simpl in *.
+
+
       (* put *)
-      unfold override. unfold key_eq_dec.
+      rewrite <- H2 in IHstep_star.
+      simpl in IHstep_star.
+
       destruct (eq_nat_dec n n0).
         (* --- *)
+        simpl_override.
         simpl.
-        unfold SysPredefs.override.
         destruct (eq_nat_dec n' n0).
           (* --- *)
-          subst. 
-          rewrite Plus.plus_comm.
+          simpl_override.
           simpl.
-          apply Le.le_n_Sn.
-          (* --- *)
+          simpl_override.
+          subst n'.
           apply Le.le_refl.
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          subst n.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.          
+          assumption.
         (* --- *)
-        apply Le.le_refl.
+        simpl_override.
+        simpl_override_in IHstep_star.
+        assumption.
 
       (* get *)
-      unfold override. unfold key_eq_dec.
+      unfold override.
       destruct (eq_nat_dec n n0).
         (* --- *)
         simpl.
-        apply Le.le_refl.
+        subst n.
+        destruct (eq_nat_dec (entry_node (store s k)) n').
+          (* -- *)
+          subst n'.
+          simpl_override.
+          apply max_lub.
+          rewrite <- H2 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          assumption.
+          assert (A := inst_clock_leq_rec p ls s2 n0).
+          simpl in A.
+          depremise A. subst s1. assumption.
+          specialize (A k).
+          rewrite <- H2 in A.
+          simpl in A.
+          simpl_override_in A.
+          simpl in A.
+          assumption.
+          (* -- *)
+          simpl_override.
+          rewrite <- H2 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          assumption.
         (* --- *)
-        apply Le.le_refl.
+        rewrite <- H2 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        assumption.
+        
 
       (* update *)
-      unfold override.
-      destruct (n =_? n0).
+      destruct (n =_? n0).       
+
         (* --- *)
+        subst n.
+        simpl_override.
         simpl.
-        unfold override.
-        destruct (n' =_? (sender_node u)).
-          (* --- *)
-          subst. 
-          unfold guard_method in H1.
-          bool_to_prop_in H1.
-          destruct H1 as [H1 H2].
-          bool_to_prop_in H1.
-          rewrite H1.
+        destruct (sender_node u =_? n').
+        
+          (* -- *)
+          rewrite e0 in *.
+          simpl_override.
+
+          rewrite <- H3 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+
+          unfold guard_method in H2.
+          bool_to_prop_in H2.
+          destruct H2.
+          bool_to_prop_in H2.
+          rewrite e0 in H2.
+          rewrite H2.
+          apply max_lub.
           rewrite Plus.plus_comm.
           simpl.
-          apply Le.le_n_Sn.
-          (* --- *)
+          apply le_S.
+          assumption.
           apply Le.le_refl.
+
+          (* -- *)
+          simpl_override.
+          rewrite <- H3 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          apply max_lub.
+          assumption.
+          unfold guard_method in H2.
+          bool_to_prop_in H2.
+          destruct H2.
+          assert (A:= fold_left_and NId nids n'
+                 (fun n => sender_dep u n <=? rec s n)).
+            depremise A. split. assumption. assumption.
+            simpl in A.
+            bool_to_prop_in A.
+          assumption.
+
         (* --- *)
-        apply Le.le_refl.      
+        simpl_override.
+        rewrite <- H3 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        assumption.
 
       (* fault *)
       destruct (eq_nat_dec n n0).
+        (* --- *)
+        subst n.
         simpl_override.
-        simpl_override.
-        apply Le.le_refl.
+        subv_in s2 IHstep_star.
+        simpl_override_in IHstep_star.
+        assumption.
         (* --- *)
         simpl_override.
-        simpl_override.
-        apply Le.le_refl.
+        subv_in s2 IHstep_star.
+        simpl_override_in IHstep_star.
+        assumption.
 
-      apply Le.le_trans with (m := sc' n');
+    Qed.
+
+  Lemma entry_clock_leq_dep:
+    forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(n n': NId)(k: Key),
+        let as2 := alg_state ((node_states s) n) in
+        (step_star (init p) h s
+         /\ entry_node (store as2 k) = n')
+        -> entry_clock (store as2 k) <= dep as2 n'.
+
+    Proof.
+      intros.
+      remember (init p) as s0 eqn: Hs.
+      open_conjs.
+      induction H.
+
+      subst as2.
+      subst s.
+      simpl.
+      apply Le.le_refl.
+
+      rename as2 into as3.
+      pose (as2 := alg_state (node_states s2 n)).
+      simpl in IHstep_star. depremise IHstep_star. assumption.
+
+      subst as3.
+      inversion H1;
+      simpl in *.
+
+      (* put *)
+      rewrite <- H3 in IHstep_star.
+      simpl in IHstep_star.
+
+      destruct (eq_nat_dec n n0).
+      subst n.
+
+        (* --- *)
+        destruct (eq_nat_dec n' n0).
+
+          (* --- *)
+          subst n'.
+          simpl_override.
+          simpl.
+          simpl_override.
+          simpl.
+          destruct (eq_nat_dec k0 k).
+            simpl_override.
+            simpl.
+            simpl_override.
+            reflexivity.
+
+            simpl_override.
+            rewrite <- H5 in IHstep_star. simpl in IHstep_star. simpl_override_in IHstep_star. simpl in IHstep_star. simpl_override_in IHstep_star. simpl in IHstep_star. simpl_override_in IHstep_star.
+            depremise IHstep_star. reflexivity.
+            assert (A := dep_leq_rec p ls s2 n0).
+              simpl in A. depremise A. subst s1. assumption.
+              specialize (A n0). depremise A. assumption.
+              rewrite <- H3 in A. simpl in A. simpl_override_in A. simpl in A.
+            rewrite <- H5 in e0. simpl in e0. simpl_override_in e0. simpl in e0. simpl_override_in e0.
+            rewrite e0 in IHstep_star.
+            rewrite Plus.plus_comm.
+            simpl.
+            apply le_S.
+            eapply Le.le_trans; eassumption.          
+
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          simpl.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          rewrite <- H5 in H0. simpl in H0. simpl_override_in H0. simpl in H0. simpl_override_in H0. simpl in H0.
+          destruct (eq_nat_dec k k0).
+
+            (* -- *)
+            subst k.
+            simpl_override_in H0.
+            simpl in H0.
+            symmetry in H0. contradiction.
+
+            (* -- *)
+            simpl_override.
+            simpl_override.
+            simpl_override_in H0.
+            depremise IHstep_star. assumption.
+            assumption.
+
+        (* --- *)      
+        simpl_override.      
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        rewrite <- H5 in H0. simpl in H0. simpl_override_in H0.
+        depremise IHstep_star. assumption.
+        assumption.
+
+      (* get *)
+      destruct (eq_nat_dec n n0).
+        subst n.
+        simpl_override.
+        simpl.
+        destruct (eq_nat_dec (entry_node (store s k0)) n').
+
+          (* --- *)
+          subst n'.
+          simpl_override.
+          simpl.
+
+          rewrite <- H3 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          rewrite <- H5 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.        
+          simpl in IHstep_star.
+
+          rewrite <- H5 in e0.
+          simpl in e0.
+          simpl_override_in e0.
+          simpl in e0.
+          
+          depremise IHstep_star. reflexivity.
+          
+          apply PeanoNat.Nat.max_le_iff.
+          left. rewrite e0. assumption.
+          
+          (* --- *)
+          simpl_override.
+          rewrite <- H3 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          rewrite <- H5 in H0. simpl in H0. simpl_override_in H0. simpl in H0.
+          depremise IHstep_star. assumption.
+          assumption.
+
+        (* --- *)
+        simpl_override.
+        rewrite <- H3 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        rewrite <- H5 in H0. simpl in H0. simpl_override_in H0. simpl in H0.
+        depremise IHstep_star. assumption.
+        assumption.
+
+      (* update *)
+      destruct (eq_nat_dec n n0).
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl.
+
+        destruct (eq_nat_dec k k0).
+
+          (* -- *)
+          simpl_override.
+          simpl.
+
+          rewrite <- H6 in H0. simpl in H0. simpl_override_in H0. simpl in H0. rewrite e0 in H0. simpl_override_in H0. simpl in H0.
+          rewrite H0.
+          apply le_max_r.
+
+          (* -- *)
+          simpl_override.
+          simpl.
+
+          rewrite <- H4 in IHstep_star.
+          simpl in IHstep_star.
+          simpl_override_in IHstep_star.
+          simpl in IHstep_star.
+          depremise IHstep_star. rewrite <- H6 in H0. simpl in H0. simpl_override_in H0. simpl in H0. simpl_override_in H0. assumption.
+
+          eapply Le.le_trans. eassumption.
+          apply le_max_l.
+
+        (* --- *)
+        simpl_override.
+        rewrite <- H4 in IHstep_star.
+        simpl in IHstep_star.
+        simpl_override_in IHstep_star.
+        simpl in IHstep_star.
+        depremise IHstep_star. rewrite <- H6 in H0. simpl in H0. simpl_override_in H0. assumption.
+        assumption.      
+
+      (* fault *)
+      subv_in s2 IHstep_star.
+      destruct (eq_nat_dec n n0).
+        (* -- *)
+        subst n.
+        simpl_override.
+        simpl_override_in IHstep_star.
+        depremise IHstep_star.
+        subv_in s3 H0.
+        simpl_override_in H0.
+        assumption.
+        assumption.
+        (* -- *)
+        simpl_override.
+        simpl_override_in IHstep_star.
+        depremise IHstep_star.
+        subv_in s3 H0.
+        simpl_override_in H0.
+        assumption.
+        assumption.
+
+    Qed.
+
+
+  Lemma update_sender_eq_msg_sender:
+    forall p h s m,
+      step_star (init p) h s
+      /\ In m (messages s)
+      -> sender_node (msg_update m) = msg_sender m.
+
+    Proof.
+      intros.
+      open_conjs.
+      remember (init p) as s0 eqn: Hi.
+      induction H.
+
+      subst s.
+      simpl in H0.
+      contradiction.
+
+      depremise IHstep_star.
+      assumption.
+      inversion H1.
+
+      rewrite <- H5 in H0.
+      simpl in H0.
+      apply in_app_iff in H0.
+      destruct H0 as [H0 | H0].
+      
+      depremise IHstep_star.
+      rewrite <- H3.
+      simpl.
+      assumption.
+      assumption.
+      
+      apply in_map_iff in H0.
+      destruct H0 as [n' [N1 N2]].
+      subst m.
+      simpl in *.
+      reflexivity.
+
+      rewrite <- H3 in IHstep_star.
+      simpl in IHstep_star.
+      depremise IHstep_star.
+      rewrite <- H5 in H0.
+      assumption.
+      assumption.
+
+      rewrite <- H4 in IHstep_star.
+      simpl in IHstep_star.
+      depremise IHstep_star.
+      rewrite <- H6 in H0.
+      simpl in H0.
+      apply in_app_iff in H0.
+      destruct H0 as [H0 | H0].
+      apply in_app_iff.
+      left. assumption.
+      apply in_app_iff.
+      right. apply in_cons. assumption.
+      assumption.
+
+      depremise IHstep_star.
+      subv s2.
+      subv_in s3 H0.
+      assumption.
       assumption.
 
     Qed.
 
 
+  Lemma update_no_self_message:
+    forall p h s m,
+      step_star (init p) h s
+      /\ In m (messages s)
+      -> not (sender_node (msg_update m) = msg_receiver m).
+    
+    Proof.
+      intros.
+      destruct H as [H1 H2].
+      assert (A1 := update_sender_eq_msg_sender p h s m). 
+        depremise A1. split; assumption.
+      assert (A2 := no_self_message p h s m).
+        depremise A2. split; assumption.
+      rewrite <- A1 in A2.
+      assumption.
+
+    Qed.
+
+
+  Lemma step_star_clock_nondec:
+    forall (p: ICExec.Syntax.PProg)(h0 h: list Label)(s s': State)(n: NId),
+        let sc := dep (alg_state ((node_states s) n)) in
+        let sc' := dep (alg_state ((node_states s') n)) in
+        (step_star (init p) h0 s
+         /\ step_star s h s')
+        -> forall n', sc n' <= sc' n'.
+
+    Proof.
+      intros.
+      destruct H as [HI H].
+
+      induction H.
+
+      apply Le.le_refl.
+      rename sc' into sc''.
+      pose (sc' := dep (alg_state (node_states s2 n))).
+      assert (sc' n' <= sc'' n').
+      clear IHstep_star.
+
+      inversion H0;
+      subst sc;
+      subst sc';
+      subst sc'';
+      simpl in *.
+
+      (* put *)
+      rewrite <- H2.
+      rewrite <- H4.
+      simpl.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        simpl_override.
+        destruct (eq_nat_dec n' n0).
+
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          subst n'. 
+          rewrite Plus.plus_comm.
+          simpl.
+          apply le_S.
+          assert (A:= dep_leq_rec p (h0 ++ ls) s2 n0). 
+            simpl in A.
+            depremise A.
+            eapply step_star_app. exists s1. split; assumption.
+            specialize (A n0). depremise A. 
+              assert (B := label_node_in_nids p (h0++ls++[l]) s3 l). depremise B.
+                split. apply step_star_app. exists s1. split. assumption. apply step_star_app_one. exists s2. split; assumption.
+                apply in_app_iff. right. apply in_app_iff. right. apply in_eq.
+              subst l0. rewrite <- H3 in B. simpl in B.
+            assumption.
+          
+          rewrite <- H2 in A.
+          simpl in A.
+          simpl_override_in A.
+          simpl in A.
+          assumption.
+
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+      (* get *)
+      rewrite <- H2.
+      rewrite <- H4.
+      simpl.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        simpl.
+        destruct (eq_nat_dec (entry_node (store s k)) n').
+
+          (* -- *)
+          subst n'.
+          simpl_override.
+          rewrite <- le_max_l.
+          apply Le.le_refl.
+
+          (* -- *)
+          simpl_override.
+          apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+        
+
+      (* update *)
+      rewrite <- H3.
+      rewrite <- H5.
+      simpl.
+      destruct (eq_nat_dec n n0).
+      
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        simpl.
+        apply le_max_l.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+
+      (* fault *)
+      subv s2.
+      subv s3.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+
+      simpl in IHstep_star.
+      depremise IHstep_star.
+      assumption.
+      subst sc'.
+      subst sc''.
+
+      eapply Le.le_trans;
+      eassumption.
+
+
+    Qed.
+
+  Lemma step_star_rec_nondec:
+    forall (p: ICExec.Syntax.PProg)(h0 h: list Label)(s s': State)(n: NId),
+        let sc := rec (alg_state ((node_states s) n)) in
+        let sc' := rec (alg_state ((node_states s') n)) in
+        (step_star (init p) h0 s
+         /\ step_star s h s')
+        -> forall n', sc n' <= sc' n'.
+
+    Proof.
+      intros.
+      destruct H as [HI H].
+
+      induction H.
+
+      apply Le.le_refl.
+
+      rename sc' into sc''.
+      pose (sc' := rec (alg_state (node_states s2 n))).
+      assert (sc' n' <= sc'' n').
+      clear IHstep_star.
+
+      inversion H0; clear H0;
+      subst sc;
+      subst sc';
+      subst sc'';
+      simpl in *.
+
+      (* put *)
+      rewrite <- H2.
+      rewrite <- H4.
+      simpl.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        simpl_override.
+        destruct (eq_nat_dec n' n0).
+
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          subst n'. 
+          rewrite Plus.plus_comm.
+          simpl.
+          apply le_S.
+          apply Le.le_refl.
+
+          (* --- *)
+          simpl_override.
+          simpl.
+          simpl_override.
+          apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+      (* get *)
+      rewrite <- H2.
+      rewrite <- H4.
+      simpl.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        simpl.
+        apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+        
+      (* update *)
+      rewrite <- H3.
+      rewrite <- H5.
+      simpl.
+      destruct (eq_nat_dec n n0).
+      
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        simpl.
+        destruct (eq_nat_dec (sender_node u) n').
+        
+          (* -- *)
+          simpl_override.
+          unfold guard_method in H2.
+          bool_to_prop_in H2.
+          destruct H2.
+          bool_to_prop_in H2.
+          rewrite e0 in *.
+          rewrite H2.
+          rewrite Plus.plus_comm.
+          simpl.
+          apply le_S.
+          apply Le.le_refl.
+
+          (* -- *)
+          simpl_override.
+          apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+      (* fault *)
+      subv s2.
+      subv s3.
+      destruct (eq_nat_dec n n0).
+
+        (* --- *)
+        subst n.
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+        (* --- *)
+        simpl_override.
+        simpl_override.
+        apply Le.le_refl.
+
+      simpl in IHstep_star.
+      depremise IHstep_star.
+      assumption.
+      subst sc'.
+      subst sc''.
+
+      eapply Le.le_trans;
+      eassumption.
+
+    Qed.
+
+  Lemma step_star_dep_rec_nondec:
+    forall (p: ICExec.Syntax.PProg)(h0 h: list Label)(s s': State)(n: NId),
+        let sc := dep (alg_state ((node_states s) n)) in
+        let sc' := rec (alg_state ((node_states s') n)) in
+        (step_star (init p) h0 s
+         /\ step_star s h s')
+        -> forall n', In n' nids -> sc n' <= sc' n'.
+
+    Proof.
+      intros.
+      subst sc.
+      subst sc'.
+
+      assert (A1 := step_star_clock_nondec p h0 h s s' n H n').
+      
+      open_conjs.
+      assert (A2 := dep_leq_rec p (h0 ++ h) s' n).
+       simpl in A2. depremise A2.
+       apply step_star_app. exists s. split; assumption.
+       specialize (A2 n').
+       depremise A2. assumption.
+      eapply Le.le_trans;  eassumption.      
+    Qed.
 
   Lemma proc_order_clock:
     forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(l l': Label)(n: NId),
       (step_star (init p) h s
        /\ prec h l l'
        /\ label_node l = label_node l')
-      -> (let c := clock (label_post_state l) n in
-          let c' := clock (label_post_state l') n in
+      -> (let c := dep (label_post_state l) n in
+          let c' := dep (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
 
@@ -223,28 +1044,27 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         intros.
         destruct H as [H1 [H2 H3]].
         assert (L := prec_exec p h s l l').
-        depremise L. split.
-        assumption.
-        assumption.
+        depremise L. split; assumption.
         destruct L as [h1 L].
         destruct L as [s1 L].
         destruct L as [s' L].
         destruct L as [h2 L].
         destruct L as [s'' L].
         destruct L as [s2 L].
-        destruct L as [h3 [L1 [L3 [L4 [L5 L2]]]]].
-        assert (M1 := step_star_clock_nondec h2 s' s'' (label_node l) L4 n).
+        destruct L as [h3 [L1 [L3 [L4 [L5 L2]]]]].        
+        assert (M1 := step_star_clock_nondec p (h1 ++ [l]) h2 s' s'' (label_node l)).
+          simpl in M1. depremise M1. split. apply step_star_app_one. exists s1. split; assumption. assumption. specialize (M1 n).
         subst c. subst c'.
         assert (N1 := label_poststate_state s1 s' l L3).
         assert (N2 := label_poststate_state s'' s2 l' L5).
         rewrite N1; clear N1.
         rewrite N2; clear N2.
 
-        assert (L: clock (alg_state (node_states s'' (label_node l))) n
-                       ≤ clock (alg_state (node_states s2 (label_node l'))) n
+        assert (L: dep (alg_state (node_states s'' (label_node l))) n
+                       ≤ dep (alg_state (node_states s2 (label_node l'))) n
                        ∧ (label_node l' = n ∧ label_is_put l'
-                          →  clock (alg_state (node_states s'' (label_node l))) n <
-                            clock (alg_state (node_states s2 (label_node l'))) n)).
+                          →  dep (alg_state (node_states s'' (label_node l))) n <
+                             dep (alg_state (node_states s2 (label_node l'))) n)).
 
         clear M1.
         rewrite H3 in *.
@@ -260,16 +1080,27 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         destruct (eq_nat_dec n n0).
           (* -- *)
           simpl_override.
+          assert (A:= dep_leq_rec p (h1 ++ l :: h2) s'' n0). 
+            simpl in A. depremise A. apply step_star_app. exists s1. split. assumption. apply step_star_end. exists s'. split; assumption.
+            specialize (A n0).
+            rewrite <- H0 in A. simpl in A. simpl_override_in A. 
+          simpl in A.
+            depremise A. assert (B := label_node_in_nids p (h1 ++ [l] ++ h2 ++ [l']) s2 l'). depremise B. split. apply step_star_app. exists s1. split. assumption. apply step_star_app. exists s'. split. apply step_star_one. assumption. apply step_star_app_one. exists s''. split; assumption.
+            apply in_app_iff. right. apply in_app_iff. right. apply in_app_iff. right. apply in_eq.
+            simpl in B. subst l'. subst l0. simpl in B. assumption.
+
           split.
           rewrite Plus.plus_comm.
           simpl.
           subst n.
-          apply Le.le_n_Sn.
+          apply le_S.          
+          assumption.
           intro.
           rewrite Plus.plus_comm.
           simpl.
           subst n.
-          apply Lt.lt_n_Sn.
+          apply Lt.le_lt_n_Sm.
+          assumption.
           (* -- *)
           simpl_override.
           split.
@@ -287,6 +1118,11 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           simpl_override.
           simpl.
           split.
+          destruct (eq_nat_dec (entry_node (store s0 k)) n).
+          simpl_override.
+          rewrite e0.
+          apply le_max_l.
+          simpl_override.
           apply Le.le_refl.
           intros.
           destruct H6.
@@ -294,31 +1130,18 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           
         
         (* update *)
-        simpl.
-        split.
-        simpl_override.
-        simpl.
-        simpl_override.
-        simpl.
-        unfold guard_method in H0.
-        bool_to_prop_in H0.
-        open_conjs.
-        bool_to_prop_in H0.
-        destruct (eq_nat_dec (sender_node u) n).
-          (* -- *)
-          simpl_override.
-          rewrite H0.
-          rewrite e0.
-          rewrite Plus.plus_comm.
           simpl.
-          apply Le.le_n_Sn.
-          (* -- *)
+          split.
           simpl_override.
-          apply Le.le_refl.
-        intro.
-        open_conjs.
-        contradiction.
+          simpl.
+          simpl_override.
+          simpl.
+          apply le_max_l.
+          intro.
+          open_conjs.
+          contradiction.
 
+        
         (* fault *)
           simpl.
           simpl_override.
@@ -326,23 +1149,73 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           split.
           apply Le.le_refl.
           intros.
-          open_conjs.
-          contradiction.
+          open_conjs. contradiction.
 
-        destruct L as [N1 N2].
-        split.
-          (* -- *)
-          rewrite <- H3 in *; clear H3.
-          eapply Le.le_trans; eassumption.
-          (* -- *)
-          clear N1.
-          intros.
-          depremise N2.
-          assumption.
-          clear H.
+      destruct L as [N1 N2].
+      split.
+        (* -- *)
+        rewrite <- H3 in *; clear H3.
+        eapply Le.le_trans; eassumption.
+        (* -- *)
+        clear N1.
+        intros.
+        depremise N2.
+        assumption.
+        clear H.
           
-          eapply Lt.le_lt_trans; eassumption.
+        eapply Lt.le_lt_trans; eassumption.
+
+
       Qed.
+
+  Lemma proc_order_dep_rec:
+    forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(l l': Label)(n: NId),
+      (step_star (init p) h s
+       /\ prec h l l'
+       /\ label_node l = label_node l'
+       /\ In n nids)
+      -> (let c := dep (label_post_state l) n in
+          let c' := rec (label_post_state l') n in
+          c <= c'
+          /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
+
+    Proof.
+      intros.
+      subst c.
+      subst c'.
+      open_conjs.
+
+      assert (A1 := proc_order_clock p h s l l' n).
+        depremise A1. split_all; assumption. simpl in A1.
+
+      open_conjs.
+      assert (L := prec_exec p h s l l').
+        depremise L. split; assumption.
+      destruct L as [h1 L].
+      destruct L as [s1' L].
+      destruct L as [s1 L].
+      destruct L as [h2 L].
+      destruct L as [s2' L].
+      destruct L as [s2 L].
+      destruct L as [h3 [L1 [L2 [L3 [L4 L5]]]]].
+
+      assert (A2 := dep_leq_rec p (h1 ++ l :: h2 ++ [l']) s2 (label_node l')).
+        simpl in A2. depremise A2.
+        apply step_star_app. exists s1'.
+        split. assumption. apply step_star_end. exists s1.
+        split. assumption. apply step_star_app_one. exists s2'.
+        split; assumption.
+        specialize (A2 n).
+        depremise A2. assumption.
+
+      assert (N2 := label_poststate_state s2' s2 l' L4).
+      rewrite <- N2 in A2; clear N2.
+
+      split.
+        eapply Le.le_trans; eassumption.
+        intro. depremise H4. assumption. eapply Lt.lt_le_trans; eassumption.
+    Qed.
+
 
   Lemma get_from_map:
     forall (s s': State)(l: Label),
@@ -354,8 +1227,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
          let n := label_node l in
          let m := store (alg_state ((node_states s) n)) in
          let iv := m k in
-         let ivn := inst_val_nid iv in
-         let ivc := inst_val_clock iv in
+         let ivn := inst_val_nid (entry_val iv) in
+         let ivc := inst_val_clock (entry_val iv) in
          (n' = ivn /\ c' = ivc).
 
     Proof.
@@ -414,8 +1287,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       let iv := m' k in
       (step s l s'
        /\ label_is_put l)
-      -> (inst_val_nid iv = n
-          /\ inst_val_clock iv = c).
+      -> (inst_val_nid (entry_val iv) = n
+          /\ inst_val_clock (entry_val iv) = c).
 
     Proof.
       intros.
@@ -445,6 +1318,50 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
     Qed.
 
 
+  Lemma update_change:
+    forall (s s': State)(l: Label),
+      let n' := label_orig_node l in
+      let c' := label_clock l in
+      let n := label_node l in
+      let k := label_key l in
+      let m' := store (alg_state (node_states s' n)) in
+      let iv := m' k in
+      (step s l s'
+       /\ label_is_update l)
+      -> (inst_val_nid (entry_val iv) = n'
+          /\ inst_val_clock (entry_val iv) = c').
+
+    Proof.
+      intros.
+      destruct H as [H1 H2].
+      inversion H1.
+
+      rewrite <- H3 in H2; unfold label_is_update in H2; inversion H2.
+      rewrite <- H3 in H2; unfold label_is_get in H2; inversion H2.
+
+      clear H2.
+      subst iv.
+      subst m'.
+      subst s'.
+      simpl.
+      subst n'.
+      subst c'.
+      subst k.
+      subst n.
+      subst l.
+      simpl.
+      simpl_override.
+      simpl.
+      simpl_override.
+      simpl.
+      split; reflexivity.
+
+      rewrite <- H3 in H2; unfold label_is_update in H2; inversion H2.
+      
+    Qed.
+
+
+
   Lemma put_nochange:
     forall (s s': State)(l: Label),
       let n := label_node l in
@@ -467,66 +1384,20 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       subst s.
       subst s'.
       simpl.
+      unfold override.
       destruct (eq_nat_dec n n0).
-        simpl_override.
-        simpl_override.
-        simpl.
+        simpl.        
         subst k.
         rewrite <- H4 in H0. simpl in H0.
         simpl_override.
         reflexivity.
-        simpl_override.
-        simpl_override.
-        reflexivity.
+      reflexivity.
 
       rewrite <- H4 in H1; unfold label_is_put in H1; inversion H1.
       rewrite <- H5 in H1; unfold label_is_put in H1; inversion H1.
       rewrite <- H4 in H1; unfold label_is_put in H1; inversion H1.
       
     Qed.
-
-  Lemma update_change:
-    forall (s s': State)(l: Label),
-      let n' := label_orig_node l in
-      let c := label_clock l in
-      let n := label_node l in
-      let k := label_key l in
-      let m' := store (alg_state (node_states s' n)) in
-      let iv := m' k in
-      (step s l s'
-       /\ label_is_update l)
-      -> (inst_val_nid iv = n'
-          /\ inst_val_clock iv = c).
-
-    Proof.
-      intros.
-      destruct H as [H1 H2].
-      inversion H1.
-
-      rewrite <- H3 in H2; unfold label_is_update in H2; inversion H2.
-      rewrite <- H3 in H2; unfold label_is_get in H2; inversion H2.
-
-      clear H2.
-      subst iv.
-      subst m'.
-      subst s'.
-      simpl.
-      subst n'.
-      subst c.
-      subst k.
-      subst n.
-      subst l.
-      simpl.
-      simpl_override.
-      simpl.
-      simpl_override.
-      simpl.
-      split; reflexivity.
-
-      rewrite <- H3 in H2; unfold label_is_update in H2; inversion H2.      
-    Qed.
-
-
 
   Lemma get_nochange:
     forall (s s': State)(l: Label)(n: NId),
@@ -554,8 +1425,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         reflexivity.
 
       rewrite <- H4 in H0; unfold label_is_put in H0; inversion H0.
-
-      rewrite <- H3 in H0; unfold label_is_put in H0; inversion H0.      
+      rewrite <- H3 in H0; unfold label_is_put in H0; inversion H0.
+      
     Qed.
 
   Lemma update_nochange:
@@ -592,6 +1463,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       reflexivity.      
 
       rewrite <- H4 in H1; unfold label_is_put in H1; inversion H1.
+
     Qed.
 
   Lemma node_nochange:
@@ -627,8 +1499,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       step_star (init p) h s
       -> let m := store (alg_state ((node_states s) n)) in
          let iv := m k in
-         let ivn := inst_val_nid iv in
-         let ivc := inst_val_clock iv in
+         let ivn := inst_val_nid (entry_val iv) in
+         let ivc := inst_val_clock (entry_val iv) in
          (ivn = init_nid /\ ivc = 0)
          \/ (exists (l: Label),
                (In l h
@@ -821,22 +1693,22 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
             subst ivc. subst iv. subst m. subst n. subst l. simpl. assumption.
             rewrite e. assumption.
 
+
       (* fault *)
-        subst ivn.
-        subst ivc.
-        subst iv.
-        subst m.
+        subst ivn. subst  ivc. subst iv. subst m.
         subv s3.
-        simpl in IHstep_star.
         subv_in s2 IHstep_star.
-        destruct (eq_nat_dec n n0).
-        subst n0.
-        simpl_override.
-        simpl_override_in IHstep_star.
-        destruct IHstep_star.
-        (* --- *)
+        destruct (eq_nat_dec n0 n).
+        
+          (* --- *)
+          subst n0.
+          simpl_override.
+          simpl_override_in IHstep_star.
+
+          destruct IHstep_star.
+          (* --- *)
           left. assumption.
-        (* --- *)
+          (* --- *)
           right.
           destruct H6 as [l' H6].
           exists l'.
@@ -846,14 +1718,16 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
             split. assumption. split_all; assumption.
           right.
             split. apply in_or_app. left. assumption.
-            split. assumption.
-            split_all; assumption.
-        simpl_override.
-        simpl_override_in IHstep_star.
-        destruct IHstep_star.
-        (* --- *)
+            split. assumption. split_all; assumption.
+
+          (* --- *)
+          simpl_override.
+          simpl_override_in IHstep_star.
+
+          destruct IHstep_star.
+          (* --- *)
           left. assumption.
-        (* --- *)
+          (* --- *)
           right.
           destruct H6 as [l' H6].
           exists l'.
@@ -863,8 +1737,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
             split. assumption. split_all; assumption.
           right.
             split. apply in_or_app. left. assumption.
-            split. assumption.
-            split_all; assumption.
+            split. assumption. split_all; assumption.
 
 
       (* A different node *)     
@@ -891,96 +1764,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
     Qed.
 
 
-  Lemma update_sender_eq_msg_sender:
-    forall p h s m,
-      step_star (init p) h s
-      /\ In m (messages s)
-      -> sender_node (msg_update m) = msg_sender m.
-
-    Proof.
-      intros.
-      open_conjs.
-      remember (init p) as s0 eqn: Hi.
-      induction H.
-
-      subst s.
-      simpl in H0.
-      contradiction.
-
-      depremise IHstep_star.
-      assumption.
-      inversion H1.
-
-      rewrite <- H5 in H0.
-      simpl in H0.
-      apply in_app_iff in H0.
-      destruct H0 as [H0 | H0].
-      
-      depremise IHstep_star.
-      rewrite <- H3.
-      simpl.
-      assumption.
-      assumption.
-      
-      apply in_map_iff in H0.
-      destruct H0 as [n' [N1 N2]].
-      subst m.
-      simpl in *.
-      reflexivity.
-
-      rewrite <- H3 in IHstep_star.
-      simpl in IHstep_star.
-      depremise IHstep_star.
-      rewrite <- H5 in H0.
-      assumption.
-      assumption.
-
-      rewrite <- H4 in IHstep_star.
-      simpl in IHstep_star.
-      depremise IHstep_star.
-      rewrite <- H6 in H0.
-      simpl in H0.
-      apply in_app_iff in H0.
-      destruct H0 as [H0 | H0].
-      apply in_app_iff.
-      left. assumption.
-      apply in_app_iff.
-      right. apply in_cons. assumption.
-      assumption.
-
-      rewrite <- H3 in IHstep_star.
-      simpl in IHstep_star.
-      depremise IHstep_star.
-      rewrite <- H5 in H0.
-      assumption.
-      assumption.
-
-    Qed.
-
-  Lemma update_no_self_message:
-    forall p h s m,
-      step_star (init p) h s
-      /\ In m (messages s)
-      -> not (sender_node (msg_update m) = msg_receiver m).
-    
-    Proof.
-      intros.
-      destruct H as [H1 H2].
-      assert (A1 := update_sender_eq_msg_sender p h s m). 
-        depremise A1. split; assumption.
-      assert (A2 := no_self_message p h s m).
-        depremise A2. split; assumption.
-      rewrite <- A1 in A2.
-      assumption.
-
-    Qed.
-
   Lemma sem_clock_alg_state_clock:
     forall p h s,
       step_star (init p) h s
       -> forall n,
            let sc := clock_state (node_states s n) in
-           let ac := clock (alg_state (node_states s n)) n in
+           let ac := rec (alg_state (node_states s n)) n in
            sc = ac.           
     
     Proof.
@@ -1063,36 +1852,31 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         simpl_override.
         assumption.
 
-        simpl_override.        
+        simpl_override.
         rewrite <- H3 in IHstep_star.
         simpl in IHstep_star.
         simpl_override_in IHstep_star.
-        assumption.      
+        assumption.
 
       simpl.
+      subv_in s2 IHstep_star.
       destruct (eq_nat_dec n n0).
         subst n.
         simpl_override.
-        simpl.
-        rewrite <- H2 in IHstep_star.
-        simpl in IHstep_star.
         simpl_override_in IHstep_star.
-        simpl in IHstep_star.
         assumption.
 
         simpl_override.
-        rewrite <- H2 in IHstep_star.
-        simpl in IHstep_star.
         simpl_override_in IHstep_star.
         assumption.
 
     Qed.
 
-  Lemma update_clock_eq_msg_clock:
+  Lemma update_dep_eq_msg_clock:
     forall p h s m,
       step_star (init p) h s
       /\ In m (messages s)
-      -> sender_clock (msg_update m) (sender_node (msg_update m))= msg_clock m.
+      -> sender_dep (msg_update m) (sender_node (msg_update m))= msg_clock m.
 
     Proof.
       intros.
@@ -1150,14 +1934,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       right. apply in_cons. assumption.
       assumption.
 
-      rewrite <- H3 in IHstep_star.
-      simpl in IHstep_star.
       depremise IHstep_star.
-      rewrite <- H5 in H0.
+      subv s2.
+      subv_in s3 H0.
       assumption.
       assumption.
 
     Qed.
+
 
   Lemma msg_update_label:
     forall p h s m,
@@ -1167,8 +1951,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let u := msg_update m in
           label_is_put lp
           /\ sender_node u = label_node lp
-          /\ sender_clock u = clock (label_post_state lp)
-          /\ sender_clock u (sender_node u) = label_clock lp).
+          /\ sender_dep u = dep (label_post_state lp)
+          /\ sender_dep u (sender_node u) = label_clock lp).
 
     Proof.
       intros.
@@ -1247,12 +2031,9 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       assumption.
       assumption.
 
-      subst u.
-      rewrite <- H5 in H0.
-      simpl in H0.
       depremise IHstep_star.
-      rewrite <- H3.
-      simpl.
+      subv s2.
+      subv_in s3 H0.
       assumption.
       assumption.
 
@@ -1260,14 +2041,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
 
   Lemma label_clock_label_post_state_clock:
-    forall p h (s: State) (l: Label) (s': State),
+    forall p h s l s',
       (step_star (init p) h s
        /\ step s l s'
        /\ label_is_put l)
       -> (let n := label_node l in
           let lc := label_clock l in
           let ls := (label_post_state l) in
-          let sc := clock ls n in
+          let sc := dep ls n in
           lc = sc).
     
     Proof.
@@ -1299,6 +2080,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       rewrite <- H4 in H3. simpl in H3. contradiction.
       rewrite <- H5 in H3. simpl in H3. contradiction.
       rewrite <- H4 in H3. simpl in H3. contradiction.
+
     Qed.
 
 
@@ -1309,7 +2091,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        /\ label_is_put l)
       -> (let n := label_node l in
           let lc := label_clock l in
-          let ac := clock (alg_state (node_states s' n)) n in
+          let ac := dep (alg_state (node_states s' n)) n in
           lc = ac).
 
     Proof.
@@ -1341,8 +2123,9 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       reflexivity.
 
       rewrite <- H4 in H3. simpl in H3. contradiction.
-      rewrite <- H5 in H3. simpl in H3. contradiction.
-      rewrite <- H4 in H3. simpl in H3. contradiction.      
+      rewrite <- H5 in H3. simpl in H3. contradiction.      
+      rewrite <- H4 in H3. simpl in H3. contradiction.
+
     Qed.
 
 
@@ -1354,7 +2137,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        /\ step_star s' h2 s'')
       -> (let n := label_node l in
           let lc := label_clock l in
-          let c'' := clock (alg_state (node_states s'' n)) n in
+          let c'' := dep (alg_state (node_states s'' n)) n in
           lc <= c'').
 
     Proof.
@@ -1367,13 +2150,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       assumption.
       assumption.
       assumption.
+            
+      assert (M := step_star_clock_nondec p (h1++[l]) h2 s' s'' n).
+        simpl in M.
+        depremise M.
+        split. apply step_star_app_one. exists s. split; assumption.
+        assumption.
+        specialize (M n).
 
-      
-      assert (M := step_star_clock_nondec h2 s' s'' n).
-      simpl in M.
-      depremise M.
-      assumption.
-      
       subst lc.
       subst c''.
       simpl in L.
@@ -1381,7 +2165,40 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
       subst n.
       rewrite L.
-      apply M.      
+      assumption.
+    Qed.
+
+  Lemma label_clock_leq_alg_state_rec:
+    forall p h1 s l s' h2 s'',
+      (step_star (init p) h1 s
+       /\ step s l s'
+       /\ label_is_put l
+       /\ step_star s' h2 s'')
+      -> (let n := label_node l in
+          let lc := label_clock l in
+          let c'' := rec (alg_state (node_states s'' n)) n in
+          lc <= c'').
+
+    Proof.
+      intros.
+      open_conjs.
+
+      subst lc.
+      subst c''.
+      subst n.
+
+      assert (A1 := label_clock_leq_alg_state_clock p h1 s l s' h2 s'').
+        depremise A1. split_all; assumption.
+        simpl in A1.
+
+      assert (A2 := dep_leq_rec p (h1++l::h2) s'' (label_node l)).
+        simpl in A2. depremise A2. apply step_star_app. exists s. split. assumption. apply step_star_end. exists s'. split; assumption.
+        specialize (A2 (label_node l)). depremise A2.
+        assert (B1 := label_node_in_nids p (h1++[l]) s' l). depremise B1. split. apply step_star_app_one. exists s. split; assumption.
+        apply in_app_iff. right. apply in_eq. simpl in B1. assumption.
+        
+      eapply Le.le_trans; eassumption.
+
     Qed.
     
 
@@ -1393,14 +2210,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        let c' := label_clock l in
        let n := label_node l in
        let ls := label_post_state l in
-       let co := clock ls in
+       let co := dep ls in
        let ms := messages s in
        exists m,
          let mn' := msg_sender m in
          let mc' := msg_clock m in
          let mn := msg_receiver m in
          let u := msg_update m in
-         let mco := sender_clock u in
+         let mco := sender_dep u in
          In m ms
          /\ n' = mn'
          /\ c' = mc'
@@ -1441,29 +2258,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       simpl.
       reflexivity.
 
-      unfold guard_method in H2.
-      bool_to_prop_in H2.
-      destruct H2 as [N1 N2].
       intros.
       subst co.
       subst ls.
       rewrite <- H4.
       simpl in *.
-      unfold override.
-      destruct (eq_nat_dec n'' (sender_node u)).
-      subst n''.
-      apply Le.le_refl.
-
-      assert (A:= fold_left_and NId nids n''
-             (fun n => ((n =? sender_node u) || (sender_clock u n <=? clock s0 n)))).
-      depremise A. split; assumption.
-      simpl in A.
-      bool_to_prop_in A.
-      destruct A as [A | A].
-      bool_to_prop_in A.
-      contradiction.
-      bool_to_prop_in A.
-      assumption.
+      apply le_max_r.
 
       rewrite <- H3 in H0. unfold label_is_update in H0. contradiction.
 
@@ -1477,12 +2277,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       -> let mn := msg_sender m in
          let mc := msg_clock m in
          let u := msg_update m in
-         let mco := sender_clock u in
+         let mco := sender_dep u in
          exists l,
            let n := label_node l in
            let c := label_clock l in
            let ls := label_post_state l in
-           let co := clock ls in
+           let co := dep ls in
            In l h
            /\ label_is_put l
            /\ mn = n
@@ -1638,6 +2438,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
     Qed.
 
 
+
+
   Lemma reads_from_clock:
     forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(l l': Label)(n: NId),
       (step_star (init p) h s
@@ -1646,12 +2448,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        /\ label_node l = label_orig_node l'
        /\ label_clock l = label_clock l'
        /\ In n nids)
-      -> (let c := clock (label_post_state l) n in
-          let c' := clock (label_post_state l') n in
+      -> (let c := dep (label_post_state l) n in
+          let c' := dep (label_post_state l') n in
           c <= c').
 
       Proof.
-        intros p h s l l' ni.
+        intros p h s l l' n.
         intros.
         destruct H as [H [H0 [H2 [H3 [H4 [H5 Hi]]]]]].
         apply prec_in in H0.
@@ -1664,13 +2466,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         assert (L := get_from_map s1 s2 l' (conj H3 H8)). (* simpl in L. *)
 
         pose (k := label_key l').
-        pose (n := label_node l').
-        assert (M := in_map_from_put_update p h1 s1 k n H7).
+        pose (n' := label_node l').
+        assert (M := in_map_from_put_update p h1 s1 k n' H7).
         destruct M as [M | M].
+
           (* Reads the initial value. *)
             simpl in L.
             subst k. remember (label_key l') as k eqn: Hk .
-            subst n. remember (label_node l') as n eqn: Hn .
+            subst n'. remember (label_node l') as n' eqn: Hn.
             open_conjs.
             clear H12 H10.
             rewrite H11 in H13.
@@ -1688,8 +2491,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           simpl in L.
           open_conjs.
           subst k. remember (label_key l') as k eqn: Hk.
-          subst n. remember (label_node l') as n eqn: Hn.
-          remember (alg_state (node_states s1 n)) as as1 eqn: A.
+          subst n'. remember (label_node l') as n' eqn: Hn.
+          remember (alg_state (node_states s1 n')) as as1 eqn: A.
           rewrite <- H12 in *. clear H12.
           rewrite <- H13 in *. clear H13.
           rewrite <- H4 in *. (* clear H4. *)
@@ -1705,6 +2508,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           subst c. subst c'.
           apply in_split in H10.
           destruct H10 as [h11 [h12 H10]].
+          assert (Hs := H7).
           rewrite H10 in H7.
           apply step_star_app in H7.
           destruct H7 as [s0 [H71 H72]].
@@ -1718,19 +2522,20 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
           rewrite H14 in *; rewrite <- Hn in *.
 
-          assert (L := step_star_clock_nondec (h12 ++ [l']) s0' s2 n).
-          simpl in L.
-          depremise L.
-          apply step_star_app_one.
-          exists s1. split; assumption.
-          specialize (L ni).
+          assert (L := step_star_clock_nondec p (h11 ++ [l]) (h12 ++ [l']) s0' s2 n').
+            simpl in L.
+            depremise L. split. 
+            apply step_star_app. exists s0. split. assumption. apply step_star_one. assumption.
+            apply step_star_app_one.
+            exists s1. split; assumption.
+            specialize (L n).
           assumption.
 
           (* There is an update. *)
           simpl in L.
           open_conjs.
           subst k. remember (label_key l') as k eqn: Hk.
-          subst n. remember (label_node l') as n eqn: Hn.
+          subst n'. remember (label_node l') as n' eqn: Hn.
           remember (alg_state (node_states s1 n)) as as1 eqn: A.
           rewrite <- H12 in *. clear H12.
           rewrite <- H13 in *. clear H13.
@@ -1758,19 +2563,22 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           rewrite H5. rewrite H16. rewrite M3. rewrite N4. reflexivity.
           rewrite <- P in *.
           subst c. subst c'.
+
+          specialize (M5 n). depremise M5. assumption.
+
+          assert (E: dep (label_post_state lw) n <= dep (label_post_state l') n).
+            assert (R := label_poststate_state s2' s3' lw L3); rewrite R; clear R.
+            assert (R := label_poststate_state s1 s2 l' H8); rewrite R; clear R.
+            rewrite H14. rewrite <- Hn.
+            eapply step_star_clock_nondec.
+              split.
+              econstructor. apply L2. apply L3. econstructor; eassumption.          
+
           rewrite <- N5.
-          specialize (M5 ni). depremise M5. assumption.
-          assert (E: clock (label_post_state lw) ni <= clock (label_post_state l') ni).
-          assert (R := label_poststate_state s2' s3' lw L3); rewrite R; clear R.
-          assert (R := label_poststate_state s1 s2 l' H8); rewrite R; clear R.
-          rewrite H14. rewrite <- Hn.
-          apply step_star_clock_nondec with (h := (h3' ++ [l'])).
-          apply step_star_app_one. exists s1. split; assumption.
 
           eapply Le.le_trans;  eassumption.
 
     Qed.
-
 
 
   
@@ -1779,8 +2587,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       (step_star (init p) h s
       /\ cause_step h l l'
       /\ In n nids)
-      -> (let c := clock (label_post_state l) n in
-          let c' := clock (label_post_state l') n in
+      -> (let c := dep (label_post_state l) n in
+          let c' := dep (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
 
@@ -1813,8 +2621,8 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       (step_star (init p) h s
       /\ cause h l l'
       /\ In n nids)
-      -> (let c := clock (label_post_state l) n in
-          let c' := clock (label_post_state l') n in
+      -> (let c := dep (label_post_state l) n in
+          let c' := dep (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
 
@@ -1822,11 +2630,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
     intros.
     destruct H as [H' [H1 H2]].
     induction H1.
-    apply cause_step_clock with (p := p)(h := h)(s := s).
-    split_all; assumption.
+
+    eapply cause_step_clock.
+    split_all; eassumption.
 
     rename c' into c''.
-    pose (c' := clock (label_post_state l') n).
+    pose (c' := dep (label_post_state l') n).
     assert (c <= c').
     apply IHcause.
     assumption.
@@ -1845,6 +2654,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       eapply Lt.le_lt_trans; eassumption.     
   Qed.
 
+
   (* Obligations *)
 
   Lemma ExecToSeqExec':
@@ -1853,7 +2663,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       -> exists h' s',
            SExec.StepStar.step_star (SExec.init) h' s'
            /\ h' = CExec.eff_hist h
-           /\ forall n k, store (CExec.alg_state (CExec.node_states s n)) k = s' n k.
+           /\ forall n k, entry_val (store (CExec.alg_state (CExec.node_states s n)) k) = s' n k.
 
     Proof.
       intros.
@@ -1906,6 +2716,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
         destruct (eq_nat_dec k k0).
         subst k0.
+        simpl_override.
         simpl_override.
         simpl_override.
         reflexivity.
@@ -2035,7 +2846,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         subst n'. simpl_override. reflexivity.
         simpl_override. reflexivity.
       rewrite A at 1.
-      constructor.
+      apply SExec.fault_step.
 
       simpl.
       subv h'.
@@ -2080,7 +2891,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
 
   Definition algrec: ICExec.AlgState -> NId -> Clock :=
-    clock.
+    rec.
     
 
   Lemma algrec_init:
@@ -2173,7 +2984,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
       unfold guard_method in H13.
       bool_to_prop_in H13.
-      destruct H13 as [N _].
+      destruct H13 as [_ N].
       bool_to_prop_in N.
 
       assert (A1 := update_sender_eq_msg_sender).
@@ -2181,7 +2992,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         eassumption. subv s. apply in_app_iff. right. apply in_eq.
         simpl in A1.
 
-      assert (A2 := update_clock_eq_msg_clock).
+      assert (A2 := update_dep_eq_msg_clock).
         specex_deprem A2. split_all.
         eassumption. subv s. apply in_app_iff. right. apply in_eq.
         simpl in A2.
@@ -2229,7 +3040,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       destruct l'; try contradiction.
       remember (update_label n0 n1 c0 n2 k v a m a0) as l' eqn: Hu.
 
-      assert (A1: c = clock (label_post_state l) n).
+      assert (A1: c = dep (label_post_state l) n).
         subv c. subv n.
         apply cause_in in N5. destruct N5 as [N5 _].
         assert (B1 := in_exec). 
@@ -2255,9 +3066,9 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
 
 
       assert (A3: 
-                (clock (label_post_state lp) (label_node lp) = clock (alg_state (node_states s1 n')) (label_node lp) + 1)
-                /\ (forall n, In n nids /\ (n <> label_node lp)->
-                              clock (label_post_state lp) n ≤ clock (alg_state (node_states s1 n')) n)).
+                (dep (label_post_state lp) (label_node lp) = rec (alg_state (node_states s1 n')) (label_node lp) + 1)
+                /\ (forall n, In n nids ->
+                              dep (label_post_state lp) n ≤ rec (alg_state (node_states s1 n')) n)).
         subv_in l' N2.
         inversion N2; simpl in *; try contradiction.
         subst s'0. subst a. subst s'5. subst s'4. subst s'3. subst s'2. subst v0. subst k0. subst n3. subst c0. subst n'0. subst s'1.
@@ -2269,33 +3080,24 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         bool_to_prop_in H11.
         destruct H11 as [U1 U2].
 
-        bool_to_prop_in U1.
+        bool_to_prop_in U2.
         assert (B1 := msg_update_label).
           specex_deprem B1. split_all. eassumption. subv s1. apply in_app_iff. right. apply in_eq. simpl in B1.
           destruct B1 as [B11 [B12 [B13 B14]]].
 
         split.
 
-        rewrite B13 in U1.
-        rewrite B12 in U1.
+        rewrite B13 in U2.
+        rewrite B12 in U2.
         assumption.
 
         intros.
-        open_conjs.
-        assert (B2 := fold_left_and NId nids n3 (fun n => ((n =? sender_node u) || (sender_clock u n <=? clock s n)))).
+        assert (B2 := fold_left_and NId nids n3 (fun n => sender_dep u n <=? rec s n)).
           depremise B2. split. 
-          rewrite <- U2 at 2.
+          rewrite <- U1 at 2.
           f_equal.
           assumption.
         simpl in B2.
-        bool_to_prop_in B2.
-        destruct B2 as [B2 | B2].
-
-          exfalso.
-          bool_to_prop_in B2.
-          subst n3.
-          contradiction.
-
         bool_to_prop_in B2.
         rewrite B13 in B2.
         assumption.
@@ -2333,34 +3135,36 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           eassumption.
           simpl in B.
         subv n.
-        split.
         assumption.
-        subst n. assumption.
         eapply Le.le_trans; eassumption.
 
     Qed.
 
 
-End KVSAlg1CauseObl.
+End KVSAlg3CauseObl.
 
 
 
-Module KVSAlg1Parametric <: Parametric KVSAlg1.
+Module KVSAlg1Parametric <: Parametric KVSAlg3.
 
   Import SysPredefs.
-  Import KVSAlg1.
+  Import KVSAlg3.
 
 
   Section ParallelWorlds.
 
     Definition RState (Val1: Type)(Val2: Type)(R: Val1 -> Val2 -> Prop)(s1: @State Val1)(s2: @State Val2): Prop := 
-      (forall k, R (store s1 k) (store s2 k))
-      /\ clock s1 = clock s2.
+      (forall k, 
+         ((R (entry_val (store s1 k)) (entry_val (store s2 k)))
+         /\ (entry_node (store s1 k)) = entry_node (store s2 k))
+         /\ (entry_clock (store s1 k) = entry_clock (store s2 k)))
+      /\ rec s1 = rec s2
+      /\ dep s1 = dep s2.
 
 
     Definition RUpdate (Val1: Type)(Val2: Type)(R: Val1 -> Val2 -> Prop)(u1: @Update Val1)(u2: @Update Val2): Prop := 
       sender_node u1 = sender_node u2 /\
-      sender_clock u1 = sender_clock u2.
+      sender_dep u1 = sender_dep u2.
 
     Variables Val1 Val2 : Type.
     Variable R : Val1 -> Val2 -> Prop.
@@ -2375,8 +3179,11 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         simpl.
         split.
         intros.
+        split_all.
         assumption.
         reflexivity.
+        reflexivity.
+        split_all; reflexivity.
       Qed.
 
     Lemma get_method_R:
@@ -2399,9 +3206,17 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         intros.
         simpl.
         open_conjs.
-        split;
+        split_all.
         assumption.
+        assumption.
+        rewrite H1.
+        specialize (H k).
+        open_conjs.
+        rewrite H2.
+        rewrite H3.
+        reflexivity.
       Qed.
+
 
     Lemma put_method_R:
       forall n s1 s2 k v1 v2,
@@ -2413,57 +3228,57 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
 
       Proof.
         intros.
-        unfold put_method.
-        split.
-        unfold RState.
-        intros.
         simpl.
         split.
-        intros.
-        destruct (eq_nat_dec k k0).
-        subst k.
-        simpl_override.
-        simpl_override.
-        assumption.
-        simpl_override.
-        simpl_override.
-        unfold RState in H.
-        open_conjs.
-        specialize (H k0).
-        open_conjs.
-        assumption.
-        apply functional_extensionality.
-        intro n'.
-        destruct (eq_nat_dec n n').
-        simpl_override.
-        simpl_override.
-        unfold RState in H.
-        open_conjs.
-        rewrite H1.
-        reflexivity.
-        simpl_override.
-        simpl_override.        
-        unfold RState in H.
-        open_conjs.
-        rewrite H1.
-        reflexivity.
-        unfold RUpdate.
-        split.
-        simpl. reflexivity.
-        simpl.
-        unfold RState in H.
-        open_conjs.
-        apply functional_extensionality.        
-        intro n'.
-        destruct (eq_nat_dec n n').
-        simpl_override.
-        simpl_override.
-        rewrite H1.
-        reflexivity.
-        simpl_override.
-        simpl_override.
-        rewrite H1.
-        reflexivity.
+
+          (* --- *)
+          unfold RState.
+          split_all.
+          intros.
+          destruct (eq_nat_dec k k0).          
+
+            subst k.
+            simpl_override.
+            simpl_override.
+            simpl_override.
+            unfold RState in H.
+            open_conjs.
+            split_all.
+            assumption.
+            reflexivity.
+            simpl_override.
+            rewrite H1.
+            reflexivity.
+
+            simpl_override.
+            simpl_override.
+            simpl_override.
+            unfold RState in H.
+            open_conjs.
+            specialize (H k0).
+            assumption.
+
+            simpl_override.
+            unfold RState in H.
+            open_conjs.
+            rewrite H1.
+            reflexivity.
+
+            simpl_override.
+            unfold RState in H.
+            open_conjs.
+            rewrite H1.
+            rewrite H2.
+            reflexivity.
+
+          (* --- *)
+          unfold RUpdate.
+          unfold RState in H.
+          open_conjs.
+          rewrite H1.
+          rewrite H2.
+          split; reflexivity.
+
       Qed.
 
     Lemma guard_method_R:
@@ -2495,35 +3310,76 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
       Proof.
         intros.
         unfold RState.
-        unfold update_method.
-        simpl.
-        unfold RState in H.
-        unfold RUpdate in H1.
-        open_conjs.
-        rewrite H1.
-        rewrite H2.
-        rewrite H3.
-        split.
-        intros.
-        destruct (eq_nat_dec k k0).
-        simpl_override.
-        simpl_override.
-        assumption.
-        simpl_override.
-        simpl_override.
-        apply H.
-        reflexivity.
+        split_all.
+
+          intros.
+          unfold update_method.          
+          destruct (eq_nat_dec k k0).
+            
+            subst k.
+            simpl_override.
+            simpl_override.
+            simpl_override.
+            split_all.
+            assumption.
+            unfold RUpdate in H1.
+            open_conjs.
+            assumption.
+            unfold RUpdate in H1.
+            open_conjs.
+            rewrite H1.
+            rewrite H2.
+            reflexivity.
+
+            simpl_override.
+            simpl_override.
+            simpl_override.
+            split_all.
+            unfold RState in H.
+            open_conjs.
+            specialize (H k0).
+            open_conjs.
+            assumption.
+            unfold RState in H.
+            open_conjs.
+            specialize (H k0).
+            open_conjs.
+            assumption.
+            unfold RState in H.
+            open_conjs.
+            specialize (H k0).
+            open_conjs.
+            assumption.
+          
+          unfold update_method.
+          simpl.
+          unfold RState in H.
+          open_conjs.
+          unfold RUpdate in H1.
+          open_conjs.
+          rewrite H2.
+          rewrite H1.
+          rewrite H4.
+          reflexivity.
+
+          unfold update_method.
+          simpl.
+          unfold RState in H.
+          open_conjs.
+          unfold RUpdate in H1.
+          open_conjs.
+          rewrite H3.
+          rewrite H4.
+          reflexivity.
 
       Qed.
 
   End ParallelWorlds.
 
 End KVSAlg1Parametric.
-
-
 Module KVSAlg1ExecToAbstExec (SyntaxArg: SyntaxPar).
   
-  Module ExecToAbstExec := ExecToAbstExec KVSAlg1 KVSAlg1Parametric KVSAlg1CauseObl SyntaxArg.
+  Module ExecToAbstExec := ExecToAbstExec KVSAlg3 KVSAlg1Parametric KVSAlg3CauseObl SyntaxArg.
   Import ExecToAbstExec.
 
   Lemma CausallyConsistent: 
@@ -2538,5 +3394,4 @@ Module KVSAlg1ExecToAbstExec (SyntaxArg: SyntaxPar).
     Qed.
 
 End KVSAlg1ExecToAbstExec.
-
 

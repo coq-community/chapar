@@ -11,10 +11,10 @@ Require Import ExtrOcamlBasic.
 Require Import ExtrOcamlNatInt.
 Require Import ExtrOcamlString.
 
-Require Import KVStore.
-Require Import KVSAlg1.
-Require Import KVSAlg2.
-Require Import KVSAlg3.
+From Chapar Require Import KVStore.
+From Chapar Require Import KVSAlg1.
+From Chapar Require Import KVSAlg2.
+From Chapar Require Import KVSAlg3.
 
 
 
