@@ -1,5 +1,7 @@
-Require Import Predefs.
-Require Import KVStore.
+From Chapar Require Import Predefs.
+From Chapar Require Import KVStore.
+
+Require Omega.
 
 
 Module Type AbsExecCarrier (SyntaxArg : SyntaxPar).
@@ -87,8 +89,8 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | H: context[SysPredefs.override (SysPredefs.override _ ?n1 _) ?n2 _] |- _ =>
       (* sort the overrides so we can eliminate redundencies easily *)
       let Hlt:= fresh "H" in
-      assert (Hlt: n1 > n2) by omega;
-      rewrite (@override_neq _ n1 n2) in H; [ | omega ];
+      assert (Hlt: n1 > n2) by Omega.omega;
+      rewrite (@override_neq _ n1 n2) in H; [ | Omega.omega ];
       clear Hlt
     | |- context[SysPredefs.override _ ?n _ ?n] =>
       rewrite SysPredefs.override_new_val with (k:=n)
@@ -99,27 +101,27 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | |- context[SysPredefs.override (SysPredefs.override _ ?n1 _) ?n2 _] =>
       (* sort the overrides so we can eliminate redundencies easily *)
       let Hlt:= fresh "H" in
-      assert (Hlt: n1 > n2) by omega;
-      rewrite (@override_neq _ n1 n2); [ | omega ];
+      assert (Hlt: n1 > n2) by Omega.omega;
+      rewrite (@override_neq _ n1 n2); [ | Omega.omega ];
       clear Hlt
     end.
 
-  Arguments NPeano.ltb n m : simpl nomatch.
-  Arguments NPeano.leb n m : simpl nomatch.
+  Arguments PeanoNat.Nat.ltb n m : simpl nomatch.
+  Arguments PeanoNat.Nat.leb n m : simpl nomatch.
 
   Lemma ltb_ge: forall n m,
-    NPeano.ltb n m = false <-> n >= m.
+    PeanoNat.Nat.ltb n m = false <-> n >= m.
   Proof.
-    unfold NPeano.ltb; intros.
+    unfold PeanoNat.Nat.ltb; intros.
     revert n.
     induction m; destruct n; simpl;
       intuition auto;
-      try discriminate || omega.
-    apply IHm in H; omega.
-    apply IHm; omega.
+      try discriminate || Omega.omega.
+    apply IHm in H; Omega.omega.
+    apply IHm; Omega.omega.
   Qed.
 
-  Hint Rewrite EqNat.beq_nat_false_iff EqNat.beq_nat_true_iff NPeano.ltb_lt ltb_ge : nat.
+  Hint Rewrite EqNat.beq_nat_false_iff EqNat.beq_nat_true_iff PeanoNat.Nat.ltb_lt ltb_ge : nat.
 
 
   Inductive ScheduleTask : Set :=
@@ -181,19 +183,18 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Proof. unfold nids, SysPredefs.nids; intros; rewrite max_nid_eq; reflexivity. Qed.
 
 
-
   Definition step_fun task s: option (Label * State) :=
     match task with
     | SchedProc n =>
       if List.existsb (EqNat.beq_nat n) nids then
         match s n with
-        | node_state (KVStore.put k v p) u d r m =>
+        | Build_NodeState (KVStore.put _ k v p) u d r m =>
           let u' := u ++ [(t_put k v d)] in
           let d' := (put_id n (List.length u')) :: d in
           let r' := SysPredefs.override r n ((r n) + 1) in
           let m' := SysPredefs.override m k (entry v n (List.length u') nil) in
           Some (put_label n (List.length u') k v, SysPredefs.override s n (node_state p u' d' r' m'))
-        | node_state (KVStore.get k p) u d r m =>
+        | Build_NodeState (KVStore.get _ k p) u d r m =>
           let v := entry_val (m k) in
           let n'' := entry_nid (m k) in
           let c'' := entry_clock (m k) in
@@ -201,19 +202,19 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
           let d' := if EqNat.beq_nat n'' max_nid then d
                 else d ++ [put_id n'' c''] ++ d'' in
           Some (get_label n'' c'' n k v, SysPredefs.override s n (node_state (p v) u d' r m))
-        | node_state (KVStore.fault) u d r m =>
+        | Build_NodeState (KVStore.fault _) u d r m =>
           Some (fault_label n, SysPredefs.override s n (node_state skip u d r m))
         | _ => None
         end
       else None
     | SchedUpdate n1 n2 =>
       match s n1, s n2 with
-      | node_state p_1 u_1 d_1 r_1 m_1, node_state p_2 u_2 d_2 r_2 m_2 =>
+      | Build_NodeState p_1 u_1 d_1 r_1 m_1, Build_NodeState p_2 u_2 d_2 r_2 m_2 =>
         let d := t_put_dep (List.nth (r_1 n2) u_2 dummy_t_put) in
         if negb (EqNat.beq_nat n1 n2)
           && List.existsb (EqNat.beq_nat n1) nids
-          && NPeano.ltb (r_1 n2) (List.length u_2)
-          && List.forallb (fun pid => NPeano.leb (put_id_clock pid) (r_1 (put_id_nid pid))) d then
+          && PeanoNat.Nat.ltb (r_1 n2) (List.length u_2)
+          && List.forallb (fun pid => PeanoNat.Nat.leb (put_id_clock pid) (r_1 (put_id_nid pid))) d then
           let k := t_put_key (List.nth (r_1 n2) u_2 dummy_t_put) in
           let v := t_put_val (List.nth (r_1 n2) u_2 dummy_t_put) in
           let r_1' := SysPredefs.override r_1 n2 ((r_1 n2) + 1) in
@@ -242,28 +243,28 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     match task with
     | SchedProc n =>
       match s n with
-      | node_state (KVStore.put k v p) u d r m =>
+      | Build_NodeState (KVStore.put _ k v p) u d r m =>
         let u' := u ++ [(t_put k v d)] in
         let d' := (put_id n (List.length u')) :: d in
         let r' := SysPredefs.override r n ((r n) + 1) in
         let m' := SysPredefs.override m k (entry v n (List.length u') nil) in
         Some (SysPredefs.override s n (node_state p u' d' r' m'))
-      | node_state (KVStore.get k p) u d r m =>
+      | Build_NodeState (KVStore.get _ k p) u d r m =>
         let n'' := entry_nid (m k) in
         let d' := if EqNat.beq_nat n'' max_nid then d
                 else d ++ [put_id n'' (entry_clock (m k))] ++ entry_dep (m k) in
         Some (SysPredefs.override s n (node_state (p (entry_val (m k))) u d' r m))
-      | node_state (KVStore.fault) u d r m =>
+      | Build_NodeState (KVStore.fault _) u d r m =>
         Some (SysPredefs.override s n (node_state skip u d r m))
       | _ => None
       end
     | SchedUpdate n1 n2 =>
       match s n1, s n2 with
-      | node_state p_1 u_1 d_1 r_1 m_1, node_state p_2 u_2 d_2 r_2 m_2 =>
+      | Build_NodeState p_1 u_1 d_1 r_1 m_1, Build_NodeState p_2 u_2 d_2 r_2 m_2 =>
         let d := t_put_dep (List.nth (r_1 n2) u_2 dummy_t_put) in
         if negb (EqNat.beq_nat n1 n2)
-          && NPeano.ltb (r_1 n2) (List.length u_2)
-          && List.forallb (fun pid => NPeano.leb (put_id_clock pid) (r_1 (put_id_nid pid))) d then
+          && PeanoNat.Nat.ltb (r_1 n2) (List.length u_2)
+          && List.forallb (fun pid => PeanoNat.Nat.leb (put_id_clock pid) (r_1 (put_id_nid pid))) d then
           let x:= List.nth (r_1 n2) u_2 dummy_t_put in
           let k := t_put_key x in
           let v := t_put_val x in
@@ -303,7 +304,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     rewrite <-H.
     apply List.existsb_exists.
     exists n; split; auto.
-    apply NPeano.Nat.eqb_refl.
+    apply PeanoNat.Nat.eqb_refl.
   Qed.
 
 
@@ -313,7 +314,6 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     fast_step_fun task s = Some s'.
   Proof.
     unfold step_fun, fast_step_fun; intros.
-    clear max_nid_eq.
     rewrite nids_eq in *.
     repeat match goal with
       | H: Some _ = Some _ |- _ => inversion H; clear H; subst
@@ -570,8 +570,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Proof.
     intros s l s' Hstep.
     inversion Hstep; clear Hstep.
-    * clear max_nid_eq; subst.
-    exists (SchedProc n).
+    * exists (SchedProc n).
     unfold step_fun.
     rewrite nids_eq in *.
     rewrite nid_in_dec_existsb in *.
@@ -600,7 +599,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     simpl_override.
     rewrite max_nid_eq.
     destruct Peano_dec.eq_nat_dec as [Heq | Hneq]; auto;
-      [ rewrite Heq, NPeano.Nat.eqb_refl; auto
+      [ rewrite Heq, PeanoNat.Nat.eqb_refl; auto
       | apply EqNat.beq_nat_false_iff in Hneq; rewrite Hneq
       ];
       apply functional_extensionality; intros;
@@ -617,12 +616,12 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     simpl_override.
     simpl.
     apply EqNat.beq_nat_false_iff in H0; rewrite H0.
-    case_eq (NPeano.ltb (r_1 n_2) (Datatypes.length u_2));
-      autorewrite with nat; intro; try omega.
+    case_eq (PeanoNat.Nat.ltb (r_1 n_2) (Datatypes.length u_2));
+      autorewrite with nat; intro; try Omega.omega.
     match goal with
       | H: List.Forall ?f ?l |- context[List.forallb _ _] =>
         rewrite List.Forall_forall in H;
-        setoid_rewrite <-NPeano.leb_le in H;
+        setoid_rewrite <-PeanoNat.Nat.leb_le in H;
         apply <-List.forallb_forall in H;
         rewrite H
       end.
@@ -636,8 +635,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     rewrite override_neq with (n1:=n_1) (n2:=n_2); auto.
     rewrite override_eq.
     rewrite override_neq with (n1:=n_1) (n2:=n_2); auto.
-    * clear max_nid_eq; subst.
-    exists (SchedProc n).
+    * exists (SchedProc n).
     unfold step_fun.
     rewrite nids_eq in *.
     rewrite nid_in_dec_existsb in *.
@@ -669,7 +667,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Proof.
     intros.
     destruct Peano_dec.eq_nat_dec as [Heq | Hneq]; subst; auto.
-    rewrite NPeano.Nat.eqb_refl; auto.
+    rewrite PeanoNat.Nat.eqb_refl; auto.
     apply EqNat.beq_nat_false_iff in Hneq; rewrite Hneq; auto.
   Qed.
 
@@ -703,17 +701,17 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     case_eq (s n2); intros ? ? ? ? ? Heq2; rewrite Heq2 in *.
     rewrite nid_in_dec_existsb in *.
     destruct (NId_eq_dec n1 n2); subst.
-    rewrite NPeano.Nat.eqb_refl in *.
+    rewrite PeanoNat.Nat.eqb_refl in *.
     inversion Hstep; clear Hstep; subst.
     inversion Hstep; clear Hstep; subst.
     apply EqNat.beq_nat_false_iff in n; rewrite n in *.
     apply EqNat.beq_nat_false_iff in n.
     destruct (List.in_dec NId_eq_dec n1 SysPredefs.nids); try discriminate.
-    case_eq (NPeano.ltb (rec0 n2) (Datatypes.length ptrace1));
+    case_eq (PeanoNat.Nat.ltb (rec0 n2) (Datatypes.length ptrace1));
       intro Hltb_eq; rewrite ?Hltb_eq in *;
       case_eq (List.forallb
             (fun pid : PutId =>
-             NPeano.leb (put_id_clock pid) (rec0 (put_id_nid pid)))
+             PeanoNat.Nat.leb (put_id_clock pid) (rec0 (put_id_nid pid)))
             (t_put_dep (List.nth (rec0 n2) ptrace1 dummy_t_put)));
       intro Hforall_eq; rewrite ?Hforall_eq in *;
       simpl in *;
@@ -725,7 +723,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     rewrite Heq1 at 1.
     constructor; auto.
     apply List.Forall_forall.
-    setoid_rewrite <-NPeano.leb_le.
+    setoid_rewrite <-PeanoNat.Nat.leb_le.
     apply ->List.forallb_forall.
     auto.
   Qed.
@@ -1021,14 +1019,14 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     eapply Hss with (sched:=nil) (ls:=nil); simpl; eauto.
     apply valid_nid_step_fun_Proc in H.
     apply valid_schedule_cons; split; auto; constructor.
-    omega.
+    Omega.omega.
     eapply IHmax_steps; eauto.
     intros sched task ls l' s'' s''' Hvalid_sched Hsched_len Hss' Hs''.
     eapply Hss with (sched:=([SchedProc n1]++sched)%list) (ls:=([l]++ls)%list); eauto.
     rewrite <-List.app_assoc.
     apply valid_schedule_app; split; auto.
     apply valid_schedule_cons; split; auto; constructor.
-    simpl; omega.
+    simpl; Omega.omega.
     rewrite step_star_fun_app.
     unfold step_star_fun; fold step_star_fun.
     rewrite H.
@@ -1042,14 +1040,14 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     eapply Hss with (sched:=nil) (ls:=nil); simpl; eauto.
     apply valid_nid_step_fun_Update in H.
     apply valid_schedule_cons; split; auto; constructor.
-    omega.
+    Omega.omega.
     eapply IHmax_steps; eauto.
     intros sched task ls l' s'' s''' Hvalid_sched Hsched_len Hss' Hs''.
     eapply Hss with (sched:=([SchedUpdate n1 n2]++sched)%list) (ls:=([l]++ls)%list); eauto.
     rewrite <-List.app_assoc.
     apply valid_schedule_app; split; auto.
     apply valid_schedule_cons; split; auto; constructor.
-    simpl; omega.
+    simpl; Omega.omega.
     rewrite step_star_fun_app.
     unfold step_star_fun; fold step_star_fun.
     rewrite H.
@@ -1145,14 +1143,14 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       with (ls1:=nil) (sched:=(sched1++[task])%list) (prog0:=program); eauto.
     rewrite step_star_fun_app, Hss1.
     simpl; rewrite Hs; reflexivity.
-    * omega.
+    * Omega.omega.
   Qed.
 
   Definition check_no_fault'' nids (s: State) :=
     List.forallb
       (fun n =>
         match prog (s n) with
-        | KVStore.fault => false
+        | KVStore.fault _ => false
         | _ => true
         end)
       nids%bool.
@@ -1201,10 +1199,9 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     destruct Hss2 as [task[s''[sched2[Heq[Hs _]]]]]; subst sched2'.
     eapply step_label_check_no_fault''; eauto.
     clear task Hs.
-    clear max_nid_eq.
     destruct (list_end _ sched1) as [Heq | [sched[task Heq]]]; subst sched1.
     * simpl in Hss1.
-    inversion Hss1; clear Hss1; subst.
+    inversion Hss1; clear Hss1.
     unfold check_no_fault''.
     apply List.forallb_forall.
     intros n1 Hin1.
@@ -1228,7 +1225,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       with (ls1:=nil) (sched:=(sched++[task])%list) (prog0:=program); eauto.
     rewrite step_star_fun_app, Hss.
     simpl; rewrite Hs; reflexivity.
-    - omega.
+    - Omega.omega.
   Qed.
 
   Lemma check_all_schedules_correct_fun_equiv: forall max_steps ls1 sched1 check s,
@@ -1247,22 +1244,24 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     rename H1 into Hsched_len.
     rename H2 into Hss.
     revert ls1 sched2 Hsched_len sched1 s s' Hvalid_sched Hperm Hss.
-    clear max_nid_eq.
-    induction max_steps; simpl; intros; subst.
+    induction max_steps; simpl; intros.
     - destruct sched2; inversion Hsched_len.
     rewrite List.app_nil_r in *.
     rewrite Hss in Hperm.
     rewrite !Bool.andb_true_iff in *.
     apply Hperm.
-    - repeat mcase_eq in Hperm; subst.
+    - repeat mcase_eq in Hperm.
     rewrite !Bool.andb_true_iff in *.
     destruct Hperm as [Heq Hperm].
     rewrite List.forallb_forall in Hperm.
     setoid_rewrite Bool.andb_true_iff in Hperm.
     setoid_rewrite List.forallb_forall in Hperm.
     destruct sched2 as [ | [ n1 | n1 n2 ] sched2 ].
-    + rewrite List.app_nil_r in *; intuition (subst; auto).
-    rewrite H in Hss; inversion Hss; clear Hss; subst; auto.
+    + rewrite List.app_nil_r in *; intuition auto.
+    rewrite H in Hss; inversion Hss; clear Hss; auto.
+    rewrite <- H2.
+    rewrite <- H3.
+    assumption.
     + simpl in Hsched_len; apply le_S_n in Hsched_len.
     apply valid_schedule_cons in Hvalid_sched.
     rewrite step_star_fun_app, H in Hss.
@@ -1305,13 +1304,13 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
         eapply (Hss (_::_)%list); simpl;
           [ | | rewrite step_star_fun_app, H; eauto];
           [ eapply valid_schedule_cons; split; auto; simpl; auto
-          | omega
+          | Omega.omega
           ]
       | |- true = true => reflexivity
       end.
     apply (Hss nil); simpl.
     constructor.
-    omega.
+    Omega.omega.
     rewrite List.app_nil_r; auto.
   Qed.
 
@@ -1337,7 +1336,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     List.forallb
       (fun n =>
         match prog (s n) with
-        | KVStore.fault => false
+        | KVStore.fault _ => false
         | _ => true
         end)
       nids)%bool.
@@ -1390,7 +1389,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     - rewrite <-Hnot_nids_eq in HH; simpl in *; auto.
     intuition (subst; auto).
     * eapply valid_schedule_step_star_fun; eauto.
-    * omega.
+    * Omega.omega.
     * eapply Hcheck_scheds.
   Qed.
 
@@ -1446,5 +1445,3 @@ End A.
 
 
 End ReflAbsSem.
-
-

@@ -6,8 +6,9 @@
     [size] => [length]) and a few lemmas have been added.
  *)
 
-Require Import Vbase Varith. 
-Require Coq.omega.Omega.
+From Chapar Require Import Vbase Varith.
+
+Require Omega.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -43,7 +44,7 @@ Definition behead l :=
   match l with 
     | nil => nil
     | _ :: x => x
-  end. 
+  end.
 
 Definition ncons n x := iter n (cons x).
 Definition nlist n x := ncons n x nil.
@@ -356,7 +357,7 @@ Lemma length_set_nth :
 Proof.
 induction s; destruct n; intros; simpl; try done. 
 - change (iter n (cons x0)) with (ncons n x0).
-  rewrite length_ncons; simpl; omega. 
+  rewrite length_ncons; simpl; Omega.omega. 
 - by rewrite <- fun_if with (f := S); f_equal; apply IHs.
 Qed.
 
@@ -564,7 +565,7 @@ Proof. induct s. Qed.
 
 Lemma count_predUI : forall a1 a2 l,
  count (predU a1 a2) l + count (predI a1 a2) l = count a1 l + count a2 l.
-Proof. induction l; clarsimp; case (a1 a); case (a2 a); simpl; omega. Qed.
+Proof. induction l; clarsimp; case (a1 a); case (a2 a); simpl; Omega.omega. Qed.
 
 Lemma count_predC : forall a l, count a l + count (predC a) l = length l.
 Proof. induct l. Qed. 
@@ -650,7 +651,7 @@ Proof. by intros [|x [|y s]]. Qed.
 
 Lemma drop_overlength : forall n s, length s <= n -> drop n s = nil.
 Proof. induct n [s]. Qed.
-Implicit Arguments drop_overlength [n s].
+Arguments drop_overlength [n s].
 
 Lemma drop_length : forall s, drop (length s) s = nil.
 Proof. auto using drop_overlength. Qed.
@@ -680,7 +681,7 @@ Hint Rewrite take0 : vlib. (* repeat outside section *)
 
 Lemma take_overlength : forall n s, length s <= n -> take n s = s.
 Proof. induct n [s]. Qed. 
-Implicit Arguments take_overlength [n s].
+Arguments take_overlength [n s].
 
 Lemma take_length : forall s, take (length s) s = s.
 Proof. by intros; rewrite take_overlength. Qed. 
@@ -730,7 +731,7 @@ Lemma nth_drop : forall s i, nth x0 (drop n0 s) i = nth x0 s (n0 + i).
 Proof.
   intros; case_eq (ltn n0 (length s)); intro Hn.
     rewrite <- (app_take_drop s) at 2; rewrite nth_app, length_take, Hn.
-    case ltP; intro; try (elimtype False; omega); f_equal; omega.
+    case ltP; intro; try (elimtype False; Omega.omega); f_equal; Omega.omega.
   rewrite !nth_default; try done.
     revert Hn; case ltnP; clarsimp; eauto with vlib. 
   rewrite length_drop; revert Hn; case ltnP; clarsimp; eauto with vlib.

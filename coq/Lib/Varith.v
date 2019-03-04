@@ -6,7 +6,7 @@ Require Import Bool.
 Require Import Arith.
 Require Import ZArith.
 Require Import String.
-Require Import Vbase.
+From Chapar Require Import Vbase.
 (* Require Import Veq. *)
 
 Set Implicit Arguments.
@@ -576,19 +576,19 @@ Proof. by intros; rewrite <- !(mulnC m), eqn_mul2l. Qed.
 
 Lemma len_pmul2l : forall m n1 n2, 0 < m -> (m * n1 <= m * n2) = (n1 <= n2).
 Proof. by intros; rewrite len_mul2l; destruct m. Qed. 
-Implicit Arguments len_pmul2l [m n1 n2].
+Arguments len_pmul2l [m n1 n2].
 
 Lemma len_pmul2r : forall m n1 n2, 0 < m -> (n1 * m <= n2 * m) = (n1 <= n2).
 Proof. by intros; rewrite len_mul2r; destruct m. Qed. 
-Implicit Arguments len_pmul2r [m n1 n2].
+Arguments len_pmul2r [m n1 n2].
 
 Lemma eqn_pmul2l : forall m n1 n2, 0 < m -> (m * n1 == m * n2) = (n1 == n2).
 Proof. by intros; rewrite eqn_mul2l; destruct m. Qed. 
-Implicit Arguments eqn_pmul2l [m n1 n2].
+Arguments eqn_pmul2l [m n1 n2].
 
 Lemma eqn_pmul2r : forall m n1 n2, 0 < m -> (n1 * m == n2 * m) = (n1 == n2).
 Proof. by intros; rewrite eqn_mul2r; destruct m. Qed. 
-Implicit Arguments eqn_pmul2r [m n1 n2].
+Arguments eqn_pmul2r [m n1 n2].
 
 Lemma ltn_mul2l : forall m n1 n2, (m * n1 < m * n2) = (0 < m) && (n1 < n2).
 Proof.
@@ -602,11 +602,11 @@ Proof. by intros; rewrite <- !(mulnC m), ltn_mul2l. Qed.
 
 Lemma ltn_pmul2l : forall m n1 n2, 0 < m -> (m * n1 < m * n2) = (n1 < n2).
 Proof. by intros; rewrite ltn_mul2l; destruct m. Qed. 
-Implicit Arguments ltn_pmul2l [m n1 n2].
+Arguments ltn_pmul2l [m n1 n2].
 
 Lemma ltn_pmul2r : forall m n1 n2, 0 < m -> (n1 * m < n2 * m) = (n1 < n2).
 Proof. by intros; rewrite ltn_mul2r; destruct m. Qed. 
-Implicit Arguments ltn_pmul2r [m n1 n2].
+Arguments ltn_pmul2r [m n1 n2].
 
 Lemma ltn_mul : forall m1 m2 n1 n2, m1 < n1 -> m2 < n2 -> m1 * m2 < n1 * n2.
 Proof. 

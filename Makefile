@@ -1,12 +1,15 @@
 # OCAMLBUILD = ocamlbuild -lib unix -I coq -I ml/MLLib/ocamlbase -I ml/MLLib/batteries -I ml
 OCAMLBUILD = ocamlbuild -lib unix -I coq -I ml/MLLib/batteries -I ml
 
+default: coq
 
-default: launchStore.native benchgen.native experiment.native
-
+stores: launchStore.native benchgen.native experiment.native
 
 coq:
-	make -C coq
+	$(MAKE) -C coq
+
+install:
+	$(MAKE) -C coq install
 
 benchgen.native : coq ml/*.ml
 	$(OCAMLBUILD) benchgen.native
@@ -28,10 +31,8 @@ run: launchStore.native benchgen.native
 run2: launchStore.native benchgen.native
 	./batchrundetach
 
-
-
 clean:
-	make -C coq clean
+	$(MAKE) -C coq clean
 	$(OCAMLBUILD) launchStore1.native -clean
 	$(OCAMLBUILD) launchStore2.native -clean
 	$(OCAMLBUILD) launchStore3.native -clean
@@ -42,7 +43,4 @@ clean:
 	rm -f RemoteAllResults.txt
 	rm -f RemoteLauncherOutput.txt
 
-.PHONY : default coq run run2 clean
-
-
-
+.PHONY : default coq run run2 clean install stores
