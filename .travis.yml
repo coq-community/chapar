@@ -7,7 +7,7 @@ matrix:
   include:
 
   # Test supported versions of Coq
-  - env: COQ=https://github.com/coq/coq/tarball/master
+  - env: COQ=https://github.com/coq/coq-on-cachix/tarball/master
   - env: COQ=8.9
 
   # Test opam package
@@ -40,7 +40,7 @@ matrix:
         export PS4='+ \e[33;1m(\$0 @ line \$LINENO) \$\e[0m '
         set -ex
         sudo chown -R coq:coq /home/coq/${CONTRIB_NAME}
-        opam install -y -j ${NJOBS} .
+        opam install -v -y -j ${NJOBS} .
         "
     - docker stop COQ  # optional
     - echo -en 'travis_fold:end:script\\r'

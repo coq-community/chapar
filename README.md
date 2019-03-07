@@ -104,10 +104,10 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 - Section 5, Lemma 9 (CauseCond): `KVSAlg3.v`, `Lemma cause_rec`
 
 #### Clients
-- Section 1, Program 1: `Examples/Clients.v`, `Definition prog_photo_upload`
-- Section 1, Program 2: `Examples/Clients.v`, `Definition prog_lost_ring`
-- Section 10, Program 3: `Examples/ListClient.v`
-- Section 2, Theorem 1: `Examples/Clients.v`, `Lemma CauseConsistent_Prog1`
+- Section 1, Program 1: `Clients.v`, `Definition prog_photo_upload`
+- Section 1, Program 2: `Clients.v`, `Definition prog_lost_ring`
+- Section 10, Program 3: `ListClient.v`
+- Section 2, Theorem 1: `Clients.v`, `Lemma CauseConsistent_Prog1`
 - Section 3, Definition 1 (Cause-content Program): `Definition CausallyContent`
 - Section 6: `ReflectiveAbstractSemantics.v`
 
@@ -118,14 +118,15 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 - root (directory): The execution scripts described in the section Run below
 
 - `coq` (directory); the Coq verification framework:
-  * `KVStore.v`: The basic definitions, the semantics and accompanying lemma
-  * `KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
-  * `KVSAlg2.v`: The definition and proof of algorithm 2 in the paper
-  * `KVSAlg3.v`: The definition and proof of algorithm 3 in the appendix
-  * `Extract.v`: The Coq file that extracts the algorithms
-  * `ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
-  * `Examples` (directory): The verified client programs
-  * `Lib` (directory): The general purpose Coq libraries
+  * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
+  * `Framework/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
+  * `Framework/KVSAlg2.v`: The definition and proof of algorithm 2 in the paper
+  * `Framework/KVSAlg3.v`: The definition and proof of algorithm 3 in the appendix
+  * `Framework/Extract.v`: The Coq file that extracts the algorithms
+  * `Framework/ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
+  * `Examples/Clients.v`: Verified client program
+  * `Examples/ListClient.v`: Verified client program
+  * `Lib` (directory): General purpose Coq libraries
 
 - `ml` (directory); the OCaml runtime to execute the algorithms:
   * `algorithm.ml`: Key-value store algorithm shared interface
