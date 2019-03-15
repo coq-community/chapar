@@ -14,3 +14,9 @@ coq/KVSAlg2.ml
 coq/KVSAlg2.mli
 coq/KVSAlg3.ml
 coq/KVSAlg3.mli
+benchgen.native
+launchStore1.native
+launchStore2.native
+launchStore3.native
+experiment.native
+_build
