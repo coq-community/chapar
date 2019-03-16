@@ -1,0 +1,7 @@
+include Makefile.ml-files
+
+$(ALGSML): coq/Algorithms/Extract.v coq/Algorithms/KVSAlg1.vo coq/Algorithms/KVSAlg2.vo coq/Algorithms/KVSAlg3.vo
+	$(COQC) $(COQDEBUG) $(COQFLAGS) $(COQLIBS) coq/Algorithms/Extract.v
+
+clean::
+	rm -f $(ALGSML)

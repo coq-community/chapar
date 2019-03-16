@@ -1,8 +1,6 @@
 open Printf
 open Unix
 
-open BatDllist
-
 open Common
 open Algorithm
 open KVSAlg2
@@ -29,7 +27,8 @@ module Algorithm2 : Algorithm = struct
 
    let to_data u = u
    let from_data u = u   
-   
+
+   open BatDllist
    type message = node_id * key * valu * update     
    type mqueue = message node_t
    

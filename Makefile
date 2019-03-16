@@ -1,46 +1,58 @@
-# OCAMLBUILD = ocamlbuild -lib unix -I coq -I ml/MLLib/ocamlbase -I ml/MLLib/batteries -I ml
-OCAMLBUILD = ocamlbuild -lib unix -I coq -I ml/MLLib/batteries -I ml
+include Makefile.ml-files
+
+OCAMLBUILD = ocamlbuild -tag safe_string -package batteries -I coq -I ml
 
 default: coq
 
-stores: launchStore.native benchgen.native experiment.native
+coq: Makefile.coq
+	$(MAKE) -f Makefile.coq all
 
-coq:
-	$(MAKE) -C coq
+stores: launchStore1.native launchStore2.native launchStore3.native
 
-install:
-	$(MAKE) -C coq install
+Makefile.coq: _CoqProject
+	$(COQBIN)coq_makefile -f _CoqProject -o Makefile.coq
 
-benchgen.native : coq ml/*.ml
+$(ALGSML): Makefile.coq
+	$(MAKE) -f Makefile.coq $@
+
+install: Makefile.coq
+	$(MAKE) -f Makefile.coq install
+
+benchgen.native : ml/*.ml
 	$(OCAMLBUILD) benchgen.native
 
-launchStore.native : coq ml/*.ml benchgen.native
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" coq/KVSAlg1.ml
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" coq/KVSAlg2.ml
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" coq/KVSAlg3.ml
+launchStore1.native: $(ALG1) ml/*.ml benchgen.native
+	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG1ML)
 	$(OCAMLBUILD) launchStore1.native
+
+launchStore2.native: $(ALG2) ml/*.ml benchgen.native
+	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG2ML)
 	$(OCAMLBUILD) launchStore2.native
+
+launchStore3.native: $(ALG3) ml/*.ml benchgen.native
+	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG3ML)
 	$(OCAMLBUILD) launchStore3.native
 
 experiment.native: ml/*.ml
 	$(OCAMLBUILD) experiment.native 
 
-run: launchStore.native benchgen.native
+run: launchStore1.native launchStore2.native launchStore2.native benchgen.native
 	./batchrun
 
-run2: launchStore.native benchgen.native
+run2: launchStore1.native launchStore2.native launchStore2.native benchgen.native
 	./batchrundetach
 
-clean:
-	$(MAKE) -C coq clean
+clean: Makefile.coq
+	$(MAKE) -f Makefile.coq cleanall
 	$(OCAMLBUILD) launchStore1.native -clean
 	$(OCAMLBUILD) launchStore2.native -clean
 	$(OCAMLBUILD) launchStore3.native -clean
 	$(OCAMLBUILD) benchgen.native -clean
 	$(OCAMLBUILD) experiment.native -clean
-	rm -f *.native
+	rm -f Makefile.coq Makefile.coq.conf
 	rm -f RemoteAllOutputs.txt
 	rm -f RemoteAllResults.txt
 	rm -f RemoteLauncherOutput.txt
 
-.PHONY : default coq run run2 clean install stores
+.PHONY: default coq run run2 clean install stores $(ALGSML)
+.NOTPARALLEL: $(ALGSML)
