@@ -6,9 +6,6 @@
 [![Gitter][gitter-shield]][gitter-link]
 [![DOI][doi-shield]][doi-link]
 
-[doi-shield]: https://zenodo.org/badge/DOI/10.1145/2837614.2837622.svg
-[doi-link]: https://doi.org/10.1145/2837614.2837622
-
 [travis-shield]: https://travis-ci.com/coq-community/chapar.svg?branch=master
 [travis-link]: https://travis-ci.com/coq-community/chapar/builds
 
@@ -20,6 +17,9 @@
 
 [gitter-shield]: https://img.shields.io/badge/chat-on%20gitter-%23c1272d.svg
 [gitter-link]: https://gitter.im/coq-community/Lobby
+
+[doi-shield]: https://zenodo.org/badge/DOI/10.1145/2837614.2837622.svg
+[doi-link]: https://doi.org/10.1145/2837614.2837622
 
 A framework for modular verification of causal consistency for replicated key-value
 store implementations and their client programs in Coq. Includes proofs of the causal consistency
@@ -36,7 +36,7 @@ More details about the project can be found in the paper
   - Mohsen Lesani (initial)
   - Christian J. Bell (initial)
   - Adam Chlipala (initial)
-- Maintainer(s):
+- Coq-community maintainer(s):
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
 - Compatible Coq versions: Coq 8.9 or later
@@ -119,11 +119,11 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 
 - `coq` (directory); the Coq verification framework:
   * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
-  * `Framework/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
-  * `Framework/KVSAlg2.v`: The definition and proof of algorithm 2 in the paper
-  * `Framework/KVSAlg3.v`: The definition and proof of algorithm 3 in the appendix
-  * `Framework/Extract.v`: The Coq file that extracts the algorithms
   * `Framework/ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
+  * `Algorithms/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
+  * `Algorithms/KVSAlg2.v`: The definition and proof of algorithm 2 in the paper
+  * `Algorithms/KVSAlg3.v`: The definition and proof of algorithm 3 in the appendix
+  * `Algorithms/Extract.v`: The Coq file that extracts the algorithms
   * `Examples/Clients.v`: Verified client program
   * `Examples/ListClient.v`: Verified client program
   * `Lib` (directory): General purpose Coq libraries
@@ -140,14 +140,14 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
   * `runtime.ml`: Execution runtime
   * `launchStore1.ml`, `launchStore2.ml`, `launchStore3.ml`: Launchers for the extracted algorithms
   * `util.ml`: General purpose OCaml functions
-  * `MLLib` (directory): The general purpose OCaml libraries
   * `experiment.ml`: Small OCaml programming tests
 
 ### Build
 
 Dependencies:
-- OCaml 4.01.0 or later
-- OCamlbuild 4.01.0 or later
+- [OCaml](http://www.ocaml.org/) (4.01.0 or later)
+- [OCamlbuild](https://github.com/ocaml/ocamlbuild)
+- [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included)
 
 The following command compiles both the Coq files and the OCaml files:
 ```
