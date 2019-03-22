@@ -39,13 +39,13 @@ More details about the project can be found in the paper
 - Coq-community maintainer(s):
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: Coq 8.9 or later
-- Additional dependencies: none
+- Compatible Coq versions: 8.9 or later
+- Additional Coq dependencies: none
 
 ## Building and installation instructions
 
-The easiest way to install the latest released version is via
-[OPAM](https://opam.ocaml.org/doc/Install.html):
+The easiest way to install the latest released version of Chapar
+is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
 opam repo add coq-released https://coq.inria.fr/opam/released
@@ -63,6 +63,24 @@ make install
 
 After installation, the included modules are available under
 the `Chapar` namespace.
+
+## Chapar Stores
+
+Three key-value stores, verified to be causally consistent in
+the Coq proof assistant and extracted to executable code.
+
+
+- Compatible OCaml versions: 4.05.0 or later
+- Additional OCaml dependencies:
+  - [OCamlbuild](https://github.com/ocaml/ocamlbuild) 
+  - [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later 
+
+Chapar Stores can be installed via OPAM as above using the package name `coq-chapar-stores`.
+
+To instead extract the code and compile manually, use the following command:
+```
+make stores
+```
 
 ## Documentation
 
@@ -115,7 +133,7 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 
 #### Directory structure
 
-- root (directory): The execution scripts described in the section Run below
+- root (directory): The execution scripts described in the section Running Experiments below
 
 - `coq` (directory); the Coq verification framework:
   * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
@@ -142,24 +160,7 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
   * `util.ml`: General purpose OCaml functions
   * `experiment.ml`: Small OCaml programming tests
 
-### Build
-
-Dependencies:
-- [OCaml](http://www.ocaml.org/) (4.01.0 or later)
-- [OCamlbuild](https://github.com/ocaml/ocamlbuild)
-- [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included)
-
-The following command compiles both the Coq files and the OCaml files:
-```
-make stores
-```
-
-To remove the artifacts:
-```
-make clean
-```
-
-### Run
+### Running Experiments
 
 #### Overview
 
