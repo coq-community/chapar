@@ -4,7 +4,9 @@ shortname: chapar
 organization: coq-community
 community: true
 
-synopsis: A framework for verification of causal consistency for distributed key-value stores and their clients in Coq
+synopsis: >-
+  A framework for verification of causal consistency for distributed key-value stores
+  and their clients in Coq
 
 description: |
   A framework for modular verification of causal consistency for replicated key-value
@@ -38,16 +40,48 @@ license:
 plugin: false
 
 supported_coq_versions:
-  text: Coq 8.9 or later
+  text: 8.9 or later
   opam: '{(>= "8.9" & < "8.10~") | (= "dev")}'
 
-tested_coq_versions:
+tested_coq_nix_versions:
 - version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
 - version_or_url: 8.9
 
-tested_coq_opam_version: dev
+tested_coq_opam_versions:
+- version: dev
 
 namespace: Chapar
+
+extracted:
+  extracted_fullname: Chapar Stores
+  extracted_shortname: chapar-stores
+
+  extracted_synopsis: Three executable causally consistent distributed key-value stores
+  extracted_description: |
+    Three key-value stores, verified to be causally consistent in
+    the Coq proof assistant and extracted to executable code.
+
+  target: stores
+
+  supported_ocaml_versions:
+    text: 4.05.0 or later
+    opam: '{>= "4.05.0"}'
+
+  tested_extracted_coq_opam_version: dev
+
+  extracted_dependencies:
+  - opam:
+      name: ocamlbuild
+      version: '{build}'
+    nix: ocamlbuild
+    description: >-
+      [OCamlbuild](https://github.com/ocaml/ocamlbuild)
+  - opam:
+      name: batteries
+      version: '{>= "2.8.0"}'
+    nix: batteries
+    description: >-
+      [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later
 
 keywords:
 - name: causal consistency
@@ -110,7 +144,7 @@ documentation: |
   
   #### Directory structure
 
-  - root (directory): The execution scripts described in the section Run below
+  - root (directory): The execution scripts described in the section Running Experiments below
   
   - `coq` (directory); the Coq verification framework:
     * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
@@ -137,24 +171,7 @@ documentation: |
     * `util.ml`: General purpose OCaml functions
     * `experiment.ml`: Small OCaml programming tests
 
-  ### Build
-
-  Dependencies:
-  - [OCaml](http://www.ocaml.org/) (4.01.0 or later)
-  - [OCamlbuild](https://github.com/ocaml/ocamlbuild)
-  - [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included)
-
-  The following command compiles both the Coq files and the OCaml files:
-  ```
-  make stores
-  ```
-
-  To remove the artifacts:
-  ```
-  make clean
-  ```
-
-  ### Run
+  ### Running Experiments
 
   #### Overview
 
