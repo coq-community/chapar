@@ -364,16 +364,16 @@ Lemma lenW : forall m n, m <= n -> m <= (S n).
 Proof. induct m [n]. Qed. 
 
 Lemma len_total : forall m n, (m <= n) || (n <= m).
-Proof. induct m [n]. Qed. 
+Proof. induct m [n]. Qed.
 
-Lemma nat_comparenn: forall x, nat_compare x x = Eq. 
+Lemma nat_comparenn: forall x, (x ?= x) = Eq. 
 Proof. by induction x; [|rewrite nat_compare_S]. Qed.
 
 Lemma cmpP : forall x y, 
-  CmpSpecFull ltn x y (x < y) (x <= y) (x == y) (y == x) (y < x) (y <= x) (nat_compare x y).
+  CmpSpecFull ltn x y (x < y) (x <= y) (x == y) (y == x) (y < x) (y <= x) (x ?= y).
 Proof.
   intros; rewrite (ltnE y x), eqnC, len_eqVlt, lenE.
-  case_eq (nat_compare x y); intro N.
+  case_eq (x ?= y); intro N.
   - by apply nat_compare_eq in N; subst; rewrite ltnn, eqnn; vauto.
   - apply nat_compare_lt, ltn_correct in N.
     rewrite N, orbT; simpl.
@@ -722,35 +722,35 @@ Proof.
   rewrite Z.mul_comm; omega.
 Qed.
 
-Lemma ZdoubleE: forall x, Zdouble x = x * 2.
+Lemma ZdoubleE: forall x, Z.double x = x * 2.
 Proof. by intros; rewrite Zmult_comm. Qed.
 
 Lemma ZltP:
-  forall x y, LtSpec Zle Zlt x y (Zlt_bool x y).
+  forall x y, LtSpec Z.le Z.lt x y (Zlt_bool x y).
 Proof.
   intros; unfold Zlt_bool, Zle_bool.
-  by case_eq (Zcompare x y); simpl; constructor; try done;
-     (unfold Zle; rewrite <- (Zcompare_antisym), H). 
+  by case_eq (Z.compare x y); simpl; constructor; try done;
+     (unfold Z.le; rewrite <- (Zcompare_antisym), H). 
 Qed.
 
 Lemma ZleP:
-  forall x y, LtSpec Zlt Zle x y (Zle_bool x y).
+  forall x y, LtSpec Z.lt Z.le x y (Zle_bool x y).
 Proof.
   intros; unfold Zlt_bool, Zle_bool.
-  case_eq (Zcompare x y); simpl; constructor;
-    try (by unfold Zle; rewrite H);
-    try (by unfold Zlt; rewrite <- (Zcompare_antisym), H). 
+  case_eq (Z.compare x y); simpl; constructor;
+    try (by unfold Z.le; rewrite H);
+    try (by unfold Z.lt; rewrite <- (Zcompare_antisym), H). 
 Qed.
 
 Lemma ZcmpP:
-  forall x y, CmpSpecFull Zlt x y 
+  forall x y, CmpSpecFull Z.lt x y 
     (Zlt_bool x y) (Zle_bool x y) (Zeq_bool x y) (Zeq_bool y x)
-    (Zlt_bool y x) (Zle_bool y x) (Zcompare x y).
+    (Zlt_bool y x) (Zle_bool y x) (Z.compare x y).
 Proof.
   intros; unfold Zlt_bool, Zle_bool, Zeq_bool; rewrite <- (Zcompare_antisym x).
-  case_eq (Zcompare x y); simpl; constructor; try done.
+  case_eq (Z.compare x y); simpl; constructor; try done.
     by eapply Zcompare_Eq_eq.
-  by unfold Zlt; rewrite <- (Zcompare_antisym), H.
+  by unfold Z.lt; rewrite <- (Zcompare_antisym), H.
 Qed.
 
 End ZZZ.
