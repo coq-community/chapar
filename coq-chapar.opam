@@ -16,11 +16,9 @@ of client programs.
 
 build: [make "-j%{jobs}%"]
 install: [make "install"]
-remove: ["rm" "-R" "%{lib}%/coq/user-contrib/Chapar"]
-flags: light-uninstall
 depends: [
   "ocaml"
-  "coq" {(>= "8.9" & < "8.10~") | (= "dev")}
+  "coq" {(>= "8.9" & < "8.11~") | (= "dev")}
 ]
 
 tags: [
