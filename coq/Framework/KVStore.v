@@ -1,14 +1,16 @@
-Require Import FunctionalExtensionality Omega.
-Require Import Coq.Unicode.Utf8.
-Require Import Coq.Arith.EqNat.
-Require Import Coq.Arith.Peano_dec.
-Require Import Coq.Arith.Compare_dec.
-Require Import Coq.Arith.Max.
-Require Import Coq.Arith.Lt.
-Require Import Coq.Arith.Le.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Lia.
+From Coq Require Import Unicode.Utf8.
+From Coq Require Import Arith.EqNat.
+From Coq Require Import Arith.Peano_dec.
+From Coq Require Import Arith.Compare_dec.
+From Coq Require Import Arith.Max.
+From Coq Require Import Arith.Lt.
+From Coq Require Import Arith.Le.
+From Coq Require Import Arith.Minus.
 
-Require Import Coq.Relations.Relation_Operators. (* For union and transitive closure. *)
-Require Import Coq.Lists.List. (* For In function. *)
+From Coq Require Import Relations.Relation_Operators. (* For union and transitive closure. *)
+From Coq Require Import Lists.List. (* For In function. *)
 (* Require Import Coq.Lists.ListSet. *)
 
 From Chapar Require Import Predefs.
@@ -1964,7 +1966,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
   Ltac length_contra :=
     match goal with
       | [ H : _ = _ |- _ ] => apply (f_equal _ _ (@length _)) in H;
-                             repeat (simpl in H; autorewrite with length in H); omega
+                             repeat (simpl in H; autorewrite with length in H); lia
     end.
 
   Lemma rev_cons_invert : forall A (x1 x2 : A) ls1 ls2,
@@ -2108,52 +2110,43 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       -> msgid_inv s2.
   Proof.
     destruct 1; substs; unfold msgid_inv; simpl; intuition.
-
-    msgid.
-    
-    destruct (nid_eq_dec (msg_sender x) (msg_receiver x)); try discriminate.
-    eapply Forall_forall in H2; eauto.
-    autorewrite with core in *; simpl in *.
-    omega.
-
-    apply Forall_app; auto.
-    eapply Forall_impl; [ eassumption | ].
-    simpl; intros.
-    destruct (nid_eq_dec n (msg_sender x)); subst;
-    autorewrite with core in *; simpl in *; auto; omega.
-
-    apply Forall_map; simpl.
-    autorewrite with core; simpl.
-    apply Forall_forall; auto.
-    eapply Forall_impl; [ eassumption | ].
-    simpl; intros.
-    destruct (nid_eq_dec n (msg_sender x)); subst;
-    autorewrite with core in *; simpl in *; auto; omega.
-
-    autorewrite with core in *; simpl in *.
-    apply NoDup_app_bwd in H2; intuition.
-    inversion_clear H2.
-    eapply NoDup_app; eauto.
-    simpl in *.
-    intuition eauto.
-
-    apply Forall_app_bwd in H3; intuition.
-    inversion_clear H4.
-    eapply Forall_app; eauto.
-    eapply Forall_impl; [ eassumption | ].
-    simpl; intros.
-    destruct (nid_eq_dec n (msg_sender x)); subst;
-    autorewrite with core in *; simpl in *; auto; omega.
-    eapply Forall_impl; [ eassumption | ].
-    simpl; intros.
-    destruct (nid_eq_dec n (msg_sender x)); subst;
-    autorewrite with core in *; simpl in *; auto; omega.
-
-    eapply Forall_impl; [ eassumption | ].
-    simpl; intros.
-    destruct (nid_eq_dec n (msg_sender x)); subst;
-    autorewrite with core in *; simpl in *; auto; omega.
-
+    - msgid.
+      destruct (nid_eq_dec (msg_sender x) (msg_receiver x)); try discriminate.
+      eapply Forall_forall in H2; eauto.
+      autorewrite with core in *; simpl in *; intuition.
+    - apply Forall_app; auto.
+        eapply Forall_impl; [ eassumption | ].
+        simpl; intros.
+        destruct (nid_eq_dec n (msg_sender x)); subst;
+          autorewrite with core in *; simpl in *; auto; lia.
+      apply Forall_map; simpl.
+      autorewrite with core; simpl.
+      apply Forall_forall; auto.
+    - eapply Forall_impl; [ eassumption | ].
+      simpl; intros.
+      destruct (nid_eq_dec n (msg_sender x)); subst;
+        autorewrite with core in *; simpl in *; auto; lia.
+    - autorewrite with core in *; simpl in *.
+      apply NoDup_app_bwd in H2; intuition.
+      inversion_clear H2.
+      eapply NoDup_app; eauto.
+      simpl in *.
+      intuition eauto.
+    - apply Forall_app_bwd in H3; intuition.
+      inversion_clear H4.
+      eapply Forall_app; eauto.
+      eapply Forall_impl; [ eassumption | ].
+        simpl; intros.
+        destruct (nid_eq_dec n (msg_sender x)); subst;
+        autorewrite with core in *; simpl in *; auto; lia.
+      eapply Forall_impl; [ eassumption | ].
+      simpl; intros.
+      destruct (nid_eq_dec n (msg_sender x)); subst;
+        autorewrite with core in *; simpl in *; auto; lia.
+    - eapply Forall_impl; [ eassumption | ].
+      simpl; intros.
+      destruct (nid_eq_dec n (msg_sender x)); subst;
+        autorewrite with core in *; simpl in *; auto; lia.
   Qed.
 
   Lemma steps_msgid_inv:
@@ -2707,32 +2700,32 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     destruct H0; substs; simpl in *; unfold msgid_hinv in *; simpl in *; intuition.
 
     msgid.
-    eapply Forall_forall in H2; eauto; omega.
+    eapply Forall_forall in H2; eauto; lia.
 
     apply Forall_app; auto.
     eapply Forall_impl; [ eassumption | ].
-    simpl; intros; omega.
+    simpl; intros; lia.
 
     msgid.
-    eapply Forall_forall in H2; eauto; omega.
+    eapply Forall_forall in H2; eauto; lia.
 
     eapply Forall_app; auto.
     eapply Forall_impl; [ eassumption | ].
-    simpl; intros; omega.
+    simpl; intros; lia.
 
     msgid.
-    eapply Forall_forall in H3; eauto; omega.
+    eapply Forall_forall in H3; eauto; lia.
 
     apply Forall_app; auto.
     eapply Forall_impl; [ eassumption | ].
-    simpl; intros; omega.
+    simpl; intros; lia.
 
     msgid.
-    eapply Forall_forall in H2; eauto; omega.
+    eapply Forall_forall in H2; eauto; lia.
 
     apply Forall_app; auto.
     eapply Forall_impl; [ eassumption | ].
-    simpl; intros; omega.
+    simpl; intros; lia.
 
   Qed.
 
@@ -2898,7 +2891,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     simpl in *; intuition subst.
     apply label_num_inc in H0; intuition.
     apply step_star_latest_label in H.
-    omega.
+    lia.
   Qed.
 
 
@@ -3278,8 +3271,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
             depremise IHN1.
               rewrite <- H1. simpl. assumption.
             rewrite <- H1 in IHN1.
-            simpl in IHN1. rewrite e0 in IHN1. simpl_override_in IHN1. simpl in IHN1.
-            apply le_plus_trans. assumption.
+            simpl in IHN1. rewrite e0 in IHN1. simpl_override_in IHN1. lia. 
 
             apply in_map_iff in N2.
             destruct N2 as [tn [N2 _]].
@@ -5340,7 +5332,6 @@ Module InstExecToAbsExec.
                 subst c'. remember (N.ICExec.msg_clock m) as c'.
                 rewrite <- N2 in A; clear N2.
                 subv_in c A.
-                apply le_S_gt in A.
                 split.
                 rewrite <- N51. apply f_equal. eapply app_nth1. assumption.
                 rewrite <- N52. apply f_equal. eapply app_nth1. assumption.
@@ -5453,7 +5444,7 @@ Module InstExecToAbsExec.
               simpl in N7.
               depremise N7. split_all.
                 assumption.
-                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Plus.plus_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply Nat.lt_irrefl. eassumption.
+                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Plus.plus_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply PeanoNat.Nat.lt_irrefl. eassumption.
                 assumption.
                 subv_in ptrace M4. subv_in n M4. assumption.              
                 subv_in ptrace' M5. rewrite app_nth1 in M5. subv_in ptrace M5. subv_in n M5. assumption. assumption.
@@ -5476,7 +5467,7 @@ Module InstExecToAbsExec.
                 subv l. apply I.
                 eassumption.
                 subv l. eassumption.
-                subv l. subst c0. rewrite plus_comm. simpl. eassumption.
+                subv l. subst c0. rewrite PeanoNat.Nat.add_comm. simpl. eassumption.
               rewrite <- A in *.
 
               subv_in ptrace' M5.
@@ -6105,7 +6096,7 @@ Module InstExecToAbsExec.
                 subv_in s2 N3. simpl_override_in N3.
               rewrite <- N8. clear N8. rewrite <- N3. clear N3.
               rewrite <- A2 in A3. clear A2.
-              apply le_S_gt. assumption.
+              assumption.
 
             econstructor.
             assumption.
@@ -6207,7 +6198,7 @@ Module InstExecToAbsExec.
             rewrite N51.
             rewrite N52.
             unfold rec_1'. simpl_override.
-            rewrite plus_comm. simpl.
+            rewrite PeanoNat.Nat.add_comm. simpl.
             rewrite A2.
             reflexivity.
             
@@ -6514,7 +6505,7 @@ Module InstExecToAbsExec.
                 exists lp.
                 split_all; try assumption.
                 subv n''. subv n. simpl_override. simpl_override. unfold store_1'. subv ek. simpl_override. symmetry. assumption.
-                subv c''. subv n. simpl_override. simpl_override. unfold store_1'. subv ek. simpl_override. unfold rec_1'. simpl_override. rewrite plus_comm. simpl.  rewrite A4. symmetry. assumption.
+                subv c''. subv n. simpl_override. simpl_override. unfold store_1'. subv ek. simpl_override. unfold rec_1'. simpl_override. rewrite PeanoNat.Nat.add_comm. simpl.  rewrite A4. symmetry. assumption.
                 apply in_app_iff. left. assumption.
                 intros. subst d''.
                 simpl_override_in H7.
@@ -6552,7 +6543,7 @@ Module InstExecToAbsExec.
                   subv_in s2 N3. simpl_override_in N3.
                 rewrite <- N8. clear N8. rewrite <- N3. clear N3.
                 rewrite <- A5 in A6. clear A5.
-                apply le_S_gt. assumption.
+                assumption.
 
                 rewrite <- A24.
                 unfold store_1' in H7.
@@ -6857,7 +6848,6 @@ Module InstExecToAbsExec.
       -> exists (h': list AExec.Label),
            AExec.history (AExec.init p) h'
            /\ N.ICExec.ext_hist h = AExec.ext_hist h'.
-
     Proof.
       intros.
       unfold N.ICExec.history in H.

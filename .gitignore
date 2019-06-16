@@ -20,3 +20,4 @@ launchStore2.native
 launchStore3.native
 experiment.native
 _build
+.lia.cache

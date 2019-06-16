@@ -1,7 +1,7 @@
 From Chapar Require Import Predefs.
 From Chapar Require Import KVStore.
 
-Require Omega.
+From Coq Require Import Lia.
 
 
 Module Type AbsExecCarrier (SyntaxArg : SyntaxPar).
@@ -89,8 +89,8 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | H: context[SysPredefs.override (SysPredefs.override _ ?n1 _) ?n2 _] |- _ =>
       (* sort the overrides so we can eliminate redundencies easily *)
       let Hlt:= fresh "H" in
-      assert (Hlt: n1 > n2) by Omega.omega;
-      rewrite (@override_neq _ n1 n2) in H; [ | Omega.omega ];
+      assert (Hlt: n1 > n2) by lia;
+      rewrite (@override_neq _ n1 n2) in H; [ | lia ];
       clear Hlt
     | |- context[SysPredefs.override _ ?n _ ?n] =>
       rewrite SysPredefs.override_new_val with (k:=n)
@@ -101,8 +101,8 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | |- context[SysPredefs.override (SysPredefs.override _ ?n1 _) ?n2 _] =>
       (* sort the overrides so we can eliminate redundencies easily *)
       let Hlt:= fresh "H" in
-      assert (Hlt: n1 > n2) by Omega.omega;
-      rewrite (@override_neq _ n1 n2); [ | Omega.omega ];
+      assert (Hlt: n1 > n2) by lia;
+      rewrite (@override_neq _ n1 n2); [ | lia ];
       clear Hlt
     end.
 
@@ -116,9 +116,9 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     revert n.
     induction m; destruct n; simpl;
       intuition auto;
-      try discriminate || Omega.omega.
-    apply IHm in H; Omega.omega.
-    apply IHm; Omega.omega.
+      try discriminate || lia.
+    apply IHm in H; lia.
+    apply IHm; lia.
   Qed.
 
   Hint Rewrite EqNat.beq_nat_false_iff EqNat.beq_nat_true_iff PeanoNat.Nat.ltb_lt ltb_ge : nat.
@@ -617,7 +617,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     simpl.
     apply EqNat.beq_nat_false_iff in H0; rewrite H0.
     case_eq (PeanoNat.Nat.ltb (r_1 n_2) (Datatypes.length u_2));
-      autorewrite with nat; intro; try Omega.omega.
+      autorewrite with nat; intro; try lia.
     match goal with
       | H: List.Forall ?f ?l |- context[List.forallb _ _] =>
         rewrite List.Forall_forall in H;
@@ -1019,14 +1019,14 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     eapply Hss with (sched:=nil) (ls:=nil); simpl; eauto.
     apply valid_nid_step_fun_Proc in H.
     apply valid_schedule_cons; split; auto; constructor.
-    Omega.omega.
+    lia.
     eapply IHmax_steps; eauto.
     intros sched task ls l' s'' s''' Hvalid_sched Hsched_len Hss' Hs''.
     eapply Hss with (sched:=([SchedProc n1]++sched)%list) (ls:=([l]++ls)%list); eauto.
     rewrite <-List.app_assoc.
     apply valid_schedule_app; split; auto.
     apply valid_schedule_cons; split; auto; constructor.
-    simpl; Omega.omega.
+    simpl; lia.
     rewrite step_star_fun_app.
     unfold step_star_fun; fold step_star_fun.
     rewrite H.
@@ -1040,14 +1040,14 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     eapply Hss with (sched:=nil) (ls:=nil); simpl; eauto.
     apply valid_nid_step_fun_Update in H.
     apply valid_schedule_cons; split; auto; constructor.
-    Omega.omega.
+    lia.
     eapply IHmax_steps; eauto.
     intros sched task ls l' s'' s''' Hvalid_sched Hsched_len Hss' Hs''.
     eapply Hss with (sched:=([SchedUpdate n1 n2]++sched)%list) (ls:=([l]++ls)%list); eauto.
     rewrite <-List.app_assoc.
     apply valid_schedule_app; split; auto.
     apply valid_schedule_cons; split; auto; constructor.
-    simpl; Omega.omega.
+    simpl; lia.
     rewrite step_star_fun_app.
     unfold step_star_fun; fold step_star_fun.
     rewrite H.
@@ -1143,7 +1143,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       with (ls1:=nil) (sched:=(sched1++[task])%list) (prog0:=program); eauto.
     rewrite step_star_fun_app, Hss1.
     simpl; rewrite Hs; reflexivity.
-    * Omega.omega.
+    * lia.
   Qed.
 
   Definition check_no_fault'' nids (s: State) :=
@@ -1225,7 +1225,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       with (ls1:=nil) (sched:=(sched++[task])%list) (prog0:=program); eauto.
     rewrite step_star_fun_app, Hss.
     simpl; rewrite Hs; reflexivity.
-    - Omega.omega.
+    - lia.
   Qed.
 
   Lemma check_all_schedules_correct_fun_equiv: forall max_steps ls1 sched1 check s,
@@ -1304,13 +1304,13 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
         eapply (Hss (_::_)%list); simpl;
           [ | | rewrite step_star_fun_app, H; eauto];
           [ eapply valid_schedule_cons; split; auto; simpl; auto
-          | Omega.omega
+          | lia
           ]
       | |- true = true => reflexivity
       end.
     apply (Hss nil); simpl.
     constructor.
-    Omega.omega.
+    lia.
     rewrite List.app_nil_r; auto.
   Qed.
 
@@ -1389,7 +1389,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     - rewrite <-Hnot_nids_eq in HH; simpl in *; auto.
     intuition (subst; auto).
     * eapply valid_schedule_step_star_fun; eauto.
-    * Omega.omega.
+    * lia.
     * eapply Hcheck_scheds.
   Qed.
 
