@@ -1,6 +1,6 @@
 From Chapar Require Import Predefs.
 From Chapar Require Import KVStore.
-(*Require Import Coq.Strings.String.*)
+From Coq Require String.
 From Chapar Require Import ReflectiveAbstractSemantics.
 From Chapar Require KVSAlg1 KVSAlg2 KVSAlg3.
 
