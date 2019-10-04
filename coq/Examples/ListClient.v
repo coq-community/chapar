@@ -25,7 +25,6 @@ Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Ca
   End AECarrier.
 
   Module Import RAS:= ReflAbsSem SyntaxArg AECarrier.
-  Declare Scope Prog.
   Delimit Scope Prog with Prog.
   Bind Scope Prog with Prog.
   Bind Scope Prog with PProg.
