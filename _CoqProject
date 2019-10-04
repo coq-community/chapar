@@ -3,6 +3,8 @@
 -Q coq/Algorithms Chapar
 -Q coq/Examples Chapar
 
+-arg -w -arg extraction-axiom-to-realize
+
 coq/Lib/extralib.v
 coq/Lib/Predefs.v
 coq/Framework/KVStore.v

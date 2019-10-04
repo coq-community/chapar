@@ -3,7 +3,6 @@ From Chapar Require Import KVStore.
 
 From Coq Require Import Lia.
 
-
 Module Type AbsExecCarrier (SyntaxArg : SyntaxPar).
   Module AbsExec := AbsExec SyntaxArg.
 End AbsExecCarrier.
@@ -374,15 +373,15 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       ls2 = ls1 ++ ls3 /\ step_star_fun nil sched s = Some (ls3, s'))%list.
   Proof.
     induction sched; simpl; intros.
-    * inversion H; clear H; subst.
-    exists nil; rewrite List.app_nil_r; split; reflexivity.
-    * destruct (step_fun a s) as [ [??] | ?]; try discriminate.
-    edestruct IHsched as [ls3[??]]; eauto; subst ls2.
-    exists (l::ls3)%list; split.
-    rewrite <-List.app_assoc.
-    reflexivity.
-    eapply prefix_step_star_fun with (ls3:=[l]) (ls1:=nil).
-    assumption.
+    - inversion H; clear H; subst.
+      exists nil; rewrite List.app_nil_r; split; reflexivity.
+    - destruct (step_fun a s) as [[?]|]; try discriminate.
+      edestruct IHsched as [ls3[??]]; eauto; subst ls2.
+      exists (l::ls3)%list; split.
+      * rewrite <-List.app_assoc.
+        reflexivity.
+      * eapply prefix_step_star_fun with (ls3:=[l]) (ls1:=nil).
+        assumption.
   Qed.
 
   Lemma step_ext: forall s1 s3 l s2 s4,

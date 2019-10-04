@@ -2,12 +2,10 @@
 (* Adapted from "A Formalization of Relaxed Separation Logic" by Viktor Vafeiadis *)
 (**********************************************************************************)
 
-Require Import List.
-Require Import Permutation.
-Set Implicit Arguments.
+From Coq Require Import List.
+From Coq Require Import Permutation.
 
-Notation sval := (@proj1_sig _ _).
-Notation "@ 'sval'" := (@proj1_sig) (at level 10, format "@ 'sval'").
+Set Implicit Arguments.
 
 Definition disjoint A (l1 l2 : list A) := 
   forall a (IN1: In a l1) (IN2: In a l2), False.
@@ -137,4 +135,4 @@ Proof.
   tauto.
 Qed.
 
-Hint Resolve NoDup_filter.
+Hint Resolve NoDup_filter : core.

@@ -17,7 +17,6 @@ Module SyntaxArg <: SyntaxPar.
   Definition init_val : nat := 10.
 End SyntaxArg.
 
-
 Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: CauseObl AlgDef).
   Module Import Alg := ExecToAbstExec AlgDef Parametric CauseObl SyntaxArg.
 
@@ -26,6 +25,7 @@ Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Ca
   End AECarrier.
 
   Module Import RAS:= ReflAbsSem SyntaxArg AECarrier.
+  Declare Scope Prog.
   Delimit Scope Prog with Prog.
   Bind Scope Prog with Prog.
   Bind Scope Prog with PProg.
@@ -47,9 +47,10 @@ Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Ca
    --------
   *)
 
-  Let null := 0.
-  Let head := 7.
-  Let init := 10.
+  (* could also be section-ed Lets *)
+  Local Definition null := 0.
+  Local Definition head := 7.
+  Local Definition init := 10.
 
   Definition prog1: PProg := 
     fun n =>
@@ -93,7 +94,6 @@ Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Ca
         | _ => skip
       end%Prog%bool.
 
-
   Lemma CausallyContent_Prog1: CausallyContent prog1.
   Proof. (* Note: "fast" is a relative term. This will take a few minutes... *)
     fast_casually_content max_nid max_nid_eq 50.
@@ -108,11 +108,7 @@ Module ListClient (AlgDef: AlgDef) (Parametric: Parametric AlgDef) (CauseObl: Ca
     eapply CausallyContent_Prog1; eauto.
   Qed.
 
-
 End ListClient.
-
-
-
 
 (* Corollary: causally-consistent for Alg1 *)
 Module Alg1.
@@ -128,7 +124,6 @@ Module Alg1.
 
 End Alg1.
 
-
 (* Corollary: causally-consistent for Alg2 *)
 Module Alg2.
   Import KVSAlg2.
@@ -142,7 +137,6 @@ Module Alg2.
   Qed.
 
 End Alg2.
-
 
 (* Corollary: causally-consistent for Alg3 *)
 Module Alg3.

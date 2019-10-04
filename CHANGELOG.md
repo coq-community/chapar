@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Unused library lemmas and functions originally from a formalization of separation logic that were vendored
 
 ### Fixed
+- Hint and declaration deprecation warnings
 - Switch from deprecated `omega` tactic to `lia`
 
 ### Changed
