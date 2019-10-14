@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [8.10.0] - 2019-10-14
 ### Removed
 - Unused library lemmas and functions originally from a formalization of separation logic that were vendored
 
@@ -23,5 +25,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modernize build scripts to use `coq_makefile` features
 - Reorganize code into subdirectories
 
-[Unreleased]: https://github.com/coq-community/chapar/compare/v8.9.0...master
+[Unreleased]: https://github.com/coq-community/chapar/compare/v8.10.0...master
+[8.10.0]: https://github.com/coq-community/chapar/releases/tag/v8.10.0
 [8.9.0]: https://github.com/coq-community/chapar/releases/tag/v8.9.0
