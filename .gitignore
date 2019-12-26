@@ -3,7 +3,10 @@
 *.v.d
 *.aux
 *.vio
+*.vos
+*.vok
 *~
+.Makefile.coq.d
 Makefile.coq
 Makefile.coq.bak
 Makefile.coq.conf

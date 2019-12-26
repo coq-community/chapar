@@ -1,5 +1,6 @@
 opam-version: "2.0"
 maintainer: "palmskog@gmail.com"
+version: "dev"
 
 homepage: "https://github.com/coq-community/chapar"
 dev-repo: "git+https://github.com/coq-community/chapar.git"
@@ -11,14 +12,13 @@ description: """
 A framework for modular verification of causal consistency for replicated key-value
 store implementations and their client programs in Coq. Includes proofs of the causal consistency
 of two key-value store implementations and a simple automatic model checker for the correctness
-of client programs.
-"""
+of client programs."""
 
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
   "ocaml"
-  "coq" {(>= "8.9" & < "8.11~") | (= "dev")}
+  "coq" {(>= "8.9" & < "8.12~") | (= "dev")}
 ]
 
 tags: [

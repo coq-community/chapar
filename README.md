@@ -26,10 +26,6 @@ store implementations and their client programs in Coq. Includes proofs of the c
 of two key-value store implementations and a simple automatic model checker for the correctness
 of client programs.
 
-
-More details about the project can be found in the paper
-[Chapar: Certified Causally Consistent Distributed Key-value Stores](http://adam.chlipala.net/papers/ChaparPOPL16/).
-
 ## Meta
 
 - Author(s):
@@ -41,6 +37,9 @@ More details about the project can be found in the paper
 - License: [MIT License](LICENSE)
 - Compatible Coq versions: 8.9 or later
 - Additional Coq dependencies: none
+- Coq namespace: `Chapar`
+- Related publication(s):
+  - [Chapar: Certified Causally Consistent Distributed Key-value Stores](http://adam.chlipala.net/papers/ChaparPOPL16/) doi:[10.1145/2837614.2837622](https://doi.org/10.1145/2837614.2837622)
 
 ## Building and installation instructions
 
@@ -60,9 +59,6 @@ cd chapar
 make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
-
-After installation, the included modules are available under
-the `Chapar` namespace.
 
 ## Chapar Stores
 
