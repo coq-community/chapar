@@ -3,21 +3,23 @@ fullname: Chapar
 shortname: chapar
 organization: coq-community
 community: true
+travis: true
+doi: 10.1145/2837614.2837622
 
 synopsis: >-
   A framework for verification of causal consistency for distributed key-value stores
   and their clients in Coq
 
-description: |
+description: |-
   A framework for modular verification of causal consistency for replicated key-value
   store implementations and their client programs in Coq. Includes proofs of the causal consistency
   of two key-value store implementations and a simple automatic model checker for the correctness
   of client programs.
 
-paper:
-  doi: 10.1145/2837614.2837622  
-  url: http://adam.chlipala.net/papers/ChaparPOPL16/
-  title: 'Chapar: Certified Causally Consistent Distributed Key-value Stores'
+publications:
+- pub_doi: 10.1145/2837614.2837622
+  pub_url: http://adam.chlipala.net/papers/ChaparPOPL16/
+  pub_title: 'Chapar: Certified Causally Consistent Distributed Key-value Stores'
 
 authors:
 - name: Mohsen Lesani
@@ -33,6 +35,8 @@ maintainers:
 
 opam-file-maintainer: palmskog@gmail.com
 
+opam-file-version: dev
+
 license:
   fullname: MIT License
   identifier: MIT
@@ -41,10 +45,11 @@ plugin: false
 
 supported_coq_versions:
   text: 8.9 or later
-  opam: '{(>= "8.9" & < "8.11~") | (= "dev")}'
+  opam: '{(>= "8.9" & < "8.12~") | (= "dev")}'
 
 tested_coq_nix_versions:
 - version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
+- version_or_url: '8.11'
 - version_or_url: '8.10'
 - version_or_url: '8.9'
 
