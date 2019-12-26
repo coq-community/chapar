@@ -2111,7 +2111,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     - msgid.
       destruct (nid_eq_dec (msg_sender x) (msg_receiver x)); try discriminate.
       eapply Forall_forall in H2; eauto.
-      autorewrite with core in *; simpl in *; lia.
+      autorewrite with core in *; simpl in *; intuition; try lia.
     - apply Forall_app; auto.
         eapply Forall_impl; [ eassumption | ].
         simpl; intros.
