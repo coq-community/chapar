@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Compatibility with Coq 8.11+beta1
+- Ignore more untracked files such as `.vos`
+
 ## [8.10.0] - 2019-10-14
 ### Removed
 - Unused library lemmas and functions originally from a formalization of separation logic that were vendored
