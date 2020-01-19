@@ -59,9 +59,9 @@ matrix:
     - NJOBS=2
     <<: *OPAM
 
-  # Test extracted via OPAM
+  # Test extracted supported versions of Coq via OPAM
   - env:
     - COQ_IMAGE=coqorg/coq:dev
-    - PACKAGE=coq-chapar-stores
+    - PACKAGE=chapar-kv-stores.dev
     - NJOBS=2
     <<: *OPAM
