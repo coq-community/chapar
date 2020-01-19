@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Compatibility with Coq 8.11+beta1
 - Ignore more untracked files such as `.vos`
+- Remove mention of extracted package in README.md
+
+### Changed
+- Add `Proof using` annotations for faster `.vos`/`.vio` compilation
 
 ## [8.10.0] - 2019-10-14
 ### Removed
