@@ -41,8 +41,6 @@ license:
   fullname: MIT License
   identifier: MIT
 
-plugin: false
-
 supported_coq_versions:
   text: 8.9 or later
   opam: '{(>= "8.9" & < "8.12~") | (= "dev")}'
@@ -59,21 +57,22 @@ tested_coq_opam_versions:
 namespace: Chapar
 
 extracted:
-  extracted_fullname: Chapar Stores
-  extracted_shortname: chapar-stores
+  extracted_fullname: Chapar Key-value Stores
+  extracted_shortname: chapar-kv-stores
 
   extracted_synopsis: Three executable causally consistent distributed key-value stores
   extracted_description: |
     Three key-value stores, verified to be causally consistent in
     the Coq proof assistant and extracted to executable code.
 
-  target: stores
+  extracted_make_target: stores
 
-  supported_ocaml_versions:
+  extracted_supported_ocaml_versions:
     text: 4.05.0 or later
     opam: '{>= "4.05.0"}'
 
-  tested_extracted_coq_opam_version: dev
+  extracted_tested_coq_opam_versions:
+  - version: dev
 
   extracted_dependencies:
   - opam:

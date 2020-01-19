@@ -17,7 +17,6 @@ of client programs."""
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
-  "ocaml"
   "coq" {(>= "8.9" & < "8.12~") | (= "dev")}
 ]
 

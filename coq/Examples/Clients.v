@@ -249,12 +249,3 @@ Module Alg3.
   Qed.
   
 End Alg3.
-
-
-
-
-
-
-
-
-

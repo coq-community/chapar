@@ -18,6 +18,7 @@
 [gitter-shield]: https://img.shields.io/badge/chat-on%20gitter-%23c1272d.svg
 [gitter-link]: https://gitter.im/coq-community/Lobby
 
+
 [doi-shield]: https://zenodo.org/badge/DOI/10.1145/2837614.2837622.svg
 [doi-link]: https://doi.org/10.1145/2837614.2837622
 
@@ -36,7 +37,7 @@ of client programs.
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
 - Compatible Coq versions: 8.9 or later
-- Additional Coq dependencies: none
+- Additional dependencies: none
 - Coq namespace: `Chapar`
 - Related publication(s):
   - [Chapar: Certified Causally Consistent Distributed Key-value Stores](http://adam.chlipala.net/papers/ChaparPOPL16/) doi:[10.1145/2837614.2837622](https://doi.org/10.1145/2837614.2837622)
@@ -60,20 +61,19 @@ make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
 
-## Chapar Stores
+## Chapar Key-value Stores
 
 Three key-value stores, verified to be causally consistent in
 the Coq proof assistant and extracted to executable code.
 
 
 - Compatible OCaml versions: 4.05.0 or later
-- Additional OCaml dependencies:
+- Additional dependencies:
   - [OCamlbuild](https://github.com/ocaml/ocamlbuild) 
   - [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later 
 
-Chapar Stores can be installed via OPAM as above using the package name `coq-chapar-stores`.
-
-To instead extract the code and compile manually, use the following command:
+## Building
+To extract the code and compile manually, use the following command:
 ```
 make stores
 ```
