@@ -12,10 +12,7 @@ Require Import Coq.Arith.Compare_dec.
 Require Import Coq.Arith.EqNat.
 
 From Chapar Require Import Predefs.
-
-
 From Chapar Require Import KVStore.
-
 
 (*
 Module AlgDefArgs <: AlgDefParams.
@@ -2366,8 +2363,7 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
 
     Lemma init_method_R: 
       forall v1 v2, R v1 v2 -> RState _ _ R (init_method _ v1) (init_method _ v2).
-      
-      Proof.
+      Proof using.
         intros.
         unfold RState.
         unfold init_method.
@@ -2384,8 +2380,7 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         -> let (v1', s1') := get_method _ n s1 k in
            let (v2', s2') := get_method _ n s2 k in
            R v1' v2' /\ RState _ _ R s1' s2'.
-      
-      Proof.
+      Proof using.
         intros.
         unfold get_method.
         unfold RState in H.
@@ -2409,8 +2404,7 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         -> let (s1', u1) := put_method _ n s1 k v1 in
            let (s2', u2) := put_method _ n s2 k v2 in
            RState _ _ R s1' s2' /\ RUpdate _ _ R u1 u2.
-
-      Proof.
+      Proof using.
         intros.
         unfold put_method.
         split.
@@ -2471,8 +2465,7 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         -> R v1 v2
         -> RUpdate _ _ R u1 u2
         -> guard_method _ n s1 k v1 u1 = guard_method _ n s2 k v2 u2.
-      
-      Proof.
+      Proof using.
         intros.
         unfold guard_method.
         unfold RState in H.
@@ -2490,8 +2483,7 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         -> R v1 v2
         -> RUpdate _ _ R u1 u2
         -> RState _ _ R (update_method _ n s1 k v1 u1) (update_method _ n s2 k v2 u2).
-      
-      Proof.
+      Proof using.
         intros.
         unfold RState.
         unfold update_method.
@@ -2512,7 +2504,6 @@ Module KVSAlg1Parametric <: Parametric KVSAlg1.
         simpl_override.
         apply H.
         reflexivity.
-
       Qed.
 
   End ParallelWorlds.

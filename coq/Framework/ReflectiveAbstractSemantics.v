@@ -165,8 +165,6 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | |- ?t => mcase_eq_term t H'
     end.
 
-
-
   Section A.
 (* TEMPORARY *)
 (* these are defined here because SysPredefs.MaxNId is currently admitted.
@@ -179,7 +177,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     Definition nids:= (let (l, _, _) := SysPredefs.bnats max_nid in l).
 
   Lemma nids_eq: nids = SysPredefs.nids.
-  Proof. unfold nids, SysPredefs.nids; intros; rewrite max_nid_eq; reflexivity. Qed.
+  Proof using max_nid_eq. unfold nids, SysPredefs.nids; intros; rewrite max_nid_eq; reflexivity. Qed.
 
 
   Definition step_fun task s: option (Label * State) :=
@@ -292,7 +290,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma nid_in_dec_existsb: forall n l,
     List.existsb (EqNat.beq_nat n) l =
       if List.in_dec NId_eq_dec n l then true else false.
-  Proof.
+  Proof using.
     intros.
     case_eq (List.existsb (EqNat.beq_nat n) l); intros.
     apply List.existsb_exists in H; destruct H as [y[??]].
@@ -311,7 +309,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma fast_step_correct: forall task s l s',
     step_fun task s = Some (l, s') ->
     fast_step_fun task s = Some s'.
-  Proof.
+  Proof using max_nid_eq.
     unfold step_fun, fast_step_fun; intros.
     rewrite nids_eq in *.
     repeat match goal with
@@ -330,7 +328,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma fast_step_star_correct: forall ls sched s ls' s',
     step_star_fun ls sched s = Some (ls', s') ->
     fast_step_star_fun sched s = Some s'.
-  Proof.
+  Proof using max_nid_eq.
     intros.
     revert ls s ls' s' H.
     induction sched; simpl; intros.
@@ -347,7 +345,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     | Some (ls2, s') => step_star_fun ls2 sched2 s'
     | None => None
     end.
-  Proof.
+  Proof using.
     clear max_nid_eq.
     induction sched1; simpl; intros; auto.
     repeat mcase_eq; subst; auto.
@@ -358,7 +356,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma prefix_step_star_fun: forall sched ls1 ls2 ls3 s s',
     step_star_fun ls1 sched s = Some (ls2, s') ->
     step_star_fun (ls3++ls1)%list sched s = Some (ls3++ls2, s')%list.
-  Proof.
+  Proof using.
     induction sched; simpl; intros.
     congruence.
     destruct (step_fun a s ) as [ [??] | ]; try discriminate.
@@ -371,7 +369,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     step_star_fun ls1 sched s = Some (ls2, s') ->
     (exists ls3,
       ls2 = ls1 ++ ls3 /\ step_star_fun nil sched s = Some (ls3, s'))%list.
-  Proof.
+  Proof using.
     induction sched; simpl; intros.
     - inversion H; clear H; subst.
       exists nil; rewrite List.app_nil_r; split; reflexivity.
@@ -389,7 +387,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     (forall n, s1 n = s3 n) ->
     (forall n, s2 n = s4 n) ->
     step s3 l s4.
-  Proof.
+  Proof using.
     intros s1 s3 l s2 s4 Hstep Heq1 Heq2.
     apply functional_extensionality in Heq1.
     apply functional_extensionality in Heq2.
@@ -411,7 +409,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       | SchedUpdate n1 n2 => List.In n1 nids /\ List.In n2 nids
       end
       /\ valid_schedule nids sched.
-  Proof.
+  Proof using.
     unfold valid_schedule; intros.
     split; intros.
     inversion H; split; auto.
@@ -421,7 +419,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma valid_schedule_app: forall nids sched1 sched2,
     valid_schedule nids (sched1++sched2) <->
     valid_schedule nids sched1 /\ valid_schedule nids sched2.
-  Proof.
+  Proof using.
     unfold valid_schedule; intros.
     rewrite !List.Forall_forall in *.
     setoid_rewrite List.in_app_iff.
@@ -452,7 +450,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma valid_nid_step_fun_Proc: forall n1 s l s',
     step_fun (SchedProc n1) s = Some (l, s') ->
     List.In n1 nids.
-  Proof.
+  Proof using.
     simpl; intros.
     rewrite nid_in_dec_existsb in *.
     mcase_eq in H; auto.
@@ -462,7 +460,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma valid_nid_step_fun_Update: forall n1 n2 s l s',
     step_fun (SchedUpdate n1 n2) s = Some (l, s') ->
     List.In n1 nids.
-  Proof.
+  Proof using.
     simpl; intros.
     rewrite nid_in_dec_existsb in *.
     repeat mcase_eq in H; auto;
@@ -473,7 +471,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma valid_schedule_step_star_fun: forall ls1 sched prog0 hs',
     step_star_fun ls1 sched (init prog0) = Some hs' ->
     valid_schedule nids sched.
-  Proof.
+  Proof using.
     intros.
     clear max_nid_eq.
     assert (forall n1 n2, List.In n1 nids -> ~List.In n2 nids -> ptrace ((init prog0) n2) = nil /\ rec ((init prog0) n1) n2 = 0)
@@ -566,7 +564,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
 
   Lemma step_fun_complete: forall s l s',
     step s l s' -> exists task, step_fun task s = Some (l,s').
-  Proof.
+  Proof using max_nid_eq.
     intros s l s' Hstep.
     inversion Hstep; clear Hstep.
     * exists (SchedProc n).
@@ -652,7 +650,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma state_eq_override: forall s n p u d r m,
     s n = node_state p u d r m ->
     s = SysPredefs.override s n (node_state p u d r m).
-  Proof.
+  Proof using.
     intros.
     apply functional_extensionality; intros.
     case_eq (n =? x);
@@ -663,7 +661,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
 
   Lemma nid_eq_equiv: forall {A} (t1 t2: A) n1 n2,
     (if n1 =_? n2 then t1 else t2) = (if n1 =? n2 then t1 else t2).
-  Proof.
+  Proof using.
     intros.
     destruct Peano_dec.eq_nat_dec as [Heq | Hneq]; subst; auto.
     rewrite PeanoNat.Nat.eqb_refl; auto.
@@ -673,7 +671,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma step_fun_sound: forall task s l s',
     step_fun task s = Some (l,s') ->
     step s l s'.
-  Proof.
+  Proof using max_nid_eq.
     intros task s l s' Hstep.
     unfold step_fun, SysPredefs.init_nid in *.
     rewrite ?nids_eq in *.
@@ -731,7 +729,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     step_star s ls s' ->
     ~List.In n nids ->
     prog (s n) = prog (s' n).
-  Proof.
+  Proof using max_nid_eq.
     intros.
     rewrite nids_eq in *.
     induction H using rev_step_star_ind; auto.
@@ -763,7 +761,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
 
   Lemma step_star_fun_complete: forall s ls s',
     step_star s ls s' -> exists sched, step_star_fun nil sched s = Some (ls,s').
-  Proof.
+  Proof using max_nid_eq.
     intros s ls s' Hss.
     induction Hss using rev_step_star_ind.
     exists nil; reflexivity.
@@ -780,7 +778,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Lemma step_star_fun_sound: forall sched s ls1 ls2 s',
     step_star_fun ls1 sched s = Some (ls1++ls2,s')%list ->
     step_star s ls2 s'.
-  Proof.
+  Proof using max_nid_eq.
     intros sched s ls1 ls2 s' Hss.
     revert s ls1 ls2 s' Hss.
     induction sched; simpl; intros.
@@ -862,7 +860,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     fast_check_all_schedules nids N s check = true ->
     (forall l s, check s = true -> check' l s = true) ->
     check_all_schedules' nids N s check' = true.
-  Proof.
+  Proof using max_nid_eq.
     induction N; intros.
     * reflexivity.
     * unfold check_all_schedules'; fold check_all_schedules'.
@@ -934,7 +932,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       step_star_fun nil sched s = Some (ls,s') ->
       step_fun task s' = Some (l,s'') ->
       check l s'' = true)).
-  Proof.
+  Proof using max_nid_eq.
     split; intros.
     * rewrite nids_eq in *.
     rename H into Hperm.
@@ -1062,7 +1060,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       step_star_fun nil sched s = Some (ls, s') ->
       step_fun task s' = Some (l', s'') ->
       check l' s'' = true.
-  Proof.
+  Proof using max_nid_eq.
     intros.
     eapply check_all_schedules'_correct_fun_equiv; eauto.
   Qed.
@@ -1079,7 +1077,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       sched = (task::sched')%list /\
       step_fun task s = Some (l, s') /\
       step_star_fun nil sched' s' = Some (ls, s'').
-  Proof.
+  Proof using.
     intros.
     clear max_nid_eq.
     revert s l ls s'' H.
@@ -1099,7 +1097,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       sched = (sched1 ++ sched2)%list /\
       step_star_fun nil sched1 s = Some (ls1, s') /\
       step_star_fun nil sched2 s' = Some (ls2, s'').
-  Proof.
+  Proof using.
     intros.
     clear max_nid_eq.
     revert s sched ls2 s'' H.
@@ -1120,7 +1118,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       check_all_schedules' nids (run_steps + sched_length)
         (init program) check_no_fault' = true) ->
     (forall l, List.In l h -> l <> fault_label n).
-  Proof.
+  Proof using max_nid_eq.
     intros program h s n run_steps Hss Hcheck_scheds.
     generalize (step_star_not_in_nids _ _ _ n Hss);
       intro Hnot_nids_eq.
@@ -1158,7 +1156,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     step_fun task s = Some (l, s') ->
     check_no_fault'' nids s = true ->
     l <> fault_label n.
-  Proof.
+  Proof using.
     unfold step_fun, check_no_fault''; intros.
     clear max_nid_eq.
     repeat (
@@ -1183,7 +1181,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       fast_check_all_schedules nids (run_steps + sched_length)
         (init program) (check_no_fault'' nids) = true) ->
     (forall l, List.In l h -> l <> fault_label n).
-  Proof.
+  Proof using max_nid_eq.
     intros program h s n run_steps Hss Hinit_no_fault Hcheck_scheds.
     intros l Hin.
     generalize (step_star_not_in_nids _ _ _ n Hss);
@@ -1235,7 +1233,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       List.length sched2 <= max_steps ->
       step_star_fun ls1 (sched1 ++ sched2)%list s = Some (ls,s') ->
       check ls s' = true)).
-  Proof.
+  Proof using max_nid_eq.
     split; intros.
     rewrite nids_eq in *.
     * rename H0 into Hvalid_sched.
@@ -1319,7 +1317,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     step_star_fun ls1 (sched1 ++ sched2)%list s = Some (ls', s') ->
     check_all_schedules nids max_steps ls1 sched1 s check = true ->
     check ls' s' = true.
-  Proof.
+  Proof using max_nid_eq.
     intros.
     eapply check_all_schedules_correct_fun_equiv; eauto.
   Qed.
@@ -1349,7 +1347,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
       check_all_schedules nids (run_steps + sched_length) nil
         nil (init program) (check_no_fault nids) = true) ->
     AbsExec.prog (s n) <> fault /\ (forall l, List.In l h -> l <> fault_label n).
-  Proof.
+  Proof using max_nid_eq.
     intros program h s n run_steps Hss Hnot_nit_no_fault Hcheck_scheds.
     generalize (step_star_not_in_nids _ _ _ n Hss);
       intro Hnot_nids_eq.
