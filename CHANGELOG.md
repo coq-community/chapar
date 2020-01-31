@@ -6,12 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
-- Compatibility with Coq 8.11+beta1
+- Compatibility with Coq 8.11
 - Ignore more untracked files such as `.vos`
-- Remove mention of extracted package in README.md
+- Remove mention of extracted OPAM package in README.md
 
 ### Changed
 - Add `Proof using` annotations for faster `.vos`/`.vio` compilation
+- Ignore undeclared scope warnings
 
 ## [8.10.0] - 2019-10-14
 ### Removed

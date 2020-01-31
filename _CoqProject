@@ -4,6 +4,7 @@
 -Q coq/Examples Chapar
 
 -arg -w -arg -extraction-axiom-to-realize
+-arg -w -arg -undeclared-scope
 
 coq/Lib/extralib.v
 coq/Lib/Predefs.v
