@@ -55,7 +55,7 @@ opam install coq-chapar
 To instead build and install manually, do:
 
 ``` shell
-git clone https://github.com/coq-community/chapar
+git clone https://github.com/coq-community/chapar.git
 cd chapar
 make   # or make -j <number-of-cores-on-your-machine>
 make install
@@ -72,7 +72,7 @@ the Coq proof assistant and extracted to executable code.
   - [OCamlbuild](https://github.com/ocaml/ocamlbuild) 
   - [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later 
 
-## Building
+### Building
 To extract the code and compile manually, use the following command:
 ```
 make stores
