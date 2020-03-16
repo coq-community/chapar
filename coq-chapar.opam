@@ -14,9 +14,9 @@ store implementations and their client programs in Coq. Includes proofs of the c
 of two key-value store implementations and a simple automatic model checker for the correctness
 of client programs."""
 
-build: [make "-j%{jobs}%"]
-install: [make "install"]
+build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
+  "dune" {>= "2.4"}
   "coq" {(>= "8.9" & < "8.12~") | (= "dev")}
 ]
 
