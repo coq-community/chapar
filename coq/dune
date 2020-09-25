@@ -3,8 +3,6 @@
  (package coq-chapar)
  (synopsis "A framework for verification of causal consistency for distributed key-value stores and their clients in Coq")
  (modules :standard \ Algorithms.Extract)
- (flags
-   -w -extraction-axiom-to-realize
-   -w -undeclared-scope))
+ (flags -w -extraction-axiom-to-realize))
 
 (include_subdirs qualified)

@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Changed
+- Declare all scopes and consequently require Coq 8.10 or later
 - Coq OPAM package definition uses dune
 
 ### Added

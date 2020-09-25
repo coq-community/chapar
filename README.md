@@ -36,7 +36,7 @@ of client programs.
 - Coq-community maintainer(s):
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: 8.9 or later
+- Compatible Coq versions: 8.10 or later
 - Additional dependencies: none
 - Coq namespace: `Chapar`
 - Related publication(s):
@@ -57,7 +57,7 @@ To instead build and install manually, do:
 ``` shell
 git clone https://github.com/coq-community/chapar.git
 cd chapar
-make   # or make -j <number-of-cores-on-your-machine>
+make   # or make -j <number-of-cores-on-your-machine> 
 make install
 ```
 
