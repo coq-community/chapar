@@ -12,12 +12,13 @@ Three key-value stores, verified to be causally consistent in
 the Coq proof assistant and extracted to executable code.
 """
 
-build: [make "-j%{jobs}%" "stores"]
+build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
   "ocaml" {>= "4.05.0"}
-  "coq" {(>= "8.9" & < "8.12~") | (= "dev")}
-  "ocamlbuild" {build}
+  "dune" {>= "2.5"}
+  "coq" {(>= "8.10" & < "8.13~") | (= "dev")}
   "batteries" {>= "2.8.0"}
+  "coq-chapar" {= version}
 ]
 
 authors: [

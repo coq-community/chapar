@@ -1,9 +1,4 @@
--Q coq/Lib Chapar
--Q coq/Framework Chapar
--Q coq/Algorithms Chapar
--Q coq/Examples Chapar
-
--arg -w -arg -extraction-axiom-to-realize
+-Q coq Chapar
 
 coq/Lib/extralib.v
 coq/Lib/Predefs.v
@@ -12,6 +7,6 @@ coq/Framework/ReflectiveAbstractSemantics.v
 coq/Algorithms/KVSAlg1.v
 coq/Algorithms/KVSAlg2.v
 coq/Algorithms/KVSAlg3.v
-coq/Algorithms/Extract.v
+coq/Algorithms/ExtractAlgorithm.v
 coq/Examples/Clients.v
 coq/Examples/ListClient.v

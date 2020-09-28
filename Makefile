@@ -1,6 +1,11 @@
 include Makefile.ml-files
 
-OCAMLBUILD = ocamlbuild -tag safe_string -package batteries -I coq -I ml
+MLFILES = ml/algorithm.ml ml/algorithm1.ml ml/algorithm2.ml ml/algorithm3.ml \
+ ml/common.ml ml/benchgen.ml ml/benchprog.ml ml/commonbench.ml ml/configuration.ml \
+ ml/launchStore1.ml ml/launchStore2.ml ml/launchStore3.ml ml/runtime.ml \
+ ml/experiment.ml ml/readConfig.ml ml/util.ml
+
+OCAMLBUILD = ocamlbuild -tag safe_string -package batteries -I ml
 
 default: coq
 
@@ -18,22 +23,19 @@ $(ALGSML): Makefile.coq
 install: Makefile.coq
 	$(MAKE) -f Makefile.coq install
 
-benchgen.native : ml/*.ml
+benchgen.native : $(MLFILES)
 	$(OCAMLBUILD) benchgen.native
 
-launchStore1.native: $(ALG1) ml/*.ml benchgen.native
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG1ML)
+launchStore1.native: $(ALG1) $(MLFILES) benchgen.native
 	$(OCAMLBUILD) launchStore1.native
 
-launchStore2.native: $(ALG2) ml/*.ml benchgen.native
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG2ML)
+launchStore2.native: $(ALG2) $(MLFILES) benchgen.native
 	$(OCAMLBUILD) launchStore2.native
 
-launchStore3.native: $(ALG3) ml/*.ml benchgen.native
-	sed -i "s/failwith \"AXIOM TO BE REALIZED\"/4/g" $(ALG3ML)
+launchStore3.native: $(ALG3) $(MLFILES) benchgen.native
 	$(OCAMLBUILD) launchStore3.native
 
-experiment.native: ml/*.ml
+experiment.native: $(MLFILES)
 	$(OCAMLBUILD) experiment.native 
 
 run: launchStore1.native launchStore2.native launchStore2.native benchgen.native

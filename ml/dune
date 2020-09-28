@@ -1,0 +1,56 @@
+(executable
+ (name launchStore1)
+ (flags :standard -warn-error -A)
+ (public_name chaparStore1)
+ (libraries utils batteries)
+ (modules launchStore1 KVSAlg1 algorithm1)
+ (package chapar-kv-stores))
+
+(executable
+ (name launchStore2)
+ (flags :standard -warn-error -A)
+ (public_name chaparStore2)
+ (libraries utils batteries)
+ (modules launchStore2 KVSAlg2 algorithm2)
+ (package chapar-kv-stores))
+
+(executable
+ (name launchStore3)
+ (flags :standard -warn-error -A)
+ (public_name chaparStore3)
+ (libraries utils batteries)
+ (modules launchStore3 KVSAlg3 algorithm3)
+ (package chapar-kv-stores))
+
+(executable
+ (name benchgen)
+ (flags :standard -warn-error -A)
+ (public_name chaparBenchgen)
+ (libraries utils)
+ (modules benchgen)
+ (package chapar-kv-stores))
+
+(coq.extraction
+ (prelude ExtractAlgorithm1)
+ (extracted_modules KVSAlg1)
+ (theories Chapar)
+)
+
+(coq.extraction
+ (prelude ExtractAlgorithm2)
+ (extracted_modules KVSAlg2)
+ (theories Chapar)
+)
+
+(coq.extraction
+ (prelude ExtractAlgorithm3)
+ (extracted_modules KVSAlg3)
+ (theories Chapar)
+)
+
+(library
+ (name utils)
+ (flags :standard -warn-error -A -w -27-35-39)
+ (modules util runtime configuration common algorithm readConfig benchprog commonbench)
+ (wrapped false)
+ (libraries unix))
