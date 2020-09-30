@@ -5,11 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Changed
+- OCaml OPAM package definition uses Dune
+- Reorganize extraction to support Dune
+- Coq OPAM package definition uses Dune
 - Declare all scopes and consequently require Coq 8.10 or later
-- Coq OPAM package definition uses dune
 
 ### Added
-- Support for Coq builds with dune
+- Support for OCaml builds with Dune
+- Support for Coq builds with Dune
 
 ## [8.11.0] - 2020-01-31
 ### Fixed

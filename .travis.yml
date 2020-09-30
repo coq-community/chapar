@@ -15,6 +15,7 @@ language: shell
       export PS4='+ \e[33;1m(\$0 @ line \$LINENO) \$\e[0m '
       set -ex  # -e = exit on failure; -x = trace for debug
       opam update -y
+      for DEP in ${LOCAL_DEPS}; do opam pin add ${DEP} . -y -n -k path; done
       opam pin add ${PACKAGE} . -y -n -k path
       opam install ${PACKAGE} -y -j ${NJOBS} --deps-only
       opam config list
@@ -69,6 +70,7 @@ jobs:
   # Test extracted supported versions of Coq via OPAM
   - env:
     - COQ_IMAGE=coqorg/coq:dev
-    - PACKAGE=chapar-kv-stores.dev
+    - PACKAGE=coq-chapar-stores.dev
+    - LOCAL_DEPS=coq-chapar.dev
     - NJOBS=2
     <<: *OPAM
