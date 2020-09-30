@@ -1,4 +1,3 @@
-open Pervasives
 (* open Printf *)
 open Configuration
 open ReadConfig

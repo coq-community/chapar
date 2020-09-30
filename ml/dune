@@ -4,7 +4,7 @@
  (public_name chaparStore1)
  (libraries utils batteries)
  (modules launchStore1 KVSAlg1 algorithm1)
- (package chapar-kv-stores))
+ (package coq-chapar-stores))
 
 (executable
  (name launchStore2)
@@ -12,7 +12,7 @@
  (public_name chaparStore2)
  (libraries utils batteries)
  (modules launchStore2 KVSAlg2 algorithm2)
- (package chapar-kv-stores))
+ (package coq-chapar-stores))
 
 (executable
  (name launchStore3)
@@ -20,7 +20,7 @@
  (public_name chaparStore3)
  (libraries utils batteries)
  (modules launchStore3 KVSAlg3 algorithm3)
- (package chapar-kv-stores))
+ (package coq-chapar-stores))
 
 (executable
  (name benchgen)
@@ -28,7 +28,13 @@
  (public_name chaparBenchgen)
  (libraries utils)
  (modules benchgen)
- (package chapar-kv-stores))
+ (package coq-chapar-stores))
+
+(executable
+ (name experiment)
+ (flags :standard -w -33-35)
+ (libraries utils)
+ (modules experiment))
 
 (coq.extraction
  (prelude ExtractAlgorithm1)
