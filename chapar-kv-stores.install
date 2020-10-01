@@ -1,6 +1,0 @@
-bin: [
-  "_build/ml/launchStore1.native" {"chaparStore1"}
-  "_build/ml/launchStore2.native" {"chaparStore2"}
-  "_build/ml/launchStore3.native" {"chaparStore3"}
-  "_build/ml/benchgen.native" {"chaparBenchgen"}
-]

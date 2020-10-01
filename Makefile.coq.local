@@ -1,7 +1,16 @@
 include Makefile.ml-files
 
-$(ALGSML): coq/Algorithms/Extract.v coq/Algorithms/KVSAlg1.vo coq/Algorithms/KVSAlg2.vo coq/Algorithms/KVSAlg3.vo
-	$(COQC) $(COQDEBUG) $(COQFLAGS) $(COQLIBS) coq/Algorithms/Extract.v
+$(ALG1): ml/ExtractAlgorithm1.v coq/Algorithms/KVSAlg1.vo coq/Algorithms/ExtractAlgorithm.vo
+	cd ml && $(COQC) $(COQDEBUG) $(COQFLAGS) -Q ../coq Chapar ExtractAlgorithm1.v
+
+$(ALG2): ml/ExtractAlgorithm2.v coq/Algorithms/KVSAlg2.vo coq/Algorithms/ExtractAlgorithm.vo
+	cd ml && $(COQC) $(COQDEBUG) $(COQFLAGS) -Q ../coq Chapar ExtractAlgorithm2.v
+
+$(ALG3): ml/ExtractAlgorithm3.v coq/Algorithms/KVSAlg3.vo coq/Algorithms/ExtractAlgorithm.vo
+	cd ml && $(COQC) $(COQDEBUG) $(COQFLAGS) -Q ../coq Chapar ExtractAlgorithm3.v
 
 clean::
-	rm -f $(ALGSML)
+	rm -f $(ALGSML) ml/.ExtractAlgorithm1.aux ml/.ExtractAlgorithm2.aux ml/.ExtractAlgorithm3.aux \
+	 ml/ExtractAlgorithm1.vo ml/ExtractAlgorithm1.vos ml/ExtractAlgorithm1.vok ml/ExtractAlgorithm1.glob \
+	 ml/ExtractAlgorithm2.vo ml/ExtractAlgorithm2.vos ml/ExtractAlgorithm2.vok ml/ExtractAlgorithm2.glob \
+	 ml/ExtractAlgorithm3.vo ml/ExtractAlgorithm3.vos ml/ExtractAlgorithm3.vok ml/ExtractAlgorithm3.glob

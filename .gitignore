@@ -11,12 +11,12 @@ Makefile.coq
 Makefile.coq.bak
 Makefile.coq.conf
 .coqdeps.d
-coq/KVSAlg1.ml
-coq/KVSAlg1.mli
-coq/KVSAlg2.ml
-coq/KVSAlg2.mli
-coq/KVSAlg3.ml
-coq/KVSAlg3.mli
+ml/KVSAlg1.ml
+ml/KVSAlg1.mli
+ml/KVSAlg2.ml
+ml/KVSAlg2.mli
+ml/KVSAlg3.ml
+ml/KVSAlg3.mli
 benchgen.native
 launchStore1.native
 launchStore2.native
@@ -24,3 +24,4 @@ launchStore3.native
 experiment.native
 _build
 .lia.cache
+.merlin
