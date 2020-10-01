@@ -1,15 +1,14 @@
-Require Import Coq.Unicode.Utf8.
-
-Require Import Coq.Init.Datatypes.
-Require Import Coq.Arith.Max.
-Require Import Coq.Lists.List.
-Require Import Program.Equality.
-Require Import Coq.Lists.ListSet.
-Require Import Coq.Program.Basics.
-Require Import Coq.Bool.Bool.
-Require Import Coq.Arith.Peano_dec.
-Require Import Coq.Arith.Compare_dec.
-Require Import Coq.Arith.EqNat.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Arith.Max.
+From Coq Require Import Lists.List.
+From Coq Require Import Program.Equality.
+From Coq Require Import Lists.ListSet.
+From Coq Require Import Program.Basics.
+From Coq Require Import Bool.Bool.
+From Coq Require Import Arith.Peano_dec.
+From Coq Require Import Arith.Compare_dec.
+From Coq Require Import Arith.EqNat.
+Import ListNotations.
 
 From Chapar Require Import Predefs.
 From Chapar Require Import KVStore.
@@ -237,9 +236,9 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         rewrite N2; clear N2.
 
         assert (L: clock (alg_state (node_states s'' (label_node l))) n
-                       ≤ clock (alg_state (node_states s2 (label_node l'))) n
-                       ∧ (label_node l' = n ∧ label_is_put l'
-                          →  clock (alg_state (node_states s'' (label_node l))) n <
+                       <= clock (alg_state (node_states s2 (label_node l'))) n
+                       /\ (label_node l' = n /\ label_is_put l'
+                          ->  clock (alg_state (node_states s'' (label_node l))) n <
                             clock (alg_state (node_states s2 (label_node l'))) n)).
 
         clear M1.
@@ -2253,7 +2252,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       assert (A3: 
                 (clock (label_post_state lp) (label_node lp) = clock (alg_state (node_states s1 n')) (label_node lp) + 1)
                 /\ (forall n, In n nids /\ (n <> label_node lp)->
-                              clock (label_post_state lp) n ≤ clock (alg_state (node_states s1 n')) n)).
+                              clock (label_post_state lp) n <= clock (alg_state (node_states s1 n')) n)).
         subv_in l' N2.
         inversion N2; simpl in *; try contradiction.
         subst s'0. subst a. subst s'5. subst s'4. subst s'3. subst s'2. subst v0. subst k0. subst n3. subst c0. subst n'0. subst s'1.

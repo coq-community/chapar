@@ -1,7 +1,10 @@
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import List.
+From Coq Require Import Lia.
+Import ListNotations.
+
 From Chapar Require Import Predefs.
 From Chapar Require Import KVStore.
-
-From Coq Require Import Lia.
 
 Module Type AbsExecCarrier (SyntaxArg : SyntaxPar).
   Module AbsExec := AbsExec SyntaxArg.
