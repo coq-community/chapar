@@ -150,14 +150,14 @@ documentation: |
   #### Directory structure
 
   - root (directory): The execution scripts described in the section Running Experiments below
-  
+
   - `coq` (directory); the Coq verification framework:
     * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
     * `Framework/ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
     * `Algorithms/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
     * `Algorithms/KVSAlg2.v`: The definition and proof of algorithm 2 in the paper
     * `Algorithms/KVSAlg3.v`: The definition and proof of algorithm 3 in the appendix
-    * `Algorithms/Extract.v`: The Coq file that extracts the algorithms
+    * `Algorithms/ExtractAlgorithm.v`: Extraction directives for extracting the algorithms to OCaml
     * `Examples/Clients.v`: Verified client program
     * `Examples/ListClient.v`: Verified client program
     * `Lib` (directory): General purpose Coq libraries
