@@ -1,12 +1,12 @@
-Require Import Coq.Unicode.Utf8.
-Require Import Coq.Init.Datatypes.
-Require Import Coq.Arith.Max. 
-Require Import Coq.Lists.List.
-Require Import Coq.Bool.Bool.
-Require Import Coq.Arith.EqNat.
-Require Import Coq.Arith.Peano_dec.
-Require Import Coq.Arith.Compare_dec.
-Require Import Coq.Program.Basics.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Arith.Max. 
+From Coq Require Import Lists.List.
+From Coq Require Import Bool.Bool.
+From Coq Require Import Arith.EqNat.
+From Coq Require Import Arith.Peano_dec.
+From Coq Require Import Arith.Compare_dec.
+From Coq Require Import Program.Basics.
+Import ListNotations.
 
 From Chapar Require Import Predefs.
 From Chapar Require Import extralib.
@@ -115,7 +115,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       let as1 := alg_state ((node_states (init p)) n) in
       let as2 := alg_state ((node_states s) n) in
       step_star (init p) h s
-      -> forall k, entry_clock (store as2 k) ≤ rec as2 (entry_node (store as2 k)).
+      -> forall k, entry_clock (store as2 k) <= rec as2 (entry_node (store as2 k)).
 
     Proof.
       intros.
@@ -259,7 +259,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
     forall (p: ICExec.Syntax.PProg)(h: list Label)(s: State)(n: NId),
         let as2 := alg_state ((node_states s) n) in
         step_star (init p) h s
-        -> forall n', In n' nids -> dep as2 n' ≤ rec as2 n'.
+        -> forall n', In n' nids -> dep as2 n' <= rec as2 n'.
 
     Proof.
       intros p h s n as2 H n' Hi.
@@ -1058,9 +1058,9 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         rewrite N2; clear N2.
 
         assert (L: dep (alg_state (node_states s'' (label_node l))) n
-                       ≤ dep (alg_state (node_states s2 (label_node l'))) n
-                       ∧ (label_node l' = n ∧ label_is_put l'
-                          →  dep (alg_state (node_states s'' (label_node l))) n <
+                       <= dep (alg_state (node_states s2 (label_node l'))) n
+                       /\ (label_node l' = n /\ label_is_put l'
+                          ->  dep (alg_state (node_states s'' (label_node l))) n <
                              dep (alg_state (node_states s2 (label_node l'))) n)).
 
         clear M1.
@@ -3065,7 +3065,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       assert (A3: 
                 (dep (label_post_state lp) (label_node lp) = rec (alg_state (node_states s1 n')) (label_node lp) + 1)
                 /\ (forall n, In n nids ->
-                              dep (label_post_state lp) n ≤ rec (alg_state (node_states s1 n')) n)).
+                              dep (label_post_state lp) n <= rec (alg_state (node_states s1 n')) n)).
         subv_in l' N2.
         inversion N2; simpl in *; try contradiction.
         subst s'0. subst a. subst s'5. subst s'4. subst s'3. subst s'2. subst v0. subst k0. subst n3. subst c0. subst n'0. subst s'1.

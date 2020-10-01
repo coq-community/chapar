@@ -1,6 +1,5 @@
 From Coq Require Import FunctionalExtensionality.
 From Coq Require Import Lia.
-From Coq Require Import Unicode.Utf8.
 From Coq Require Import Arith.EqNat.
 From Coq Require Import Arith.Peano_dec.
 From Coq Require Import Arith.Compare_dec.
@@ -11,6 +10,7 @@ From Coq Require Import Arith.Minus.
 
 From Coq Require Import Relations.Relation_Operators. (* For union and transitive closure. *)
 From Coq Require Import List. (* For In function. *)
+Import ListNotations.
 
 From Chapar Require Import Predefs.
 
@@ -2486,7 +2486,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     forall s l s',
        step s l s'
       -> (latest_label s < label_num l 
-          /\ label_num l ≤ latest_label s').
+          /\ label_num l <= latest_label s').
     
     Proof.
       intros.

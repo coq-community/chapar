@@ -14,6 +14,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Support for OCaml builds with Dune
 - Support for Coq builds with Dune
 
+### Fixed
+- Remove dependency on a local functional extensionality axiom
+
+### Removed
+- All uses of UTF-8
+
 ## [8.11.0] - 2020-01-31
 ### Fixed
 - Compatibility with Coq 8.11

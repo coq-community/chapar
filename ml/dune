@@ -1,6 +1,6 @@
 (executable
  (name launchStore1)
- (flags :standard -warn-error -a -w -27-33-39)
+ (flags :standard -w -3-27-33-39)
  (public_name chaparStore1)
  (libraries utils batteries)
  (modules launchStore1 KVSAlg1 algorithm1)
@@ -8,7 +8,7 @@
 
 (executable
  (name launchStore2)
- (flags :standard -warn-error -a -w -27-33-39)
+ (flags :standard -w -3-27-33-39)
  (public_name chaparStore2)
  (libraries utils batteries)
  (modules launchStore2 KVSAlg2 algorithm2)
@@ -16,7 +16,7 @@
 
 (executable
  (name launchStore3)
- (flags :standard -warn-error -a -w -27-33-39)
+ (flags :standard -w -3-27-33-39)
  (public_name chaparStore3)
  (libraries utils batteries)
  (modules launchStore3 KVSAlg3 algorithm3)

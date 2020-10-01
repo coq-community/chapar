@@ -1,14 +1,14 @@
-Require Import Coq.Unicode.Utf8.
-Require Import Coq.Init.Datatypes.
-Require Import Coq.Arith.Max. 
-Require Import Coq.Lists.List.
-Require Import Coq.Bool.Bool.
-Require Import Coq.Arith.EqNat.
-Require Import Coq.Arith.Peano_dec.
-Require Import Coq.Arith.Compare_dec.
-Require Import Coq.Program.Basics.
-Require Import Coq.Arith.Lt.
-Require Import Coq.Arith.Le.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Arith.Max. 
+From Coq Require Import Lists.List.
+From Coq Require Import Bool.Bool.
+From Coq Require Import Arith.EqNat.
+From Coq Require Import Arith.Peano_dec.
+From Coq Require Import Arith.Compare_dec.
+From Coq Require Import Program.Basics.
+From Coq Require Import Arith.Lt.
+From Coq Require Import Arith.Le.
+Import ListNotations.
 
 From Chapar Require Import Predefs.
 From Chapar Require Import extralib.
@@ -3756,7 +3756,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       (step_star (init p) h s
        /\ label_is_put l
        /\ In l h)
-      -> label_clock l ≤ received (alg_state (node_states s n)) n.
+      -> label_clock l <= received (alg_state (node_states s n)) n.
 
     Proof.
       intros.
@@ -4498,7 +4498,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                         rewrite B4 in *; clear B4. clear B11 B12 B13 B14.
                         rewrite B15 in A5; clear B15.
 
-                        assert (B5: label_clock l ≤ received (alg_state (node_states s2 n'')) (label_node l)).
+                        assert (B5: label_clock l <= received (alg_state (node_states s2 n'')) (label_node l)).
                           subst lc. inversion H13. simpl in *. subst n''. simpl in *. simpl_override. simpl. subst a. 
 
                           unfold guard_method in H17.
@@ -4553,7 +4553,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                         rewrite B4 in *; clear B4. clear B11 B12 B13 B14.
                         rewrite B15 in A53; clear B15.
 
-                        assert (B5: label_clock l'' ≤ received (alg_state (node_states s2 n'')) (label_node l'')).
+                        assert (B5: label_clock l'' <= received (alg_state (node_states s2 n'')) (label_node l'')).
                           subst lc. inversion H13. simpl in *. subst n''. simpl in *. simpl_override. simpl. subst a. 
 
                           unfold guard_method in H18.
