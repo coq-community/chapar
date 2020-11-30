@@ -19,16 +19,38 @@ jobs:
           - 'coqorg/coq:8.12'
           - 'coqorg/coq:8.11'
           - 'coqorg/coq:8.10'
-        opam_file:
-          - 'coq-chapar.opam'
-          - '.'
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: coq-community/docker-coq-action@v1
         with:
-          opam_file: ${{ matrix.opam_file }}
           custom_image: ${{ matrix.image }}
+          custom_script: |
+            startGroup "Print opam config"
+              opam config list; opam repo list; opam list
+            endGroup
+            startGroup "Build chapar dependencies"
+              opam pin add -n -y -k path coq-chapar .
+              opam update -y
+              opam install -y -j 2 coq-chapar --deps-only
+            endGroup
+            startGroup "Build chapar"
+              opam install -y -v -j 2 coq-chapar
+              opam list
+            endGroup
+            startGroup "Build chapar-stores dependencies"
+              opam pin add -n -y -k path coq-chapar-stores .
+              opam update -y
+              opam install -y -j 2 coq-chapar-stores --deps-only
+            endGroup
+            startGroup "Build chapar-stores"
+              opam install -y -v -j 2 coq-chapar-stores
+              opam list
+            endGroup
+            startGroup "Uninstallation test"
+              opam remove -y coq-chapar-stores
+              opam remove -y coq-chapar
+            endGroup
 
 # See also:
 # https://github.com/coq-community/docker-coq-action#readme
