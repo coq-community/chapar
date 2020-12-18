@@ -17,7 +17,7 @@ build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
   "ocaml" {>= "4.05.0"}
   "dune" {>= "2.5"}
-  "coq" {(>= "8.10" & < "8.13~") | (= "dev")}
+  "coq" {(>= "8.10" & < "8.14~") | (= "dev")}
   "batteries" {>= "2.8.0"}
   "coq-chapar" {= version}
 ]

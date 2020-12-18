@@ -135,4 +135,4 @@ Proof.
   tauto.
 Qed.
 
-Hint Resolve NoDup_filter : core.
+Global Hint Resolve NoDup_filter : core.

@@ -671,7 +671,7 @@ Module StepStar (StepStarArgs: StepStarParams).
     Qed.
 
 
-  Hint Constructors step_star : core.
+  Global Hint Constructors step_star : core.
 
 End StepStar.
 
@@ -1996,7 +1996,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     NoDup (map (fun m => (msg_sender m, msg_clock m, msg_receiver m)) (messages s))
     /\ Forall (fun m => clock_state (node_states s (msg_sender m)) >= msg_clock m) (messages s).
 
-  Hint Constructors NoDup : core.
+  Global Hint Constructors NoDup : core.
 
   Hint Rewrite app_nil_r.
         
@@ -2087,7 +2087,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     destruct (p x); auto.
   Qed.
 
-  Hint Resolve nodup_nids : core.
+  Global Hint Resolve nodup_nids : core.
 
   Hint Rewrite map_app map_map override_new_val override_old_val using congruence.
 
@@ -2866,7 +2866,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
            end; auto.
   Qed.
   
-  Hint Constructors NoDup : core.
+  Global Hint Constructors NoDup : core.
 
   Lemma step_star_latest_label : forall s1 h s2,
     step_star s1 h s2
@@ -4046,7 +4046,7 @@ Module ExecToInstExec.
     -> Rmessages ms ms'
     -> Rmessages (m :: ms) (m' :: ms').
 
-  Hint Constructors Rmessages : core.
+  Global Hint Constructors Rmessages : core.
 
   Lemma Rmessages_app : forall ms1 ms2 ms1' ms2',
     Rmessages ms1 ms2
@@ -4079,7 +4079,7 @@ Module ExecToInstExec.
     induction ms; simpl; intuition.
   Qed.
 
-  Hint Resolve Rmessages_app Rmessages_map : core.
+  Global Hint Resolve Rmessages_app Rmessages_map : core.
 
   Definition erase_state (s : N.ICExec.State) (s' : N.CExec.State) :=
     (forall n, let ns := N.ICExec.node_states s n in
@@ -4098,7 +4098,7 @@ Module ExecToInstExec.
     unfold R; auto.
   Qed.
 
-  Hint Resolve R_easy : core.
+  Global Hint Resolve R_easy : core.
 
   Lemma Erasure'':
     forall s1 l s2,
