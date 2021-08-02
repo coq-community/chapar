@@ -44,7 +44,7 @@ license:
 
 supported_coq_versions:
   text: 8.10 or later
-  opam: '{(>= "8.10" & < "8.14~") | (= "dev")}'
+  opam: '{(>= "8.10" & < "8.15~") | (= "dev")}'
 
 tested_coq_nix_versions:
 - version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
