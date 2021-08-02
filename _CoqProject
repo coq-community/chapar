@@ -1,5 +1,7 @@
 -Q coq Chapar
 
+-arg -w -arg -deprecated-hint-rewrite-without-locality
+
 coq/Lib/extralib.v
 coq/Lib/Predefs.v
 coq/Framework/KVStore.v

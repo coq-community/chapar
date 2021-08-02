@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reorganize extraction to support Dune
 - Coq OPAM package definition uses Dune
 - Declare all scopes and consequently require Coq 8.10 or later
+- Make most hints local
 
 ### Added
 - Support for OCaml builds with Dune

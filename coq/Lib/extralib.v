@@ -134,5 +134,3 @@ Proof.
   rewrite In_filter.
   tauto.
 Qed.
-
-Global Hint Resolve NoDup_filter : core.
