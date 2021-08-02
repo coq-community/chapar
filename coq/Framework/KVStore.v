@@ -670,9 +670,6 @@ Module StepStar (StepStarArgs: StepStarParams).
       assumption.
     Qed.
 
-
-  Global Hint Constructors step_star : core.
-
 End StepStar.
 
 
@@ -1996,9 +1993,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     NoDup (map (fun m => (msg_sender m, msg_clock m, msg_receiver m)) (messages s))
     /\ Forall (fun m => clock_state (node_states s (msg_sender m)) >= msg_clock m) (messages s).
 
-  Global Hint Constructors NoDup : core.
-
-  Hint Rewrite app_nil_r.
+  Local Hint Constructors NoDup : core.
         
   Lemma NoDup_app : forall A (ls1 : list A),
     NoDup ls1
@@ -2008,9 +2003,9 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
   Proof.
     induction 1; inversion 1; simpl; intuition (subst; eauto).
 
-    constructor; autorewrite with core; eauto.
+    constructor; rewrite app_nil_r; eauto.
 
-    constructor; autorewrite with core; eauto.
+    constructor; eauto.
     intro HIn.
     apply in_app_or in HIn; simpl in *; intuition (subst; eauto).
   Qed.
@@ -2087,7 +2082,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     destruct (p x); auto.
   Qed.
 
-  Global Hint Resolve nodup_nids : core.
+  Local Hint Resolve nodup_nids : core.
 
   Hint Rewrite map_app map_map override_new_val override_old_val using congruence.
 
@@ -2866,7 +2861,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
            end; auto.
   Qed.
   
-  Global Hint Constructors NoDup : core.
+  Local Hint Constructors NoDup : core.
 
   Lemma step_star_latest_label : forall s1 h s2,
     step_star s1 h s2
@@ -4046,7 +4041,7 @@ Module ExecToInstExec.
     -> Rmessages ms ms'
     -> Rmessages (m :: ms) (m' :: ms').
 
-  Global Hint Constructors Rmessages : core.
+  Local Hint Constructors Rmessages : core.
 
   Lemma Rmessages_app : forall ms1 ms2 ms1' ms2',
     Rmessages ms1 ms2
@@ -4079,7 +4074,7 @@ Module ExecToInstExec.
     induction ms; simpl; intuition.
   Qed.
 
-  Global Hint Resolve Rmessages_app Rmessages_map : core.
+  Local Hint Resolve Rmessages_app Rmessages_map : core.
 
   Definition erase_state (s : N.ICExec.State) (s' : N.CExec.State) :=
     (forall n, let ns := N.ICExec.node_states s n in
@@ -4098,7 +4093,7 @@ Module ExecToInstExec.
     unfold R; auto.
   Qed.
 
-  Global Hint Resolve R_easy : core.
+  Local Hint Resolve R_easy : core.
 
   Lemma Erasure'':
     forall s1 l s2,
@@ -4271,17 +4266,17 @@ Module ExecToInstExec.
            N.ICExec.StepStar.step_star s1' h' s2'
            /\ erase_state s2' s2
            /\ h = erase h'.
-
   Proof.
-    induction 1; simpl; intuition eauto.
-    apply IHstep_star in H1; clear IHstep_star; destruct H1 as [ ? [ ] ]; intuition subst.
-    generalize H0; intro Hdup.
-    eapply Erasure'' in Hdup; eauto.
-    destruct Hdup as [ ? [ ] ]; intuition subst.
-    do 3 esplit.
-    eapply N.ICExec.StepStar.steps; eauto.
-    intuition.
-    symmetry; apply erase_app.
+    induction 1; simpl; intros.
+    - exists [], s1'; split; [apply N.ICExec.StepStar.refl|auto].
+    - apply IHstep_star in H1; clear IHstep_star; destruct H1 as [ ? [ ] ]; intuition subst.
+      generalize H0; intro Hdup.
+      eapply Erasure'' in Hdup; eauto.
+      destruct Hdup as [ ? [ ] ]; intuition subst.
+      do 3 esplit.
+      eapply N.ICExec.StepStar.steps; eauto.
+      intuition.
+      symmetry; apply erase_app.
   Qed.
 
   Theorem Erasure:
@@ -6869,7 +6864,6 @@ End InstExecToAbsExec.
       -> exists (h': list AExec.Label),
            AExec.history (AExec.init p) h'
            /\ N.CExec.ext_hist h = AExec.ext_hist h'.
-
     Proof.
       intros.
       assert (A1 := ExecToInstExec.Refinement).
@@ -6895,7 +6889,6 @@ End InstExecToAbsExec.
     CausallyContent program ->
     CExec.history (CExec.init program) h ->
     forall n l, List.In l h -> l <> CExec.fault_label n.
-
   Proof.
     unfold CausallyContent.
     intros program h HcauseContent Hrun.
@@ -6919,6 +6912,5 @@ End InstExecToAbsExec.
   Qed.
 
   Module Exec := ConcExec SyntaxArg AlgDef.
-
 
 End ExecToAbstExec.

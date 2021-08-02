@@ -14,6 +14,8 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
   Export AbsExec.
   Export AbsExec.Syntax.
 
+  Local Hint Constructors step_star : core.
+
   Lemma rev_step_star_ind :
     forall (P : StepStarArgs.State -> list StepStarArgs.Label -> StepStarArgs.State -> Prop),
       (forall s, P s nil s) ->
