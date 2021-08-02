@@ -5,11 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Changed
+- Make most hints local
+- Adjust build for Coq 8.13 and beyond
+
+## [8.12.0] - 2020-10-01
+### Changed
 - OCaml OPAM package definition uses Dune
 - Reorganize extraction to support Dune
 - Coq OPAM package definition uses Dune
 - Declare all scopes and consequently require Coq 8.10 or later
-- Make most hints local
 
 ### Added
 - Support for OCaml builds with Dune
@@ -51,7 +55,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modernize build scripts to use `coq_makefile` features
 - Reorganize code into subdirectories
 
-[Unreleased]: https://github.com/coq-community/chapar/compare/v8.11.0...master
+[Unreleased]: https://github.com/coq-community/chapar/compare/v8.12.0...master
+[8.12.0]: https://github.com/coq-community/chapar/releases/tag/v8.12.0
 [8.11.0]: https://github.com/coq-community/chapar/releases/tag/v8.11.0
 [8.10.0]: https://github.com/coq-community/chapar/releases/tag/v8.10.0
 [8.9.0]: https://github.com/coq-community/chapar/releases/tag/v8.9.0
