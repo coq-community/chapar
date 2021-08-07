@@ -1,5 +1,3 @@
-# This file was generated from `meta.yml`, please do not edit manually.
-# Follow the instructions on https://github.com/coq-community/templates to regenerate.
 name: Nix CI
 
 on:
@@ -15,8 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version_or_url:
-          - 'https://github.com/coq/coq-on-cachix/tarball/master'
+        coq_version:
+          - 'master'
+          - 'v8.14'
       fail-fast: false
     steps:
       - uses: cachix/install-nix-action@v12
@@ -24,7 +23,14 @@ jobs:
           nix_path: nixpkgs=channel:nixpkgs-unstable
       - uses: cachix/cachix-action@v8
         with:
-          # Name of a cachix cache to pull/substitute
           name: coq
+      - uses: cachix/cachix-action@v8
+        with:
+          name: coq-community
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - uses: cachix/cachix-action@v8
+        with:
+          name: math-comp
       - uses: actions/checkout@v2
-      - run: nix-build --argstr coq-version-or-url "${{ matrix.version_or_url }}"
+      - run: >
+          nix-build https://coq.inria.fr/nix/toolbox --argstr job chapar --arg override '{coq = "'${{ matrix.coq_version }}'"; chapar = builtins.filterSource (path: _: baseNameOf path != ".git") ./.;}'
