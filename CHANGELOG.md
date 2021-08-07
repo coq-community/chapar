@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [8.13.0] - 2021-08-02
 ### Changed
 - Make most hints local
 - Adjust build for Coq 8.13 and beyond
@@ -55,7 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modernize build scripts to use `coq_makefile` features
 - Reorganize code into subdirectories
 
-[Unreleased]: https://github.com/coq-community/chapar/compare/v8.12.0...master
+[Unreleased]: https://github.com/coq-community/chapar/compare/v8.13.0...master
+[8.13.0]: https://github.com/coq-community/chapar/releases/tag/v8.13.0
 [8.12.0]: https://github.com/coq-community/chapar/releases/tag/v8.12.0
 [8.11.0]: https://github.com/coq-community/chapar/releases/tag/v8.11.0
 [8.10.0]: https://github.com/coq-community/chapar/releases/tag/v8.10.0
