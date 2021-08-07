@@ -1,3 +1,5 @@
+# This file was generated from `meta.yml`, please do not edit manually.
+# Follow the instructions on https://github.com/coq-community/templates to regenerate.
 name: Nix CI
 
 on:
@@ -13,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        coq_version:
-          - 'master'
-          - 'v8.14'
+        overrides:
+          - 'coq = "master"'
+          - 'coq = "v8.14"'
       fail-fast: false
     steps:
       - uses: cachix/install-nix-action@v12
@@ -33,4 +35,4 @@ jobs:
           name: math-comp
       - uses: actions/checkout@v2
       - run: >
-          nix-build https://coq.inria.fr/nix/toolbox --argstr job chapar --arg override '{coq = "'${{ matrix.coq_version }}'"; chapar = builtins.filterSource (path: _: baseNameOf path != ".git") ./.;}'
+          nix-build https://coq.inria.fr/nix/toolbox --argstr job chapar --arg override '{ ${{ matrix.overrides }}; chapar = builtins.filterSource (path: _: baseNameOf path != ".git") ./.; }'
