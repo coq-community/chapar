@@ -2,6 +2,6 @@
  (name Chapar)
  (package coq-chapar)
  (synopsis "A framework for verification of causal consistency for distributed key-value stores and their clients in Coq")
- (flags -w -deprecated-hint-rewrite-without-locality))
+ (flags :standard -w -deprecated-hint-rewrite-without-locality))
 
 (include_subdirs qualified)
