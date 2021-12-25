@@ -1,11 +1,10 @@
-(**********************************************************************************)
-(* Adapted from "A Formalization of Relaxed Separation Logic" by Viktor Vafeiadis *)
-(**********************************************************************************)
-
-From Coq Require Import List.
-From Coq Require Import Permutation.
+From Coq Require Import List Permutation.
 
 Set Implicit Arguments.
+
+(* ****************************************************************************** *)
+(* Adapted from "A Formalization of Relaxed Separation Logic" by Viktor Vafeiadis *)
+(* ****************************************************************************** *)
 
 Definition disjoint A (l1 l2 : list A) := 
   forall a (IN1: In a l1) (IN2: In a l2), False.

@@ -1,5 +1,4 @@
-From Chapar Require Import KVSAlg3.
-From Chapar Require Import ExtractAlgorithm.
+From Chapar Require Import KVSAlg3 ExtractAlgorithm.
 
 Extract Constant KVStore.SysPredefs.MaxNId => "4".
 

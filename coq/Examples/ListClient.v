@@ -1,7 +1,5 @@
-From Chapar Require Import Predefs.
-From Chapar Require Import KVStore.
 From Coq Require String.
-From Chapar Require Import ReflectiveAbstractSemantics.
+From Chapar Require Import Predefs KVStore ReflectiveAbstractSemantics.
 From Chapar Require KVSAlg1 KVSAlg2 KVSAlg3.
 
 Import PeanoNat.

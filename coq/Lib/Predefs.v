@@ -1,8 +1,5 @@
-From Coq Require Import Bool.Bool.
-From Coq Require Import Arith.EqNat.
-From Coq Require Import Arith.Peano_dec.
-From Coq Require Import Arith.Compare_dec.
-From Coq Require Import Lists.List.
+From Coq Require Import Bool Arith.EqNat Arith.Peano_dec Arith.Compare_dec List.
+
 Import ListNotations.
 
 Notation "a =_? b" := (eq_nat_dec a b) (at level 20).

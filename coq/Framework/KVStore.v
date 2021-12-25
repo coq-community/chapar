@@ -1,18 +1,11 @@
-From Coq Require Import FunctionalExtensionality.
-From Coq Require Import Lia.
-From Coq Require Import Arith.EqNat.
-From Coq Require Import Arith.Peano_dec.
-From Coq Require Import Arith.Compare_dec.
-From Coq Require Import Arith.Max.
-From Coq Require Import Arith.Lt.
-From Coq Require Import Arith.Le.
-From Coq Require Import Arith.Minus.
-
+From Coq Require Import FunctionalExtensionality Lia.
+From Coq Require Import Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
+From Coq Require Import Arith.Max Arith.Lt Arith.Le Arith.Minus.
 From Coq Require Import Relations.Relation_Operators. (* For union and transitive closure. *)
 From Coq Require Import List. (* For In function. *)
-Import ListNotations.
-
 From Chapar Require Import Predefs.
+
+Import ListNotations.
 
 Module SysPredefs.
 
@@ -1956,7 +1949,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     Qed.
 
 
-  Hint Rewrite app_length : length.
+  Local Hint Rewrite app_length : length.
 
   Ltac length_contra :=
     match goal with
@@ -2083,8 +2076,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
   Qed.
 
   Local Hint Resolve nodup_nids : core.
-
-  Hint Rewrite map_app map_map override_new_val override_old_val using congruence.
+  Local Hint Rewrite map_app map_map override_new_val override_old_val using congruence.
 
   Ltac msgid :=
     repeat (simpl; autorewrite with core);
@@ -4094,6 +4086,7 @@ Module ExecToInstExec.
   Qed.
 
   Local Hint Resolve R_easy : core.
+  Local Hint Rewrite map_app map_map override_new_val override_old_val using congruence.
 
   Lemma Erasure'':
     forall s1 l s2,
