@@ -44,7 +44,7 @@ of client programs.
 - Coq-community maintainer(s):
   - Karl Palmskog ([**@palmskog**](https://github.com/palmskog))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: 8.10 or later
+- Compatible Coq versions: 8.14 or later
 - Additional dependencies: none
 - Coq namespace: `Chapar`
 - Related publication(s):
