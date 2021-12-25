@@ -1,16 +1,8 @@
-From Coq Require Import FunctionalExtensionality.
-From Coq Require Import Arith.Max. 
-From Coq Require Import Lists.List.
-From Coq Require Import Bool.Bool.
-From Coq Require Import Arith.EqNat.
-From Coq Require Import Arith.Peano_dec.
-From Coq Require Import Arith.Compare_dec.
-From Coq Require Import Program.Basics.
-Import ListNotations.
+From Coq Require Import FunctionalExtensionality List Bool Program.Basics.
+From Coq Require Import Arith.Max Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
+From Chapar Require Import Predefs extralib KVStore.
 
-From Chapar Require Import Predefs.
-From Chapar Require Import extralib.
-From Chapar Require Import KVStore.
+Import ListNotations.
 
 Module KVSAlg3 <: AlgDef.
 

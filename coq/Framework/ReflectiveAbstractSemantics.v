@@ -1,10 +1,7 @@
-From Coq Require Import FunctionalExtensionality.
-From Coq Require Import List.
-From Coq Require Import Lia.
-Import ListNotations.
+From Coq Require Import FunctionalExtensionality List Lia.
+From Chapar Require Import Predefs KVStore.
 
-From Chapar Require Import Predefs.
-From Chapar Require Import KVStore.
+Import ListNotations.
 
 Module Type AbsExecCarrier (SyntaxArg : SyntaxPar).
   Module AbsExec := AbsExec SyntaxArg.
@@ -125,8 +122,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     apply IHm; lia.
   Qed.
 
-  Hint Rewrite EqNat.beq_nat_false_iff EqNat.beq_nat_true_iff PeanoNat.Nat.ltb_lt ltb_ge : nat.
-
+  Local Hint Rewrite EqNat.beq_nat_false_iff EqNat.beq_nat_true_iff PeanoNat.Nat.ltb_lt ltb_ge : nat.
 
   Inductive ScheduleTask : Set :=
   | SchedProc: forall (n: SysPredefs.NId), ScheduleTask
