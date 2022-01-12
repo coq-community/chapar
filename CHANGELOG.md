@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Add hint locality everywhere and consequently require Coq 8.14 or later
+
+### Fixed
+- Use consistent conventions for `Require Import`
 
 ## [8.13.0] - 2021-08-02
 ### Changed
