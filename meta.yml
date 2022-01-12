@@ -48,11 +48,11 @@ supported_coq_versions:
 
 tested_coq_opam_versions:
 - version: dev
+- version: '8.15'
 - version: '8.14'
 
 tested_coq_nix_versions:
 - coq_version: 'master'
-- coq_version: 'v8.15'
 
 namespace: Chapar
 

@@ -18,7 +18,6 @@ jobs:
       matrix:
         overrides:
           - 'coq = "master"'
-          - 'coq = "v8.15"'
       fail-fast: false
     steps:
       - name: Determine which commit to test
