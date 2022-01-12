@@ -1,8 +1,7 @@
 From Coq Require Import Arith NPeano.
 (* Require Import PeanoNat. *)
 From Coq Require Import List Ascii String.
-(* TODO: double check that this gets used *)
-From Coq Require Import ExtrOcamlBasic ExtrOcamlNatInt ExtrOcamlString.
+From Coq Require Export ExtrOcamlBasic ExtrOcamlNatInt ExtrOcamlString.
 
 Extract Inlined Constant length => "List.length".
 Extract Inlined Constant negb => "not".
