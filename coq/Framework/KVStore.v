@@ -24,7 +24,7 @@ Module SysPredefs.
   Definition nid_eq_dec := eq_nat_dec.
   (* Definition beq_nid (n n': NId) := beq_nat (inum n) (inum n'). *)
 
-  Definition beq_nid := beq_nat.
+  Definition beq_nid := Nat.eqb.
   (* Notation "n =? n'" := (nid_eq n n'). *)
 
   (*

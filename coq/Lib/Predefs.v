@@ -9,8 +9,8 @@ Notation "a <=_? b" := (le_dec a b) (at level 20).
 Notation "a >_? b" := (gt_dec a b) (at level 20).
 Notation "a >=_? b" := (ge_dec a b) (at level 20).
 
-Notation "a <>? b" := (negb (beq_nat a b)) (at level 70).
-Notation "a =? b" := (beq_nat a b) (at level 70).
+Notation "a <>? b" := (negb (Nat.eqb a b)) (at level 70).
+Notation "a =? b" := (Nat.eqb a b) (at level 70).
 Notation "a <=? b" := (leb a b) (at level 70).
 
 (*
@@ -197,7 +197,6 @@ Tactic Notation "rewrite_clear" ident(H) ident(H') :=
 Tactic Notation "r_rewrite_clear" ident(H) ident(H') :=
   rewrite <- H in H'; clear H.
 
-
 Tactic Notation "bool_to_prop" :=
   try match goal with
     | [ |- negb _ = true ] =>  try apply negb_true_iff
@@ -205,8 +204,8 @@ Tactic Notation "bool_to_prop" :=
   end;
   (apply andb_prop ||
    apply orb_prop ||
-   apply beq_nat_true_iff ||
-   apply beq_nat_false_iff ||
+   apply PeanoNat.Nat.eqb_eq ||
+   apply PeanoNat.Nat.eqb_neq ||
    apply leb_iff).
 
 Tactic Notation "bool_to_prop_in" ident(H) :=
@@ -216,8 +215,8 @@ Tactic Notation "bool_to_prop_in" ident(H) :=
   end;
   (apply andb_prop in H ||
    apply orb_prop in H ||
-   apply beq_nat_true_iff in H ||
-   apply beq_nat_false_iff in H ||
+   apply PeanoNat.Nat.eqb_eq in H ||
+   apply PeanoNat.Nat.eqb_neq in H ||
    apply leb_iff in H).
 
 
