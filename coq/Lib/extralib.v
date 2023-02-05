@@ -77,7 +77,7 @@ Proof.
 Qed.
 
 Lemma In_app : forall A (x:A) l l', In x (l++l') <-> In x l \/ In x l'.
-Proof. intuition; auto using In_appI1, In_appI2. Qed.
+Proof. intuition auto with datatypes; auto using In_appI1, In_appI2. Qed.
 
 Lemma nodup_app:
   forall (A: Type) (l1 l2: list A),

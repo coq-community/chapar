@@ -9,8 +9,8 @@ Notation "a <=_? b" := (le_dec a b) (at level 20).
 Notation "a >_? b" := (gt_dec a b) (at level 20).
 Notation "a >=_? b" := (ge_dec a b) (at level 20).
 
-Notation "a <>? b" := (negb (beq_nat a b)) (at level 70).
-Notation "a =? b" := (beq_nat a b) (at level 70).
+Notation "a <>? b" := (negb (Nat.eqb a b)) (at level 70).
+Notation "a =? b" := (Nat.eqb a b) (at level 70).
 Notation "a <=? b" := (leb a b) (at level 70).
 
 (*

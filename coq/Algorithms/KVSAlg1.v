@@ -1,4 +1,4 @@
-From Coq Require Import FunctionalExtensionality Arith.Max List.
+From Coq Require Import FunctionalExtensionality Arith List.
 From Coq Require Import Program.Equality ListSet Program.Basics Bool.
 From Coq Require Import Arith.Peano_dec Arith.Compare_dec Arith.EqNat.
 From Chapar Require Import Predefs KVStore.
@@ -116,11 +116,10 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         let sc' := clock (alg_state ((node_states s') n)) in
         step_star s h s'
         -> forall n', sc n' <= sc' n'.
-
     Proof.
       intros.
       induction H.
-      apply Le.le_refl.
+      apply Nat.le_refl.
       rename sc' into sc''.
       pose (sc' := clock (alg_state (node_states s2 n))).
       assert (sc' n' <= sc'' n').
@@ -140,22 +139,22 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         destruct (eq_nat_dec n' n0).
           (* --- *)
           subst. 
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
-          apply Le.le_n_Sn.
+          apply Nat.le_succ_diag_r.
           (* --- *)
-          apply Le.le_refl.
+          apply Nat.le_refl.
         (* --- *)
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       (* get *)
       unfold override. unfold key_eq_dec.
       destruct (eq_nat_dec n n0).
         (* --- *)
         simpl.
-        apply Le.le_refl.
+        apply Nat.le_refl.
         (* --- *)
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       (* update *)
       unfold override.
@@ -171,25 +170,25 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           destruct H1 as [H1 H2].
           bool_to_prop_in H1.
           rewrite H1.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
-          apply Le.le_n_Sn.
+          apply Nat.le_succ_diag_r.
           (* --- *)
-          apply Le.le_refl.
+          apply Nat.le_refl.
         (* --- *)
-        apply Le.le_refl.      
+        apply Nat.le_refl.      
 
       (* fault *)
       destruct (eq_nat_dec n n0).
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
-      apply Le.le_trans with (m := sc' n');
+      apply Nat.le_trans with (m := sc' n');
       assumption.
 
     Qed.
@@ -205,7 +204,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let c' := clock (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
-
       Proof.
         intros.
         destruct H as [H1 [H2 H3]].
@@ -248,19 +246,19 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           (* -- *)
           simpl_override.
           split.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           subst n.
-          apply Le.le_n_Sn.
+          apply Nat.le_succ_diag_r.
           intro.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           subst n.
-          apply Lt.lt_n_Sn.
+          apply Nat.lt_succ_diag_r.
           (* -- *)
           simpl_override.
           split.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           destruct H6.
           exfalso.
@@ -274,7 +272,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           simpl_override.
           simpl.
           split.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           destruct H6.
           contradiction.
@@ -296,12 +294,12 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           simpl_override.
           rewrite H0.
           rewrite e0.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
-          apply Le.le_n_Sn.
+          apply Nat.le_succ_diag_r.
           (* -- *)
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
         intro.
         open_conjs.
         contradiction.
@@ -311,7 +309,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           simpl_override.
           simpl_override.
           split.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           open_conjs.
           contradiction.
@@ -320,7 +318,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         split.
           (* -- *)
           rewrite <- H3 in *; clear H3.
-          eapply Le.le_trans; eassumption.
+          eapply Nat.le_trans; eassumption.
           (* -- *)
           clear N1.
           intros.
@@ -328,7 +326,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           assumption.
           clear H.
           
-          eapply Lt.le_lt_trans; eassumption.
+          eapply Nat.le_lt_trans; eassumption.
       Qed.
 
   Lemma get_from_map:
@@ -344,7 +342,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
          let ivn := inst_val_nid iv in
          let ivc := inst_val_clock iv in
          (n' = ivn /\ c' = ivc).
-
     Proof.
       intros.
       open_conjs.
@@ -403,7 +400,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        /\ label_is_put l)
       -> (inst_val_nid iv = n
           /\ inst_val_clock iv = c).
-
     Proof.
       intros.
       destruct H as [H1 H2].
@@ -443,7 +439,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       -> (forall k', 
             (not (k = k'))
             -> m k' = m' k').
-
     Proof.
       intros.
       open_conjs.
@@ -484,7 +479,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
        /\ label_is_update l)
       -> (inst_val_nid iv = n'
           /\ inst_val_clock iv = c).
-
     Proof.
       intros.
       destruct H as [H1 H2].
@@ -589,7 +583,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       (step s l s'
       /\ not (n = n'))
       -> m = m'.
-
     Proof.
       intros.
       open_conjs.
@@ -628,7 +621,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
                    /\ label_orig_node l = ivn
                    /\ label_clock l = ivc
                    /\ label_node l = n)).
-
     Proof.
       intros.
       remember (init p) as s0 eqn: H1.
@@ -883,7 +875,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       step_star (init p) h s
       /\ In m (messages s)
       -> sender_node (msg_update m) = msg_sender m.
-
     Proof.
       intros.
       open_conjs.
@@ -948,8 +939,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
     forall p h s m,
       step_star (init p) h s
       /\ In m (messages s)
-      -> not (sender_node (msg_update m) = msg_receiver m).
-    
+      -> not (sender_node (msg_update m) = msg_receiver m).    
     Proof.
       intros.
       destruct H as [H1 H2].
@@ -1080,7 +1070,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       step_star (init p) h s
       /\ In m (messages s)
       -> sender_clock (msg_update m) (sender_node (msg_update m))= msg_clock m.
-
     Proof.
       intros.
       open_conjs.
@@ -1156,7 +1145,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           /\ sender_node u = label_node lp
           /\ sender_clock u = clock (label_post_state lp)
           /\ sender_clock u (sender_node u) = label_clock lp).
-
     Proof.
       intros.
       remember (init p) as s0 eqn: Hs.
@@ -1255,8 +1243,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let lc := label_clock l in
           let ls := (label_post_state l) in
           let sc := clock ls n in
-          lc = sc).
-    
+          lc = sc).    
     Proof.
       intros.
       destruct H as [H1 [H2 H3]].
@@ -1298,7 +1285,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let lc := label_clock l in
           let ac := clock (alg_state (node_states s' n)) n in
           lc = ac).
-
     Proof.
       intros.
       destruct H as [H1 [H2 H3]].
@@ -1343,7 +1329,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let lc := label_clock l in
           let c'' := clock (alg_state (node_states s'' n)) n in
           lc <= c'').
-
     Proof.
       intros.
       open_conjs.
@@ -1393,7 +1378,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
          /\ c' = mc'
          /\ n = mn
          /\ forall n'', In n'' nids -> mco n'' <= co n''.
-
     Proof.
       intros.
       open_conjs.
@@ -1439,7 +1423,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       unfold override.
       destruct (eq_nat_dec n'' (sender_node u)).
       subst n''.
-      apply Le.le_refl.
+      apply Nat.le_refl.
 
       assert (A:= fold_left_and NId nids n''
              (fun n => ((n =? sender_node u) || (sender_clock u n <=? clock s0 n)))).
@@ -1475,7 +1459,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
            /\ mn = n
            /\ mc = c
            /\ mco = co.
-
     Proof.
       intros.
       open_conjs.
@@ -1636,7 +1619,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       -> (let c := clock (label_post_state l) n in
           let c' := clock (label_post_state l') n in
           c <= c').
-
       Proof.
         intros p h s l l' ni.
         intros.
@@ -1754,7 +1736,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           apply step_star_clock_nondec with (h := (h3' ++ [l'])).
           apply step_star_app_one. exists s1. split; assumption.
 
-          eapply Le.le_trans;  eassumption.
+          eapply Nat.le_trans;  eassumption.
 
     Qed.
 
@@ -1770,7 +1752,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let c' := clock (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
-
     Proof.
       intros.
       destruct H as [H' [H1 H2]].
@@ -1804,7 +1785,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
           let c' := clock (label_post_state l') n in
           c <= c'
           /\ ((label_node l' = n /\ label_is_put l') -> c < c')).
-
   Proof.
     intros.
     destruct H as [H' [H1 H2]].
@@ -1822,14 +1802,14 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       assert (c' <= c'').
       apply cause_step_clock with (p := p)(h := h)(s := s).
       split_all; assumption. 
-      eapply Le.le_trans; eassumption.
+      eapply Nat.le_trans; eassumption.
       (* -- *)
       intros.
       assert (c' < c'').
       apply cause_step_clock with (p := p)(h := h)(s := s).
       split_all; assumption. 
       assumption.
-      eapply Lt.le_lt_trans; eassumption.     
+      eapply Nat.le_lt_trans; eassumption.
   Qed.
 
   (* Obligations *)
@@ -1841,7 +1821,6 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
            SExec.StepStar.step_star (SExec.init) h' s'
            /\ h' = CExec.eff_hist h
            /\ forall n k, store (CExec.alg_state (CExec.node_states s n)) k = s' n k.
-
     Proof.
       intros.
       remember (CExec.init p) as s0.
@@ -2134,7 +2113,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       simpl_override.
       split.      
       subst a.
-      rewrite Plus.plus_comm.
+      rewrite Nat.add_comm.
       simpl.
       f_equal.
       subv n.
@@ -2176,7 +2155,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
       rewrite A2.
       rewrite A1 in N.
       rewrite A1.
-      rewrite Plus.plus_comm in N.
+      rewrite Nat.add_comm in N.
       simpl in N.
       subst n'.
       clear A1 A2.
@@ -2303,7 +2282,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         rewrite e in A22.
         rewrite A31 in A22.
         clear A31.
-        rewrite Plus.plus_comm in A22.
+        rewrite Nat.add_comm in A22.
         simpl in A22.
         apply Lt.lt_n_Sm_le in A22.
         assumption.
@@ -2323,7 +2302,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         split.
         assumption.
         subst n. assumption.
-        eapply Le.le_trans; eassumption.
+        eapply Nat.le_trans; eassumption.
 
     Qed.
 
@@ -2519,5 +2498,3 @@ Module KVSAlg1ExecToAbstExec (SyntaxArg: SyntaxPar).
     Qed.
 
 End KVSAlg1ExecToAbstExec.
-
-

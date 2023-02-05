@@ -1,6 +1,6 @@
 From Coq Require Import FunctionalExtensionality List Bool.
-From Coq Require Import Arith.Max Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
-From Coq Require Import Program.Basics Arith.Lt Arith.Le.
+From Coq Require Import Arith Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
+From Coq Require Import Program.Basics.
 From Chapar Require Import Predefs extralib KVStore.
 
 Import ListNotations.
@@ -2612,15 +2612,15 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
         subst d. subst u. subst c. subst n.
         rewrite <- H21.
         simpl.
-        rewrite Plus.plus_comm.
+        rewrite Nat.add_comm.
         simpl.
         assert (A1 := clock_in_dep p ls s2 n0).
           simpl in A1. depremise A1. subst s1. assumption. 
           rewrite <- H4 in A1. simpl in A1. simpl_override_in A1. simpl in A1.
         rewrite <- H21 in H0. simpl in H0.
         apply A1.
-        rewrite Plus.plus_comm in H0. simpl in H0.
-        apply Gt.gt_pred in H0.
+        rewrite Nat.add_comm in H0. simpl in H0.
+        apply Nat.lt_succ_lt_pred in H0.
         rewrite <- pred_Sn in H0.
         assumption.
 
@@ -2681,13 +2681,13 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       simpl.
       simpl_override.
       simpl.
-      assert (A1 := Lt.le_or_lt (sender_clock u) 1).
+      assert (A1 := Nat.le_gt_cases (sender_clock u) 1).
       destruct A1 as [A1 | A1].
 
-        assert (A2 := Le.le_0_n (received s0 n1)).
+        assert (A2 := Nat.le_0_l (received s0 n1)).
         assert (A3 := plus_O_n (sender_clock u)).
         rewrite <- A3.
-        eapply Plus.plus_le_compat; eassumption.
+        eapply Nat.add_le_mono; eassumption.
       
         assert (A2 := update_pred p h s msg).
           simpl in A2. depremise A2.
@@ -2702,11 +2702,11 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           simpl in A3.
           bool_to_prop_in A3.
 
-        apply Le.le_n_S in A3.
+        apply Nat.succ_le_mono in A3.
 
-        assert (A4 := PeanoNat.Nat.succ_pred (sender_clock u)).
+        assert (A4 := Nat.succ_pred (sender_clock u)).
           depremise A4. intro. rewrite H in *. inversion A1.
-        rewrite A4 in A3. clear A4.        
+        rewrite A4 in A3. clear A4.
 
         assert (A5 := message_update_node_clock_eq p h s msg).
           simpl in A5. depremise A5.
@@ -2714,10 +2714,9 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           destruct A5 as [A5 _].
         rewrite Hm in A5. simpl in A5.
         rewrite A5.
-        rewrite Plus.plus_comm.
+        rewrite Nat.add_comm.
         simpl.
         assumption.
-
     Qed.
 
   Lemma message_clock_le_state_clock:
@@ -2760,7 +2759,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           rewrite e0 in IHstep_star.
           simpl_override_in IHstep_star.
           simpl in IHstep_star.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
           assumption.
@@ -2914,13 +2913,12 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       let sn' := alg_state (node_states s n') in
       step_star (init p) h s
       -> received sn n' <= clock sn'.
-
     Proof.
       intros.
       remember (init p) as s0 eqn: Hs.
       induction H.
       
-      subst sn. subst sn'. subst s. simpl. apply Le.le_refl.
+      subst sn. subst sn'. subst s. simpl. apply Nat.le_refl.
 
       simpl in IHstep_star. depremise IHstep_star. assumption.
       inversion H0.
@@ -2957,7 +2955,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             simpl in IHstep_star.
             simpl_override_in IHstep_star.
             simpl in IHstep_star.
-            eapply Plus.le_plus_trans.
+            eapply Nat.le_trans, Nat.le_add_r.
             assumption.
             (* -- *)
             simpl_override.
@@ -3122,9 +3120,9 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             rewrite <- A2 in A1.
             intro.
             rewrite H3 in A1.
-            rewrite Plus.plus_comm in A1.
+            rewrite Nat.add_comm in A1.
             simpl in A1.
-            apply Le.le_Sn_n in A1.
+            apply Nat.nle_succ_diag_l in A1.
             assumption.
 
           (* -- *)           
@@ -3148,10 +3146,10 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             rewrite <- A2 in A1.
             intro.
             rewrite <- H2 in A1.
-            rewrite Plus.plus_comm in A1.
+            rewrite Nat.add_comm in A1.
             simpl in A1.
-            apply Le.le_Sn_n in A1.
-            assumption.          
+            apply Nat.nle_succ_diag_l in A1.
+            assumption.
             (* -- *)
             exfalso.
             apply in_map_iff in H2.
@@ -3168,7 +3166,6 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             rewrite <- H31 in Hr.
             simpl in Hr.
             assumption.
-
 
       (* get *)
         apply IHstep_star.
@@ -3232,9 +3229,9 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
         simpl in A2. depremise A2. subst s1. assumption.
       rewrite <- H2 in A2. simpl in A2. simpl_override_in A2. simpl in A2.
       rewrite <- A2 in A1.
-      rewrite Plus.plus_comm in A1.
+      rewrite Nat.add_comm in A1.
       simpl in A1.
-      apply Le.le_Sn_n in A1.
+      apply Nat.nle_succ_diag_l in A1.
       assumption.
 
       (* get *)
@@ -3284,8 +3281,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
         apply in_map_iff in H2.
         destruct H2 as [rn [H21 H22]].
         rewrite <- H21. simpl.
-        assert (A1 := Le.le_0_n c).
-        assert (A2 := Plus.plus_le_compat_r 0 c 1).
+        assert (A1 := Nat.le_0_l c).
+        assert (A2 := proj1 (Nat.add_le_mono_r 0 c 1)).
         depremise A2. assumption.
         simpl in A2.
         assumption.
@@ -3423,8 +3420,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             rewrite <- H4 in A2.
             simpl in A2. simpl_override_in A2. simpl in A2.
             rewrite <- A2 in A1. clear A2.
-            rewrite Plus.plus_comm. simpl.
-            apply Lt.le_lt_n_Sm. assumption.
+            rewrite Nat.add_comm. simpl.
+            apply Nat.lt_succ_r. assumption.
 
       (* get *)
         subst st. rewrite <- H6. simpl.
@@ -3458,19 +3455,19 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             simpl in A2.
             rewrite <- A11 in A2.
             rewrite <- A12 in A2.
-            assert (A3 := Lt.le_or_lt c' 1).
+            assert (A3 := Nat.le_gt_cases c' 1).
             destruct A3 as [A3 | A3].
               (* -- *)
               assert (A4 := message_clock_ge_one p ls s2 m). 
                 depremise A4. split. subst s1. assumption. rewrite <- H7 in H2. simpl in H2. apply in_app_iff in H2. rewrite <- H5. simpl. destruct H2 as [H2 | H2]. apply in_app_iff. left. assumption. apply in_app_iff. right. apply in_cons. assumption.
               assert (A5: c' <= msg_clock m).
-                eapply Le.le_trans; eassumption.
-              apply Lt.le_lt_or_eq in A5.
+                eapply Nat.le_trans; eassumption.
+              apply Nat.lt_eq_cases in A5.
               destruct A5 as [A5 | A5].
               assumption.
               exfalso.
               assert (A6 := message_clock_neq p ls s2 (message n' c' k v u n0 lp) m).
-                simpl in A6. depremise A6. split_all. 
+                simpl in A6. depremise A6. split_all.
                 subst s1. assumption.
                 rewrite <- H5. simpl. apply in_app_iff. right. apply in_eq.
                 rewrite <- H5. simpl. rewrite <- H7 in H2. simpl in H2. apply in_app_iff in H2. destruct H2 as [H2 | H2]. apply in_app_iff. left. assumption. apply in_app_iff. right. apply in_cons. assumption.
@@ -3493,11 +3490,12 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
               depremise IHstep_star.
                 rewrite <- H7 in H2. simpl in H2. apply in_app_iff in H2. rewrite <- H5. simpl. destruct H2 as [H2 | H2]. apply in_app_iff. left. assumption. apply in_app_iff. right. apply in_cons. assumption.
               rewrite <- H5 in IHstep_star. simpl in IHstep_star. rewrite e0 in IHstep_star. simpl_override_in IHstep_star. simpl in IHstep_star. rewrite <- e1 in IHstep_star. rewrite <- A11 in IHstep_star.
-              assert (A8: pred c' < msg_clock m). eapply Lt.le_lt_trans; eassumption.
-              apply Lt.S_pred in A3.
-              apply Lt.lt_le_S in A8.
+              assert (A8: pred c' < msg_clock m). eapply Nat.le_lt_trans; eassumption.
+              apply Nat.lt_succ_pred in A3.
+              apply eq_sym in A3.
+              apply Nat.le_succ_l in A8.
               rewrite <- A3 in A8.
-              apply Lt.le_lt_or_eq in A8.
+              apply Nat.lt_eq_cases in A8.
               destruct A8 as [A8 | A8].
               assumption.
               exfalso.
@@ -3513,11 +3511,11 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                 rewrite H8 in B1.
                 rewrite <- H7 in H2. simpl in H2.
                 contradiction.
-              contradiction.            
+              contradiction.
 
             (* -- *)
-            simpl_override.            
-            rewrite <- H7 in H2. simpl in H2. apply in_app_iff in H2. 
+            simpl_override.
+            rewrite <- H7 in H2. simpl in H2. apply in_app_iff in H2.
             depremise IHstep_star. rewrite <- H5. simpl. destruct H2 as [H2 | H2]. apply in_app_iff. left. assumption. apply in_app_iff. right. apply in_cons. assumption.
             rewrite <- H5 in IHstep_star. simpl in IHstep_star. rewrite e0 in IHstep_star. simpl_override_in IHstep_star. simpl in IHstep_star.
             assumption.
@@ -3606,16 +3604,13 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       apply le_lt_eq_dec in A1.
       destruct A1.
       exfalso.
-      rewrite Plus.plus_comm in l.
+      rewrite Nat.add_comm in l.
       simpl in l.
       apply lt_n_Sm_le in l.
-      apply lt_not_le in A2. apply A2. assumption.
+      apply Nat.lt_nge in A2. apply A2. assumption.
       symmetry.
       assumption.
-
     Qed.
-
-
 
   Lemma rec_inc:
     forall p h s1 h' s2 n n',
@@ -3623,13 +3618,12 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       /\ step_star s1 h' s2)
       -> received (alg_state (node_states s1 n)) n' <= 
          received (alg_state (node_states s2 n)) n'.
-
     Proof.
       intros.
       destruct H as [H1 H2].
       induction H2.
 
-      apply Le.le_refl.
+      apply Nat.le_refl.
 
       depremise IHstep_star. assumption.
       assert (A1: received (alg_state (node_states s2 n)) n' <= received (alg_state (node_states s3 n)) n').
@@ -3654,13 +3648,13 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
               simpl in A. depremise A. apply step_star_app. exists s1. split; assumption.
             rewrite <- H3 in A. simpl in A. simpl_override_in A. simpl in A.
             rewrite A.
-            rewrite Plus.plus_comm.
+            rewrite Nat.add_comm.
             simpl.
             apply le_S.
-            apply Le.le_refl.
+            apply Nat.le_refl.
 
             simpl_override.
-            apply Le.le_refl.
+            apply Nat.le_refl.
 
           simpl.
           simpl_override.
@@ -3676,12 +3670,12 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           simpl.
           simpl_override.
           simpl.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           simpl_override.
           simpl.
           simpl_override.
-          apply Le.le_refl.         
+          apply Nat.le_refl.         
 
       (* update *)
         simpl.
@@ -3711,16 +3705,16 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           simpl in A2.
           simpl_override_in A2.
           simpl in A2.
-          apply Lt.lt_le_weak.
+          apply Nat.lt_le_incl.
           assumption.
           
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           simpl_override.
           simpl.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
 
       (* fault *)
@@ -3730,16 +3724,14 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           subst n.
           simpl_override.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           simpl_override.
           simpl_override.
-          apply Le.le_refl.         
+          apply Nat.le_refl.         
 
-      eapply Le.le_trans; eassumption.
-
+      eapply Nat.le_trans; eassumption.
     Qed.
-
 
   Lemma clock_self_lte_received:
     forall p h s l,
@@ -3748,7 +3740,6 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
        /\ label_is_put l
        /\ In l h)
       -> label_clock l <= received (alg_state (node_states s n)) n.
-
     Proof.
       intros.
       destruct H as [H1 [H2 H3]].
@@ -3793,7 +3784,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       remember (init p) as s0 eqn: Hs.
       induction H.
 
-      subst st. subst en. subst ec. subst s. simpl. apply Le.le_refl.
+      subst st. subst en. subst ec. subst s. simpl. apply Nat.le_refl.
 
       simpl in IHstep_star.
       depremise IHstep_star.
@@ -3817,7 +3808,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           simpl_override.
           simpl.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           simpl_override.
 
@@ -3845,7 +3836,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             subst s1. assumption.
             rewrite <- H2 in B2. simpl in B2. simpl_override_in B2. simpl in B2.
             rewrite B2 in IHstep_star. clear B2.
-            rewrite Plus.plus_comm.
+            rewrite Nat.add_comm.
             simpl.
             apply le_S.
             assumption.
@@ -3900,7 +3891,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             simpl_override.
             simpl.
             simpl_override.
-            apply Le.le_refl.
+            apply Nat.le_refl.
     
             unfold override at 2.
             unfold override at 2.
@@ -3938,8 +3929,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
               rewrite <- C21 in IHstep_star.
               rewrite C22 in C1.
 
-              apply Lt.lt_le_weak.
-              eapply Gt.gt_le_trans; eassumption.
+              apply Nat.lt_le_incl.
+              eapply Nat.le_lt_trans; eassumption.
 
               (* -- *)
               simpl_override.
@@ -4014,7 +4005,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
         destruct H2 as [H2 | H2]; try contradiction.
         inversion H2.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
         simpl_override.
         depremise IHstep_star.
@@ -4142,8 +4133,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
           rewrite B21 in B1. rewrite e0 in B1.
           rewrite B22 in B1.
           clear B21 B22.
-          apply Lt.lt_le_weak.
-          eapply Gt.gt_le_trans; eassumption.
+          apply Nat.lt_le_incl.
+          eapply Nat.le_lt_trans; eassumption.
 
           (* -- *)
           simpl_override.
@@ -4278,7 +4269,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             subst s1. assumption.
             apply step_star_one. assumption.
 
-          eapply Le.le_trans; eassumption.
+          eapply Nat.le_trans; eassumption.
 
           (* -- *)
           destruct A3 as [lm [A31 [A32 [A33 A34]]]].
@@ -4314,7 +4305,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             subst s1. assumption.
             apply step_star_one. assumption.
 
-          eapply Le.le_trans; eassumption.
+          eapply Nat.le_trans; eassumption.
 
           (* -- *)
             exfalso.
@@ -4342,8 +4333,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             subst c'.
             subst c0.
             rewrite <- H1 in H5. simpl in H5. rewrite <- Hn' in H5. simpl_override_in H5.
-            apply Lt.lt_not_le in B2.
-            contradiction.                 
+            apply Nat.lt_nge in B2.
+            contradiction.        
 
         (* a different label *)
 
@@ -4376,7 +4367,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                     simpl in A5. depremise A5. split_all.
                     subst s1. assumption. assumption. assumption.
                   depremise H12. assumption.
-                  eapply Le.le_trans; eassumption.
+                  eapply Nat.le_trans; eassumption.
                   
                 (* not changing rec of n'. *)
                   assert (A5: received (alg_state (node_states s2 n'')) (label_node l') = received (alg_state (node_states s3 n'')) (label_node l')).
@@ -4384,7 +4375,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
                   rewrite A5 in H12.
                   depremise H12. assumption.
-                  eapply Le.le_trans; eassumption.            
+                  eapply Nat.le_trans; eassumption.            
                    
             (* get *)
               specialize (H12 l). depremise H12. assumption.
@@ -4395,14 +4386,14 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
               rewrite A5 in H12.
               depremise H12. assumption.
-              eapply Le.le_trans; eassumption.            
+              eapply Nat.le_trans; eassumption.            
 
             (* update *)
               destruct (eq_nat_dec n0 (label_node l')).
 
                 (* the orig of the message is l' *)
 
-                  apply Lt.le_lt_or_eq in H5.
+                  apply Nat.lt_eq_cases in H5.
                   destruct H5 as [H5 | H5].
 
                   (* receiving a message after l' *)
@@ -4439,13 +4430,13 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                       assert (B2 := update_sender_clock p h s2 (update_label n (label_node l') c' n0 k0 v0 s m a0) s3). 
                         simpl in B2. depremise B2. split_all. subst s1. assumption. assumption. apply I.
                         rewrite <- H1 in B2. simpl in B2. simpl_override_in B2. simpl in B2. subst m. simpl in B2.
-                        rewrite Plus.plus_comm in B2. simpl in B2. assumption.
+                        rewrite Nat.add_comm in B2. simpl in B2. assumption.
 
                     assert (A6: label_clock l' < S (received (alg_state (node_states s2 n'')) (label_node l'))).
-                      eapply Lt.lt_le_trans; eassumption. 
+                      eapply Nat.lt_le_trans; eassumption.
                     apply Lt.lt_n_Sm_le in A6.
                     depremise H12. assumption.
-                    eapply Le.le_trans; eassumption.            
+                    eapply Nat.le_trans; eassumption.
                   
                   (* receiving l' *)
                     assert (A5 := cause_dep p h s2 l l').
@@ -4502,7 +4493,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                           bool_to_prop_in A.
                           assumption.
 
-                        eapply Le.le_trans; eassumption.
+                        eapply Nat.le_trans; eassumption.
                         
  
                       (* indirectly in d *)
@@ -4558,7 +4549,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
                           assumption.
 
                         depremise H12. assumption.
-                        eapply Le.le_trans; eassumption.
+                        eapply Nat.le_trans; eassumption.
 
                 (* the orig of the message is not l' *)
                   specialize (H12 l). depremise H12. assumption.
@@ -4572,7 +4563,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
                   rewrite A5 in H12.
                   depremise H12. assumption.
-                  eapply Le.le_trans; eassumption.            
+                  eapply Nat.le_trans; eassumption.            
 
             (* fault *)
               specialize (H12 l). depremise H12. assumption.
@@ -4583,7 +4574,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
               rewrite A5 in H12.
               depremise H12. assumption.
-              eapply Le.le_trans; eassumption.            
+              eapply Nat.le_trans; eassumption.            
                    
 
           (* lc does not affect n'' *)
@@ -4594,7 +4585,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
             destruct lc; inversion H13; simpl; simpl_override; simpl_override; reflexivity.
             rewrite A5 in H12.
             depremise H12. assumption.
-            eapply Le.le_trans; eassumption.            
+            eapply Nat.le_trans; eassumption.            
 
     Qed.
 
@@ -4900,7 +4891,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       simpl_override.
       split.      
       subst a.
-      rewrite Plus.plus_comm.
+      rewrite Nat.add_comm.
       simpl.
       f_equal.
       assert (A := rec_eq_clock).
@@ -4944,7 +4935,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
         subv_in m A.
         subv_in n2 A.
         simpl_override_in A.
-      rewrite Plus.plus_comm in A.
+      rewrite Nat.add_comm in A.
       simpl in A.
       assumption.
       
@@ -5292,7 +5283,3 @@ Module KVSAlg2ExecToAbstExec (SyntaxArg: SyntaxPar).
     Qed.
 
 End KVSAlg2ExecToAbstExec.
-
-
-
-
