@@ -1,6 +1,5 @@
-From Coq Require Import FunctionalExtensionality Lia.
-From Coq Require Import Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
-From Coq Require Import Arith.Max Arith.Lt Arith.Le Arith.Minus.
+From Coq Require Import FunctionalExtensionality Arith Lia.
+From Coq Require Import Arith.Peano_dec Arith.Compare_dec.
 From Coq Require Import Relations.Relation_Operators. (* For union and transitive closure. *)
 From Coq Require Import List. (* For In function. *)
 From Chapar Require Import Predefs.
@@ -24,7 +23,7 @@ Module SysPredefs.
   Definition nid_eq_dec := eq_nat_dec.
   (* Definition beq_nid (n n': NId) := beq_nat (inum n) (inum n'). *)
 
-  Definition beq_nid := beq_nat.
+  Definition beq_nid := Nat.eqb.
   (* Notation "n =? n'" := (nid_eq n n'). *)
 
   (*
@@ -59,7 +58,7 @@ Module SysPredefs.
 
     unfold below_in. intros. split; intros; subst.
 
-      apply lt_n_Sm_le in H0. apply le_lt_or_eq in H0. destruct H0; subst. 
+      apply (proj1 (Nat.lt_succ_r _ _)) in H0. apply Nat.lt_eq_cases in H0. destruct H0; subst.
       simpl. right. unfold below_in in H. apply H. assumption.
       simpl. left. reflexivity.
       
@@ -2461,7 +2460,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       inversion H;
       simpl;
       split;
-      try apply Nat.le_refl; try apply lt_n_Sn.      
+      try apply Nat.le_refl; try apply Nat.lt_succ_diag_r.      
     Qed.
 
   Lemma label_num_steps:
@@ -2488,9 +2487,9 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       assert (A := label_num_inc s2 l0 s3).
       depremise A. assumption.
       destruct A.
-      apply lt_le_weak.
-      eapply le_lt_trans. eassumption.
-      eapply lt_le_trans; eassumption.
+      apply Nat.lt_le_incl.
+      eapply Nat.le_lt_trans. eassumption.
+      eapply Nat.lt_le_trans; eassumption.
 
       simpl in N2. destruct N2; try contradiction.
       subst l0.
@@ -2520,7 +2519,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       assumption.
       destruct L2 as [L2 L3].
       assert (A: label_num l < label_num l).
-      eapply le_lt_trans. apply L1. assumption.
+      eapply Nat.le_lt_trans. apply L1. assumption.
       apply Nat.lt_irrefl in A.
       assumption.
     Qed.      
@@ -2850,7 +2849,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       -> In l h
       -> latest_label s < label_num l.
   Proof.
-    induction 1; t; eauto using Nat.le_trans, lt_le_trans.
+    induction 1; t; eauto using Nat.le_trans, Nat.lt_le_trans.
     apply in_app_or in H1; intuition eauto.
     simpl in *; intuition subst.
     apply label_num_inc in H0; intuition.
@@ -2949,11 +2948,11 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       subst l0.      
       inversion H2.
 
-      simpl. rewrite Nat.add_comm. simpl. apply Gt.gt_Sn_O.
+      simpl. rewrite Nat.add_comm. simpl. apply Nat.lt_0_succ.
 
       rewrite <- H3 in H1. unfold label_is_put in H1. contradiction.
       rewrite <- H4 in H1. unfold label_is_update in H1. contradiction.      
-      rewrite <- H3 in H1. unfold label_is_update in H1. contradiction.      
+      rewrite <- H3 in H1. unfold label_is_update in H1. contradiction.
 
     Qed.
 
@@ -2985,7 +2984,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         simpl.
         rewrite Nat.add_comm.
         simpl.
-        apply Le.le_n_Sn.
+        apply Nat.le_succ_diag_r.
         apply Nat.le_refl.
       
       (* get *)
@@ -5325,8 +5324,8 @@ Module InstExecToAbsExec.
               simpl_override_in N3.
               simpl in N3.
               split.
-              rewrite app_nth2. rewrite N3. rewrite minus_diag. simpl. subv k0. subv m. reflexivity. subv c. apply Nat.le_refl.
-              rewrite app_nth2. rewrite N3. rewrite minus_diag. simpl. subv v0. subv m. reflexivity. subv c. apply Nat.le_refl.
+              rewrite app_nth2. rewrite N3. rewrite Nat.sub_diag. simpl. subv k0. subv m. reflexivity. subv c. apply Nat.le_refl.
+              rewrite app_nth2. rewrite N3. rewrite Nat.sub_diag. simpl. subv v0. subv m. reflexivity. subv c. apply Nat.le_refl.
               
           (* --- *)
             clear N1 N2 N4 N5 N7 N8.
@@ -5399,7 +5398,7 @@ Module InstExecToAbsExec.
             rewrite app_length in M4.
             simpl in M4.
             rewrite Nat.add_comm in M4. simpl in M4.
-            apply lt_n_Sm_le in M4.
+            apply (proj1 (Nat.lt_succ_r _ _)) in M4.
             apply le_lt_eq_dec in M4.
             destruct M4 as [M4 | M4].
 
@@ -5437,7 +5436,7 @@ Module InstExecToAbsExec.
               subv_in ptrace' M5.
               rewrite app_nth2 in M5.
               subv_in c M5.
-              rewrite minus_diag in M5.
+              rewrite Nat.sub_diag in M5.
               simpl in M5.
               subv_in dep M5.
               specex N6. simpl in N6. depremise N6.

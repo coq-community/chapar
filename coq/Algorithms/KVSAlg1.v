@@ -1,6 +1,6 @@
 From Coq Require Import FunctionalExtensionality Arith List.
 From Coq Require Import Program.Equality ListSet Program.Basics Bool.
-From Coq Require Import Arith.Peano_dec Arith.Compare_dec Arith.EqNat.
+From Coq Require Import Arith.Peano_dec Arith.Compare_dec.
 From Chapar Require Import Predefs KVStore.
 
 Import ListNotations.
@@ -2284,7 +2284,7 @@ Module KVSAlg1CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg1 SyntaxArg.
         clear A31.
         rewrite Nat.add_comm in A22.
         simpl in A22.
-        apply Lt.lt_n_Sm_le in A22.
+        apply (proj1 (Nat.lt_succ_r _ _)) in A22.
         assumption.
 
         

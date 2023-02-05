@@ -1,5 +1,5 @@
 From Coq Require Import FunctionalExtensionality List Bool.
-From Coq Require Import Arith Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
+From Coq Require Import Arith Arith.Peano_dec Arith.Compare_dec.
 From Coq Require Import Program.Basics.
 From Chapar Require Import Predefs extralib KVStore.
 
@@ -3606,7 +3606,7 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
       exfalso.
       rewrite Nat.add_comm in l.
       simpl in l.
-      apply lt_n_Sm_le in l.
+      apply (proj1 (Nat.lt_succ_r _ _)) in l.
       apply Nat.lt_nge in A2. apply A2. assumption.
       symmetry.
       assumption.
@@ -4434,7 +4434,8 @@ Module KVSAlg2CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg2 SyntaxArg.
 
                     assert (A6: label_clock l' < S (received (alg_state (node_states s2 n'')) (label_node l'))).
                       eapply Nat.lt_le_trans; eassumption.
-                    apply Lt.lt_n_Sm_le in A6.
+                      
+                    apply (proj1 (Nat.lt_succ_r _ _)) in A6.
                     depremise H12. assumption.
                     eapply Nat.le_trans; eassumption.
                   

@@ -1,4 +1,4 @@
-From Coq Require Import Bool Arith.EqNat Arith.Peano_dec Arith.Compare_dec List.
+From Coq Require Import Bool Arith Arith.Peano_dec Arith.Compare_dec List.
 
 Import ListNotations.
 
@@ -197,7 +197,6 @@ Tactic Notation "rewrite_clear" ident(H) ident(H') :=
 Tactic Notation "r_rewrite_clear" ident(H) ident(H') :=
   rewrite <- H in H'; clear H.
 
-
 Tactic Notation "bool_to_prop" :=
   try match goal with
     | [ |- negb _ = true ] =>  try apply negb_true_iff
@@ -205,8 +204,8 @@ Tactic Notation "bool_to_prop" :=
   end;
   (apply andb_prop ||
    apply orb_prop ||
-   apply beq_nat_true_iff ||
-   apply beq_nat_false_iff ||
+   apply Nat.eqb_eq ||
+   apply Nat.eqb_neq ||
    apply leb_iff).
 
 Tactic Notation "bool_to_prop_in" ident(H) :=
@@ -216,10 +215,9 @@ Tactic Notation "bool_to_prop_in" ident(H) :=
   end;
   (apply andb_prop in H ||
    apply orb_prop in H ||
-   apply beq_nat_true_iff in H ||
-   apply beq_nat_false_iff in H ||
+   apply Nat.eqb_eq in H ||
+   apply Nat.eqb_neq in H ||
    apply leb_iff in H).
-
 
 (* ------------------------------------------------------- *)
 (* list set lemmas *)
