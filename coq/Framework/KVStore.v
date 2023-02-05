@@ -1,6 +1,5 @@
-From Coq Require Import FunctionalExtensionality Lia.
-From Coq Require Import Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
-From Coq Require Import Arith.Max Arith.Lt Arith.Le Arith.Minus.
+From Coq Require Import FunctionalExtensionality Arith Lia.
+From Coq Require Import Arith.Peano_dec Arith.Compare_dec.
 From Coq Require Import Relations.Relation_Operators. (* For union and transitive closure. *)
 From Coq Require Import List. (* For In function. *)
 From Chapar Require Import Predefs.
@@ -24,7 +23,7 @@ Module SysPredefs.
   Definition nid_eq_dec := eq_nat_dec.
   (* Definition beq_nid (n n': NId) := beq_nat (inum n) (inum n'). *)
 
-  Definition beq_nid := beq_nat.
+  Definition beq_nid := Nat.eqb.
   (* Notation "n =? n'" := (nid_eq n n'). *)
 
   (*
@@ -59,16 +58,16 @@ Module SysPredefs.
 
     unfold below_in. intros. split; intros; subst.
 
-      apply lt_n_Sm_le in H0. apply le_lt_or_eq in H0. destruct H0; subst. 
+      apply (proj1 (Nat.lt_succ_r _ _)) in H0. apply Nat.lt_eq_cases in H0. destruct H0; subst.
       simpl. right. unfold below_in in H. apply H. assumption.
       simpl. left. reflexivity.
       
       simpl in H0. destruct H0; subst.
-      (*  (_ < S _). *) apply lt_n_Sn.
-      unfold below_in in H. apply H in H0. apply lt_S. assumption.
+      apply Nat.lt_succ_diag_r.
+      unfold below_in in H. apply H in H0. apply Nat.lt_lt_succ_r. assumption.
 
     unfold no_dups. constructor. unfold not. intros. unfold below_in in H. apply H in H0. 
-    clear bnats pbnats H H'. induction n'. inversion H0. apply IHn'. apply lt_S_n. assumption.
+    clear bnats pbnats H H'. induction n'. inversion H0. apply IHn'. apply Nat.succ_lt_mono. assumption.
     unfold no_dups in H'. assumption.
   Defined.
 
@@ -109,13 +108,12 @@ Module SysPredefs.
 
   Lemma init_not_in_nids:
     not (In init_nid nids).
-
-    Proof.
+  Proof.
       intro.
       unfold init_nid in H.
       assert (A := below_max_in_nids MaxNId).
       apply A in H.
-      apply lt_irrefl in H.
+      apply Nat.lt_irrefl in H.
       assumption.
     Qed.
   
@@ -131,7 +129,6 @@ Module SysPredefs.
   Lemma override_new_val:
     forall (V: Type) m k (v: V),
       (override m k v) k = v.
-
     Proof.
       intros.
       unfold override.
@@ -143,7 +140,6 @@ Module SysPredefs.
     forall (V: Type) m k1 k2 (v: V),
       k1 = k2 ->
       (override m k1 v) k2 = v.
-
     Proof.
       intros.
       subst.
@@ -156,7 +152,6 @@ Module SysPredefs.
     forall (V: Type) m k1 k2 (v: V),
       k2 = k1 ->
       (override m k1 v) k2 = v.
-
     Proof.
       intros.
       subst.
@@ -170,7 +165,6 @@ Module SysPredefs.
     forall (V: Type) m k k' (v: V),
       (not (k = k'))
       -> (override m k v) k' = m k'.
-
     Proof.
       intros.
       unfold override.
@@ -183,7 +177,6 @@ Module SysPredefs.
     forall (V: Type) m k k' (v: V),
       (not (k' = k))
       -> (override m k v) k' = m k'.
-
     Proof.
       intros.
       unfold override.
@@ -217,7 +210,6 @@ Module SysPredefs.
       -> ((override m k1 v) k1 = v
           /\ (override m k1 v) k2 = m k2
           /\ (override m k1 v) k3 = m k3).
-
       Proof.
         intros.
         open_conjs.
@@ -446,7 +438,6 @@ Module StepStar (StepStarArgs: StepStarParams).
       <-> exists s',
            step s l s'
            /\ step_star s' h s''.
-
     Proof.
       intros.
       split;
@@ -536,7 +527,6 @@ Module StepStar (StepStarArgs: StepStarParams).
       <-> exists s',
            step_star s h1 s'
            /\ step_star s' h2 s''.
-
     Proof.
       intros.
       split.
@@ -593,7 +583,6 @@ Module StepStar (StepStarArgs: StepStarParams).
     forall s l s',
       step_star s [l] s'
       <-> step s l s'.
-
     Proof.
       intros; split; intros.
 
@@ -631,7 +620,6 @@ Module StepStar (StepStarArgs: StepStarParams).
       <-> exists s',
            step_star s h s'
            /\ step s' l s''.
-
     Proof.
       intros.
       assert (L := step_star_app).
@@ -792,8 +780,7 @@ Module AbsExec (SyntaxArg: SyntaxPar).
 
   Lemma ext_app:
     forall h1 h2,
-      ext_hist (h1 ++ h2) = (ext_hist h1) ++ (ext_hist h2).
-    
+      ext_hist (h1 ++ h2) = (ext_hist h1) ++ (ext_hist h2).   
     Proof.
       intros.
       unfold ext_hist.
@@ -1845,8 +1832,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
 
   Lemma ext_app:
     forall h1 h2,
-      ext_hist (h1 ++ h2) = (ext_hist h1) ++ (ext_hist h2).
-    
+      ext_hist (h1 ++ h2) = (ext_hist h1) ++ (ext_hist h2).    
     Proof.
       intros.
       unfold ext_hist.
@@ -1864,7 +1850,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
           /\ msg_sender m = label_node lp
           /\ msg_clock m = label_clock lp
           /\ In lp h).
-
     Proof.
       intros.
       open_conjs.
@@ -2245,7 +2230,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       (step s1 l s2
       /\ not (n' = n))
       -> as1 = as2.
-
     Proof.
       intros.
       open_conjs.
@@ -2274,7 +2258,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     forall h l l' h',
     prec h l l'
     -> prec (h ++ h') l l'.
-
   Proof.
     intros.    
     unfold prec in H.
@@ -2294,7 +2277,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
     forall h l l',
       In l h
       -> prec (h++[l']) l l'.
-
     Proof.
       intros.
       apply in_split in H.
@@ -2306,14 +2288,12 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       rewrite H.
       rewrite app_assoc.
       reflexivity.
-
     Qed.
 
   Lemma prec_in:
     forall (h: list Label)(l l': Label),
       prec h l l'
       -> (In l h /\ In l' h).
-
     Proof.
       intros.
       unfold prec in H.
@@ -2480,7 +2460,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       inversion H;
       simpl;
       split;
-      try apply le_refl; try apply lt_n_Sn.      
+      try apply Nat.le_refl; try apply Nat.lt_succ_diag_r.      
     Qed.
 
   Lemma label_num_steps:
@@ -2507,9 +2487,9 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       assert (A := label_num_inc s2 l0 s3).
       depremise A. assumption.
       destruct A.
-      apply lt_le_weak.
-      eapply le_lt_trans. eassumption.
-      eapply lt_le_trans; eassumption.
+      apply Nat.lt_le_incl.
+      eapply Nat.le_lt_trans. eassumption.
+      eapply Nat.lt_le_trans; eassumption.
 
       simpl in N2. destruct N2; try contradiction.
       subst l0.
@@ -2539,8 +2519,8 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       assumption.
       destruct L2 as [L2 L3].
       assert (A: label_num l < label_num l).
-      eapply le_lt_trans. apply L1. assumption.
-      apply lt_irrefl in A.
+      eapply Nat.le_lt_trans. apply L1. assumption.
+      apply Nat.lt_irrefl in A.
       assumption.
     Qed.      
 
@@ -2869,7 +2849,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       -> In l h
       -> latest_label s < label_num l.
   Proof.
-    induction 1; t; eauto using le_trans, lt_le_trans.
+    induction 1; t; eauto using Nat.le_trans, Nat.lt_le_trans.
     apply in_app_or in H1; intuition eauto.
     simpl in *; intuition subst.
     apply label_num_inc in H0; intuition.
@@ -2968,11 +2948,11 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       subst l0.      
       inversion H2.
 
-      simpl. rewrite Plus.plus_comm. simpl. apply Gt.gt_Sn_O.
+      simpl. rewrite Nat.add_comm. simpl. apply Nat.lt_0_succ.
 
       rewrite <- H3 in H1. unfold label_is_put in H1. contradiction.
       rewrite <- H4 in H1. unfold label_is_update in H1. contradiction.      
-      rewrite <- H3 in H1. unfold label_is_update in H1. contradiction.      
+      rewrite <- H3 in H1. unfold label_is_update in H1. contradiction.
 
     Qed.
 
@@ -2989,7 +2969,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       intros.
       induction H.
       
-      subst c. subst c'. apply Le.le_refl.
+      subst c. subst c'. apply Nat.le_refl.
 
       rename c' into c''.
       pose (c' := clock_state (node_states s2 n)).
@@ -3002,10 +2982,10 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         unfold override.
         destruct (eq_nat_dec n n0).
         simpl.
-        rewrite Plus.plus_comm.
+        rewrite Nat.add_comm.
         simpl.
-        apply Le.le_n_Sn.
-        apply Le.le_refl.
+        apply Nat.le_succ_diag_r.
+        apply Nat.le_refl.
       
       (* get *)
         subst c'. subst c''. subst s2. subst s3.
@@ -3013,8 +2993,8 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         unfold override.
         destruct (eq_nat_dec n n0).
         simpl.
-        apply Le.le_refl.
-        apply Le.le_refl.
+        apply Nat.le_refl.
+        apply Nat.le_refl.
 
 
       (* update *)
@@ -3023,8 +3003,8 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         unfold override.
         destruct (eq_nat_dec n n0).
         simpl.
-        apply Le.le_refl.
-        apply Le.le_refl.
+        apply Nat.le_refl.
+        apply Nat.le_refl.
 
 
       (* fault *)
@@ -3033,10 +3013,10 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         unfold override.
         destruct (eq_nat_dec n n0).
         simpl.
-        apply Le.le_refl.
-        apply Le.le_refl.
+        apply Nat.le_refl.
+        apply Nat.le_refl.
 
-      eapply le_trans; eassumption.
+      eapply Nat.le_trans; eassumption.
 
     Qed.
 
@@ -3074,15 +3054,15 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       simpl_override.
       
       simpl.
-      rewrite Plus.plus_comm.
+      rewrite Nat.add_comm.
       simpl.
-      apply Lt.lt_n_Sn.
+      apply Nat.lt_succ_diag_r.
 
       rewrite <- H4 in H1. unfold label_is_put in H1. contradiction.
       rewrite <- H5 in H1. unfold label_is_put in H1. contradiction.
       rewrite <- H4 in H1. unfold label_is_put in H1. contradiction.
 
-      eapply Lt.le_lt_trans; eassumption.
+      eapply Nat.le_lt_trans; eassumption.
 
     Qed.
 
@@ -3097,7 +3077,6 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
        /\ label_node l = label_node l'
        /\ label_clock l = label_clock l')
       -> l = l'.
-
     Proof.
       intros.
       open_conjs.
@@ -3122,7 +3101,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         assert (L := put_inc_clock h2'' s1'' s2 l' l). 
         depremise L. split_all. assumption. assumption. assumption. symmetry. assumption.
         rewrite H5 in *.
-        apply Lt.lt_irrefl in L. assumption.        
+        apply Nat.lt_irrefl in L. assumption.        
 
       apply in_inv in H1.
       destruct H1 as [H1 | H1].       
@@ -3143,7 +3122,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
         assert (L := put_inc_clock h1'' s1 s2'' l l'). 
         depremise L. split_all. assumption. assumption. assumption. assumption.
         rewrite H5 in *.
-        apply Lt.lt_irrefl in L. assumption.
+        apply Nat.lt_irrefl in L. assumption.
     Qed.
 
 
@@ -3259,7 +3238,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
             apply in_map_iff in N2.
             destruct N2 as [tn [N2 _]].
             subst c. rewrite <- N2. simpl.
-            apply le_refl.
+            apply Nat.le_refl.
 
             simpl_override.
             depremise IHN1.
@@ -5336,7 +5315,7 @@ Module InstExecToAbsExec.
               subst ptrace.
               subst c'.
               subv_in m N2.
-              rewrite Plus.plus_comm in N2. simpl in N2.
+              rewrite Nat.add_comm in N2. simpl in N2.
               apply eq_add_S in N2.
               subst c0.
               specialize (N3 n).
@@ -5345,8 +5324,8 @@ Module InstExecToAbsExec.
               simpl_override_in N3.
               simpl in N3.
               split.
-              rewrite app_nth2. rewrite N3. rewrite minus_diag. simpl. subv k0. subv m. reflexivity. subv c. apply le_refl.
-              rewrite app_nth2. rewrite N3. rewrite minus_diag. simpl. subv v0. subv m. reflexivity. subv c. apply le_refl.
+              rewrite app_nth2. rewrite N3. rewrite Nat.sub_diag. simpl. subv k0. subv m. reflexivity. subv c. apply Nat.le_refl.
+              rewrite app_nth2. rewrite N3. rewrite Nat.sub_diag. simpl. subv v0. subv m. reflexivity. subv c. apply Nat.le_refl.
               
           (* --- *)
             clear N1 N2 N4 N5 N7 N8.
@@ -5418,8 +5397,8 @@ Module InstExecToAbsExec.
             subv_in ptrace' M4.
             rewrite app_length in M4.
             simpl in M4.
-            rewrite Plus.plus_comm in M4. simpl in M4.
-            apply lt_n_Sm_le in M4.
+            rewrite Nat.add_comm in M4. simpl in M4.
+            apply (proj1 (Nat.lt_succ_r _ _)) in M4.
             apply le_lt_eq_dec in M4.
             destruct M4 as [M4 | M4].
 
@@ -5428,7 +5407,7 @@ Module InstExecToAbsExec.
               simpl in N7.
               depremise N7. split_all.
                 assumption.
-                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Plus.plus_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply PeanoNat.Nat.lt_irrefl. eassumption.
+                apply in_app_iff in M2. destruct M2 as [M2 | M2]. assumption. exfalso. simpl in M2. destruct M2 as [M2 | M2]; try contradiction. unfold c0 in M3. rewrite <- M2 in M3. simpl in M3. rewrite Nat.add_comm in M3. simpl in M3. apply eq_add_S in M3. subst i. subv_in ptrace M4. specex N3. instantiate (1 := n) in N3. subv_in s2 N3. simpl_override_in N3. rewrite N3 in M4. eapply Nat.lt_irrefl. eassumption.
                 assumption.
                 subv_in ptrace M4. subv_in n M4. assumption.              
                 subv_in ptrace' M5. rewrite app_nth1 in M5. subv_in ptrace M5. subv_in n M5. assumption. assumption.
@@ -5457,7 +5436,7 @@ Module InstExecToAbsExec.
               subv_in ptrace' M5.
               rewrite app_nth2 in M5.
               subv_in c M5.
-              rewrite minus_diag in M5.
+              rewrite Nat.sub_diag in M5.
               simpl in M5.
               subv_in dep M5.
               specex N6. simpl in N6. depremise N6.
@@ -5503,7 +5482,7 @@ Module InstExecToAbsExec.
 
                 subv ptrace.
                 subv c.
-                apply le_refl.
+                apply Nat.le_refl.
               
             (* - *)
             simpl_override_in M4.
@@ -5562,7 +5541,7 @@ Module InstExecToAbsExec.
               
               subst n2.
               simpl_override.
-              rewrite Plus.plus_comm. simpl. 
+              rewrite Nat.add_comm. simpl. 
               rewrite <- N8.
               rewrite <- A1.
               reflexivity.
@@ -6414,11 +6393,11 @@ Module InstExecToAbsExec.
               simpl_override_in A23.
               unfold rec_1'.
               destruct (eq_nat_dec n' n2).
-              
+
                 subst n2.
                 simpl_override.
                 unfold rec_1.
-                rewrite Plus.plus_comm. simpl.
+                rewrite Nat.add_comm. simpl.
                 rewrite <- N8.
                 assumption.
 

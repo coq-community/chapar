@@ -1,5 +1,5 @@
 From Coq Require Import FunctionalExtensionality List Bool Program.Basics.
-From Coq Require Import Arith.Max Arith.EqNat Arith.Peano_dec Arith.Compare_dec.
+From Coq Require Import Arith Arith.Peano_dec Arith.Compare_dec.
 From Chapar Require Import Predefs extralib KVStore.
 
 Import ListNotations.
@@ -119,7 +119,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst as2.
       subst s.
       simpl.
-      apply Le.le_refl.      
+      apply Nat.le_refl.      
 
       rename as2 into as3.
       pose (as2 := alg_state (node_states s2 n)).
@@ -140,7 +140,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           simpl.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           (* -- *)
           simpl_override.
           rewrite <- H2 in IHstep_star.
@@ -151,7 +151,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           destruct (eq_nat_dec n0 (entry_node (store s k))).
           simpl_override.
           rewrite e0.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
           assumption.
@@ -195,7 +195,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           simpl.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           (* -- *)
           simpl_override.
           rewrite <- H3 in IHstep_star.
@@ -211,7 +211,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           destruct H2.
           bool_to_prop_in H2.
           rewrite H2.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
           assumption.
@@ -261,7 +261,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst as2.
       subst s.
       simpl.
-      apply Le.le_refl.
+      apply Nat.le_refl.
 
       rename as2 into as3.
       pose (as2 := alg_state (node_states s2 n)).
@@ -286,7 +286,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           subst n'.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           (* --- *)
           simpl_override.
           simpl.
@@ -310,7 +310,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           (* -- *)
           subst n'.
           simpl_override.
-          apply max_lub.
+          apply Nat.max_lub.
           rewrite <- H2 in IHstep_star.
           simpl in IHstep_star.
           simpl_override_in IHstep_star.
@@ -363,12 +363,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           bool_to_prop_in H2.
           rewrite e0 in H2.
           rewrite H2.
-          apply max_lub.
-          rewrite Plus.plus_comm.
+          apply Nat.max_lub.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
           assumption.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           (* -- *)
           simpl_override.
@@ -376,7 +376,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl in IHstep_star.
           simpl_override_in IHstep_star.
           simpl in IHstep_star.
-          apply max_lub.
+          apply Nat.max_lub.
           assumption.
           unfold guard_method in H2.
           bool_to_prop_in H2.
@@ -428,7 +428,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst as2.
       subst s.
       simpl.
-      apply Le.le_refl.
+      apply Nat.le_refl.
 
       rename as2 into as3.
       pose (as2 := alg_state (node_states s2 n)).
@@ -469,10 +469,10 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
               rewrite <- H3 in A. simpl in A. simpl_override_in A. simpl in A.
             rewrite <- H5 in e0. simpl in e0. simpl_override_in e0. simpl in e0. simpl_override_in e0.
             rewrite e0 in IHstep_star.
-            rewrite Plus.plus_comm.
+            rewrite Nat.add_comm.
             simpl.
             apply le_S.
-            eapply Le.le_trans; eassumption.          
+            eapply Nat.le_trans; eassumption.          
 
           (* --- *)
           simpl_override.
@@ -575,7 +575,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
 
           rewrite <- H6 in H0. simpl in H0. simpl_override_in H0. simpl in H0. rewrite e0 in H0. simpl_override_in H0. simpl in H0.
           rewrite H0.
-          apply le_max_r.
+          apply Nat.le_max_r.
 
           (* -- *)
           simpl_override.
@@ -587,8 +587,8 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl in IHstep_star.
           depremise IHstep_star. rewrite <- H6 in H0. simpl in H0. simpl_override_in H0. simpl in H0. simpl_override_in H0. assumption.
 
-          eapply Le.le_trans. eassumption.
-          apply le_max_l.
+          eapply Nat.le_trans. eassumption.
+          apply Nat.le_max_l.
 
         (* --- *)
         simpl_override.
@@ -722,7 +722,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
 
       induction H.
 
-      apply Le.le_refl.
+      apply Nat.le_refl.
       rename sc' into sc''.
       pose (sc' := dep (alg_state (node_states s2 n))).
       assert (sc' n' <= sc'' n').
@@ -749,7 +749,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           subst n'. 
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
           assert (A:= dep_leq_rec p (h0 ++ ls) s2 n0). 
@@ -773,12 +773,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl_override.
           simpl.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       (* get *)
       rewrite <- H2.
@@ -796,17 +796,17 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           (* -- *)
           subst n'.
           simpl_override.
-          rewrite <- le_max_l.
-          apply Le.le_refl.
+          rewrite <- Nat.le_max_l.
+          apply Nat.le_refl.
 
           (* -- *)
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
         
 
       (* update *)
@@ -820,12 +820,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         simpl_override.
         simpl_override.
         simpl.
-        apply le_max_l.
+        apply Nat.le_max_l.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
 
       (* fault *)
@@ -837,12 +837,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         subst n.
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
 
       simpl in IHstep_star.
@@ -851,7 +851,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst sc'.
       subst sc''.
 
-      eapply Le.le_trans;
+      eapply Nat.le_trans;
       eassumption.
 
 
@@ -871,7 +871,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
 
       induction H.
 
-      apply Le.le_refl.
+      apply Nat.le_refl.
 
       rename sc' into sc''.
       pose (sc' := rec (alg_state (node_states s2 n))).
@@ -899,21 +899,21 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           subst n'. 
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           (* --- *)
           simpl_override.
           simpl.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       (* get *)
       rewrite <- H2.
@@ -926,12 +926,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         simpl_override.
         simpl_override.
         simpl.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
         
       (* update *)
       rewrite <- H3.
@@ -954,19 +954,19 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           bool_to_prop_in H2.
           rewrite e0 in *.
           rewrite H2.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           apply le_S.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
           (* -- *)
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       (* fault *)
       subv s2.
@@ -977,12 +977,12 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         subst n.
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
         (* --- *)
         simpl_override.
         simpl_override.
-        apply Le.le_refl.
+        apply Nat.le_refl.
 
       simpl in IHstep_star.
       depremise IHstep_star.
@@ -990,7 +990,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst sc'.
       subst sc''.
 
-      eapply Le.le_trans;
+      eapply Nat.le_trans;
       eassumption.
 
     Qed.
@@ -1016,7 +1016,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
        apply step_star_app. exists s. split; assumption.
        specialize (A2 n').
        depremise A2. assumption.
-      eapply Le.le_trans;  eassumption.      
+      eapply Nat.le_trans;  eassumption.      
     Qed.
 
   Lemma proc_order_clock:
@@ -1079,21 +1079,21 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
             simpl in B. subst l'. subst l0. simpl in B. assumption.
 
           split.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           subst n.
           apply le_S.          
           assumption.
           intro.
-          rewrite Plus.plus_comm.
+          rewrite Nat.add_comm.
           simpl.
           subst n.
-          apply Lt.le_lt_n_Sm.
+          apply Nat.lt_succ_r.
           assumption.
           (* -- *)
           simpl_override.
           split.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           destruct H6.
           exfalso.
@@ -1110,9 +1110,9 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           destruct (eq_nat_dec (entry_node (store s0 k)) n).
           simpl_override.
           rewrite e0.
-          apply le_max_l.
+          apply Nat.le_max_l.
           simpl_override.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           destruct H6.
           contradiction.
@@ -1125,7 +1125,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl.
           simpl_override.
           simpl.
-          apply le_max_l.
+          apply Nat.le_max_l.
           intro.
           open_conjs.
           contradiction.
@@ -1136,7 +1136,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl_override.
           simpl_override.
           split.
-          apply Le.le_refl.
+          apply Nat.le_refl.
           intros.
           open_conjs. contradiction.
 
@@ -1144,7 +1144,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       split.
         (* -- *)
         rewrite <- H3 in *; clear H3.
-        eapply Le.le_trans; eassumption.
+        eapply Nat.le_trans; eassumption.
         (* -- *)
         clear N1.
         intros.
@@ -1152,9 +1152,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         assumption.
         clear H.
           
-        eapply Lt.le_lt_trans; eassumption.
-
-
+        eapply Nat.le_lt_trans; eassumption.
       Qed.
 
   Lemma proc_order_dep_rec:
@@ -1201,8 +1199,8 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       rewrite <- N2 in A2; clear N2.
 
       split.
-        eapply Le.le_trans; eassumption.
-        intro. depremise H4. assumption. eapply Lt.lt_le_trans; eassumption.
+        eapply Nat.le_trans; eassumption.
+        intro. depremise H4. assumption. eapply Nat.lt_le_trans; eassumption.
     Qed.
 
 
@@ -2186,7 +2184,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         assert (B1 := label_node_in_nids p (h1++[l]) s' l). depremise B1. split. apply step_star_app_one. exists s. split; assumption.
         apply in_app_iff. right. apply in_eq. simpl in B1. assumption.
         
-      eapply Le.le_trans; eassumption.
+      eapply Nat.le_trans; eassumption.
 
     Qed.
     
@@ -2252,7 +2250,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       subst ls.
       rewrite <- H4.
       simpl in *.
-      apply le_max_r.
+      apply Nat.le_max_r.
 
       rewrite <- H3 in H0. unfold label_is_update in H0. contradiction.
 
@@ -2565,7 +2563,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
 
           rewrite <- N5.
 
-          eapply Le.le_trans;  eassumption.
+          eapply Nat.le_trans;  eassumption.
 
     Qed.
 
@@ -2633,14 +2631,14 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       assert (c' <= c'').
       apply cause_step_clock with (p := p)(h := h)(s := s).
       split_all; assumption. 
-      eapply Le.le_trans; eassumption.
+      eapply Nat.le_trans; eassumption.
       (* -- *)
       intros.
       assert (c' < c'').
       apply cause_step_clock with (p := p)(h := h)(s := s).
       split_all; assumption. 
       assumption.
-      eapply Lt.le_lt_trans; eassumption.     
+      eapply Nat.le_lt_trans; eassumption.
   Qed.
 
 
@@ -2947,7 +2945,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       simpl_override.
       split.      
       subst a.
-      rewrite Plus.plus_comm.
+      rewrite Nat.add_comm.
       simpl.
       f_equal.
       subv n.
@@ -2989,7 +2987,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
       rewrite A2.
       rewrite A1 in N.
       rewrite A1.
-      rewrite Plus.plus_comm in N.
+      rewrite Nat.add_comm in N.
       simpl in N.
       subst n'.
       clear A1 A2.
@@ -3107,9 +3105,9 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
         rewrite e in A22.
         rewrite A31 in A22.
         clear A31.
-        rewrite Plus.plus_comm in A22.
+        rewrite Nat.add_comm in A22.
         simpl in A22.
-        apply Lt.lt_n_Sm_le in A22.
+        apply (proj1 (Nat.lt_succ_r _ _)) in A22.
         assumption.
 
         
@@ -3125,7 +3123,7 @@ Module KVSAlg3CauseObl (SyntaxArg: SyntaxPar) <: CauseObl KVSAlg3 SyntaxArg.
           simpl in B.
         subv n.
         assumption.
-        eapply Le.le_trans; eassumption.
+        eapply Nat.le_trans; eassumption.
 
     Qed.
 
