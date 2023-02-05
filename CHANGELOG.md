@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+### Changed
+- Removed unecessary imports
+- Adjust build for Coq 8.16 and beyond
+
+### Fixed
+- Deprecations related to Stdlib Nat module
+
+## [8.14.0] - 2022-01-12
 ### Changed
 - Add hint locality everywhere and consequently require Coq 8.14 or later
 
