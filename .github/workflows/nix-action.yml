@@ -40,7 +40,7 @@ jobs:
           name: coq-community
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
           extraPullNames: coq, math-comp
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: ${{ env.tested_commit }}
       - run: >
