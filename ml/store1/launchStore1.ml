@@ -1,12 +1,12 @@
 open Printf
-open Util
-open Common
-open Runtime
-open Algorithm3
-open ReadConfig
-open Benchprog
+open Utils.Util
+open Utils.Common
+open Utils.Runtime
+open Algorithm1
+open Utils.ReadConfig
+open Utils.Benchprog
 
-module Alg1RunSys = RuntimeSystem (Algorithm3)
+module Alg1RunSys = RuntimeSystem (Algorithm1)
 open Alg1RunSys
 
 
@@ -18,10 +18,15 @@ let _ =
    if node <> -1 then (
       let bench_file = Sys.argv.(3) in
       let p = prog_of_bench bench_file in
-      main info node p
-      
+      main info node p      
    ) else
       main info node Skip
+      
+
+
+  
+  
+
       
 
 

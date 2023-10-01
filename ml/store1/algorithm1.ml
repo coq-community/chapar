@@ -1,8 +1,8 @@
 open Printf
 open List
 
-open Common
-open Algorithm
+open Utils.Common
+open Utils.Algorithm
 
 open KVSAlg1
 open SysPredefs

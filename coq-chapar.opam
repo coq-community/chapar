@@ -19,8 +19,8 @@ of client programs."""
 
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
-  "dune" {>= "2.5"}
-  "coq" {(>= "8.14" & < "8.18~") | (= "dev")}
+  "dune" {>= "3.5"}
+  "coq" {>= "8.14"}
 ]
 
 tags: [

@@ -1,0 +1,13 @@
+(executable
+ (name launchStore3)
+ (flags :standard -w -3-27-33-39)
+ (public_name chaparStore3)
+ (libraries utils batteries)
+ (modules launchStore3 KVSAlg3 algorithm3)
+ (package coq-chapar-stores))
+
+(coq.extraction
+ (prelude ExtractAlgorithm3)
+ (extracted_modules KVSAlg3)
+ ;(theories Chapar)
+)

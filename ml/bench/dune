@@ -1,0 +1,13 @@
+(executable
+ (name benchgen)
+ (flags :standard -w -35)
+ (public_name chaparBenchgen)
+ (libraries utils)
+ (modules benchgen)
+ (package coq-chapar-stores))
+
+(executable
+ (name experiment)
+ (flags :standard -w -33-35)
+ (libraries utils)
+ (modules experiment))

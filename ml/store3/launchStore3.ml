@@ -1,12 +1,12 @@
 open Printf
-open Util
-open Common
-open Runtime
-open Algorithm2
-open ReadConfig
-open Benchprog
+open Utils.Util
+open Utils.Common
+open Utils.Runtime
+open Algorithm3
+open Utils.ReadConfig
+open Utils.Benchprog
 
-module Alg1RunSys = RuntimeSystem (Algorithm2)
+module Alg1RunSys = RuntimeSystem (Algorithm3)
 open Alg1RunSys
 
 
@@ -22,4 +22,8 @@ let _ =
       
    ) else
       main info node Skip
+      
 
+
+  
+  

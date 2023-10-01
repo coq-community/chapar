@@ -2753,7 +2753,7 @@ Module InstConcExec (SyntaxArg: SyntaxPar)(Alg: AlgDef).
       destruct H.
       clear H0.
       unfold prec in Hdup; firstorder subst.
-      rewrite (app_nil_end (h ++ [l'])) in H0.
+      rewrite <- (app_nil_r (h ++ [l'])) in H0.
       rewrite <- app_assoc in H0.
       rewrite (app_assoc x) in H0.
       autorewrite with core in H.

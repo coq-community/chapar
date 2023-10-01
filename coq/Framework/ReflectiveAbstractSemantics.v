@@ -784,7 +784,7 @@ Module ReflAbsSem (SyntaxArg : SyntaxPar) (Import AE : AbsExecCarrier SyntaxArg)
     revert s ls1 ls2 s' Hss.
     induction sched; simpl; intros.
     inversion Hss; clear Hss; subst s'; try subst.
-    * rewrite List.app_nil_end in H0 at 1.
+    * rewrite <- app_nil_r in H0 at 1.
     apply List.app_inv_head in H0; subst ls2.
     constructor.
     * case_eq (step_fun a s).
