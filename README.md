@@ -78,7 +78,7 @@ Three key-value stores, verified to be causally consistent in the Coq proof assi
 
 ### Coq Framework
 
-The Coq definitions and proofs are located in the `coq` directory. The code location of the definitions and lemmas presented in the paper are listed below.
+The Coq definitions and proofs are located in the `theories` directory. The code location of the definitions and lemmas presented in the paper are listed below.
 
 #### Semantics and the Proof Technique
 
@@ -125,9 +125,9 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
 
 #### Directory structure
 
-- root (directory): The execution scripts described in the section Running Experiments below
+- `scripts` (directory): The execution scripts described in the section Running Experiments below
 
-- `coq` (directory); the Coq verification framework:
+- `theories` (directory); the Coq verification framework:
   * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
   * `Framework/ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
   * `Algorithms/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
@@ -138,7 +138,7 @@ The Coq definitions and proofs are located in the `coq` directory. The code loca
   * `Examples/ListClient.v`: Verified client program
   * `Lib` (directory): General purpose Coq libraries
 
-- `ml` (directory); the OCaml runtime to execute the algorithms:
+- `src` (directory); the OCaml runtime to execute the algorithms:
   * `algorithm.ml`: Key-value store algorithm shared interface
   * `algorithm1.ml`, `algorithm2.ml`, `algorithm3.ml`: Wrappers for the extracted algorithms
   * `benchgen.ml`: Benchmark generation and storing program

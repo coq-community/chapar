@@ -1,12 +1,12 @@
--Q coq Chapar
+-Q theories Chapar
 
-coq/Lib/extralib.v
-coq/Lib/Predefs.v
-coq/Framework/KVStore.v
-coq/Framework/ReflectiveAbstractSemantics.v
-coq/Algorithms/KVSAlg1.v
-coq/Algorithms/KVSAlg2.v
-coq/Algorithms/KVSAlg3.v
-coq/Algorithms/ExtractAlgorithm.v
-coq/Examples/Clients.v
-coq/Examples/ListClient.v
+theories/Lib/extralib.v
+theories/Lib/Predefs.v
+theories/Framework/KVStore.v
+theories/Framework/ReflectiveAbstractSemantics.v
+theories/Algorithms/KVSAlg1.v
+theories/Algorithms/KVSAlg2.v
+theories/Algorithms/KVSAlg3.v
+theories/Algorithms/ExtractAlgorithm.v
+theories/Examples/Clients.v
+theories/Examples/ListClient.v

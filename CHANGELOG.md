@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use Dune wrapping for OCaml modules
 - Remove boilerplate for OCamlbuild
 - Move bash scripts to scripts directory
+- Use standard theories/src directory names
 
 ### Fixed
 - Stores build with Dune 3.6 or later
