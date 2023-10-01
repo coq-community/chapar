@@ -59,38 +59,6 @@ tested_coq_nix_versions:
 
 namespace: Chapar
 
-extracted:
-  extracted_fullname: Chapar Key-value Stores
-  extracted_shortname: chapar-kv-stores
-
-  extracted_synopsis: Three executable causally consistent distributed key-value stores
-  extracted_description: |
-    Three key-value stores, verified to be causally consistent in
-    the Coq proof assistant and extracted to executable code.
-
-  extracted_make_target: stores
-
-  extracted_supported_ocaml_versions:
-    text: 4.05.0 or later
-    opam: '{>= "4.05.0"}'
-
-  extracted_tested_coq_opam_versions:
-  - version: dev
-
-  extracted_dependencies:
-  - opam:
-      name: ocamlbuild
-      version: '{build}'
-    nix: ocamlbuild
-    description: >-
-      [OCamlbuild](https://github.com/ocaml/ocamlbuild)
-  - opam:
-      name: batteries
-      version: '{>= "2.8.0"}'
-    nix: batteries
-    description: >-
-      [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later
-
 keywords:
 - name: causal consistency
 - name: key-value stores
@@ -101,11 +69,15 @@ categories:
 - name: Computer Science/Concurrent Systems and Protocols/Theory of concurrent systems
 
 documentation: |
+  ## Chapar Executable Key-value Stores
+
+  Three key-value stores, verified to be causally consistent in the Coq proof assistant and extracted to executable code. See [here](coq-chapar-stores.opam) for the requirements to build the stores.
+  
   ## Documentation
   
   ### Coq Framework
   
-  The Coq definitions and proofs are located in the `coq` directory. The code location of the definitions and lemmas presented in the paper are listed below.
+  The Coq definitions and proofs are located in the `theories` directory. The code location of the definitions and lemmas presented in the paper are listed below.
   
   #### Semantics and the Proof Technique
 
@@ -152,9 +124,9 @@ documentation: |
   
   #### Directory structure
 
-  - root (directory): The execution scripts described in the section Running Experiments below
+  - `scripts` (directory): The execution scripts described in the section Running Experiments below
 
-  - `coq` (directory); the Coq verification framework:
+  - `theories` (directory); the Coq verification framework:
     * `Framework/KVStore.v`: The basic definitions, the semantics and accompanying lemma
     * `Framework/ReflectiveAbstractSemantics.v`: The client verification definitions and lemmas
     * `Algorithms/KVSAlg1.v`: The definition and proof of algorithm 1 in the paper
@@ -165,7 +137,7 @@ documentation: |
     * `Examples/ListClient.v`: Verified client program
     * `Lib` (directory): General purpose Coq libraries
 
-  - `ml` (directory); the OCaml runtime to execute the algorithms:
+  - `src` (directory); the OCaml runtime to execute the algorithms:
     * `algorithm.ml`: Key-value store algorithm shared interface
     * `algorithm1.ml`, `algorithm2.ml`, `algorithm3.ml`: Wrappers for the extracted algorithms
     * `benchgen.ml`: Benchmark generation and storing program

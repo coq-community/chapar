@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [8.16.0] - 2023-10-01
+
+### Changed
+- Adjust build for Coq 8.18 and beyond
+- Use Dune wrapping for OCaml modules
+- Remove boilerplate for OCamlbuild
+- Move bash scripts to scripts directory
+- Use standard theories/src directory names
+
+### Fixed
+- Stores build with Dune 3.6 or later
+- Nix CI configuration
+- List lemma deprecations in 8.18
+
+## [8.15.0] - 2023-02-05
 ### Changed
 - Removed unecessary imports
 - Adjust build for Coq 8.16 and beyond
@@ -71,7 +86,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modernize build scripts to use `coq_makefile` features
 - Reorganize code into subdirectories
 
-[Unreleased]: https://github.com/coq-community/chapar/compare/v8.13.0...master
+[Unreleased]: https://github.com/coq-community/chapar/compare/v8.16.0...master
+[8.16.0]: https://github.com/coq-community/chapar/releases/tag/v8.16.0
+[8.15.0]: https://github.com/coq-community/chapar/releases/tag/v8.15.0
+[8.14.0]: https://github.com/coq-community/chapar/releases/tag/v8.14.0
 [8.13.0]: https://github.com/coq-community/chapar/releases/tag/v8.13.0
 [8.12.0]: https://github.com/coq-community/chapar/releases/tag/v8.12.0
 [8.11.0]: https://github.com/coq-community/chapar/releases/tag/v8.11.0
