@@ -9,5 +9,7 @@
 (executable
  (name experiment)
  (flags :standard -w -33-35)
+;(public_name chaparExperiment)
  (libraries utils)
+;(package coq-chapar-stores)
  (modules experiment))

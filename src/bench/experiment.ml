@@ -1,6 +1,6 @@
 (* open Printf *)
-open Configuration
-open ReadConfig
+open Utils.Configuration
+open Utils.ReadConfig
 open String
 
 let _ =

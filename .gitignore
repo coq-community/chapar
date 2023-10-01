@@ -6,6 +6,7 @@
 *.vos
 *.vok
 *~
+*.install
 .Makefile.coq.d
 Makefile.coq
 Makefile.coq.bak
