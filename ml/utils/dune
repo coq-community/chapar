@@ -1,0 +1,6 @@
+(library
+ (name utils)
+ (flags :standard -w -27-33-35)
+ (modules util runtime configuration common algorithm readConfig benchprog commonbench)
+ (wrapped false)
+ (libraries unix))
