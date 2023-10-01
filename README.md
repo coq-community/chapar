@@ -69,22 +69,10 @@ make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
 
-## Chapar Key-value Stores
 
-Three key-value stores, verified to be causally consistent in
-the Coq proof assistant and extracted to executable code.
+## Chapar Executable Key-value Stores
 
-
-- Compatible OCaml versions: 4.05.0 or later
-- Additional dependencies:
-  - [OCamlbuild](https://github.com/ocaml/ocamlbuild) 
-  - [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later 
-
-### Building
-To extract the code and compile manually, use the following command:
-```
-make stores
-```
+Three key-value stores, verified to be causally consistent in the Coq proof assistant and extracted to executable code. See [here](coq-chapar-stores.opam) for the requirements to build the stores.
 
 ## Documentation
 

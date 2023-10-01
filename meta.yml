@@ -59,38 +59,6 @@ tested_coq_nix_versions:
 
 namespace: Chapar
 
-extracted:
-  extracted_fullname: Chapar Key-value Stores
-  extracted_shortname: chapar-kv-stores
-
-  extracted_synopsis: Three executable causally consistent distributed key-value stores
-  extracted_description: |
-    Three key-value stores, verified to be causally consistent in
-    the Coq proof assistant and extracted to executable code.
-
-  extracted_make_target: stores
-
-  extracted_supported_ocaml_versions:
-    text: 4.05.0 or later
-    opam: '{>= "4.05.0"}'
-
-  extracted_tested_coq_opam_versions:
-  - version: dev
-
-  extracted_dependencies:
-  - opam:
-      name: ocamlbuild
-      version: '{build}'
-    nix: ocamlbuild
-    description: >-
-      [OCamlbuild](https://github.com/ocaml/ocamlbuild)
-  - opam:
-      name: batteries
-      version: '{>= "2.8.0"}'
-    nix: batteries
-    description: >-
-      [Batteries Included](https://github.com/ocaml-batteries-team/batteries-included) 2.8.0 or later
-
 keywords:
 - name: causal consistency
 - name: key-value stores
@@ -101,6 +69,10 @@ categories:
 - name: Computer Science/Concurrent Systems and Protocols/Theory of concurrent systems
 
 documentation: |
+  ## Chapar Executable Key-value Stores
+
+  Three key-value stores, verified to be causally consistent in the Coq proof assistant and extracted to executable code. See [here](coq-chapar-stores.opam) for the requirements to build the stores.
+  
   ## Documentation
   
   ### Coq Framework
