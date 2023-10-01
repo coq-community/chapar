@@ -1,8 +1,8 @@
 open Printf
 open Unix
 
-open Common
-open Algorithm
+open Utils.Common
+open Utils.Algorithm
 open KVSAlg2
 
 

@@ -1,10 +1,10 @@
 open Printf
-open Util
-open Common
-open Runtime
+open Utils.Util
+open Utils.Common
+open Utils.Runtime
 open Algorithm1
-open ReadConfig
-open Benchprog
+open Utils.ReadConfig
+open Utils.Benchprog
 
 module Alg1RunSys = RuntimeSystem (Algorithm1)
 open Alg1RunSys
