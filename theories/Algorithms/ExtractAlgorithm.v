@@ -1,4 +1,4 @@
-From Coq Require Import Arith NPeano.
+From Coq Require Import Arith.
 (* Require Import PeanoNat. *)
 From Coq Require Import List Ascii String.
 From Coq Require Export ExtrOcamlBasic ExtrOcamlNatInt ExtrOcamlString.
