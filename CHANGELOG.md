@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Build with Coq 8.19 and beyond
+
 ## [8.16.0] - 2023-10-01
 
 ### Changed
